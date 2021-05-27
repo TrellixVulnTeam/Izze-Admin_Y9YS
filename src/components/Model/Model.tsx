@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     width: '40%',
-    borderRadius: 20,
+    borderRadius: 10,
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
@@ -23,7 +23,6 @@ const useStyles = makeStyles((theme) => ({
 
 function Model(props: any) {
   const classes = useStyles();
-  console.log(props);
   return (
     <div>
       <Modal

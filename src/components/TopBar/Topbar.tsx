@@ -20,6 +20,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import Container from '@material-ui/core/Container';
+import firebase from '../../firebase';
 
 const drawerWidth = 255;
 const useStyles = makeStyles((theme) => ({
@@ -70,6 +71,17 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 17,
     fontWeight: 500,
   },
+  logouButton: {
+    backgroundColor: 'white',
+    color: '#41A58D',
+    border: '2px solid #41A58D',
+    width: '50%',
+    textTransform: 'capitalize',
+    '&:hover': {
+      backgroundColor: 'white',
+      color: '#41A58D',
+    },
+  },
 }));
 
 function TopBar(props: any) {
@@ -77,14 +89,24 @@ function TopBar(props: any) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [isExpand, setIsExpand] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const logoutFunction = () => {
-    alert('done');
+    setIsLoading(true);
+    firebase
+      .auth()
+      .signOut()
+      .then(() => {
+        setIsLoading(false);
+        props.history.push('/');
+      })
+      .catch((error: any) => {
+        throw error;
+      });
   };
 
   const expandMore = () => {
     setIsExpand(!isExpand);
-    alert('done');
   };
 
   // console.log(props);
@@ -164,14 +186,18 @@ function TopBar(props: any) {
                   ) : (
                     <div>
                       <Button
-                        style={{
-                          backgroundColor: 'white',
-                          width: '50%',
-                          textTransform: 'capitalize',
-                        }}
+                        className={classes.logouButton}
                         onClick={logoutFunction}
                       >
                         Logout
+                        {isLoading ? (
+                          <i
+                            style={{ fontSize: 15, marginLeft: 20 }}
+                            className='fas fa-spinner fa-pulse'
+                          ></i>
+                        ) : (
+                          ''
+                        )}
                       </Button>
                     </div>
                   )}

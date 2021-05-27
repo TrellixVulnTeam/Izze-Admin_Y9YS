@@ -4,10 +4,11 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
-import { useTheme } from '@material-ui/core/styles';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
+// import { useTheme } from '@material-ui/core/styles';
+// import useMediaQuery from '@material-ui/core/useMediaQuery';
 import firebase from '../../firebase';
 import { makeStyles } from '@material-ui/core/styles';
+import { LoginApi } from '../../Services/Api';
 
 const useStyles = makeStyles((theme) => ({
   loginStyle: {
@@ -76,30 +77,40 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function SignIn() {
+function SignIn(props: any) {
   const classes = useStyles();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  // const theme = useTheme();
+  // const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [userEmail, setUserEmail] = React.useState('');
   const [userPassword, setUserPassowrd] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const loginUser = () => {
+    setIsLoading(true);
     firebase
       .auth()
       .signInWithEmailAndPassword(userEmail, userPassword)
-      .then((response) => {
-        console.log(response);
+      .then((response: any) => {
+        localStorage.setItem('uid', response.user.uid);
+      })
+      .then(() => {
+        LoginApi({}, onSuccessLogin);
       })
       .catch((error) => {
-        console.log('error', error);
+        throw error;
       });
+  };
+
+  const onSuccessLogin = (response: any) => {
+    setIsLoading(false);
+    props.history.push('/dashboard');
   };
 
   return (
     <div>
       <Grid container>
-        <Grid xs={12} md={12} lg={3}></Grid>
-        <Grid xs={12} md={12} lg={6}>
+        <Grid item xs={12} md={12} lg={3}></Grid>
+        <Grid item xs={12} md={12} lg={6}>
           <div className={classes.loginStyle}>
             <div>
               <Typography variant='h5' className={classes.SigninTextStyle}>
@@ -111,7 +122,7 @@ function SignIn() {
                   <TextField
                     className={classes.textfieldStyle}
                     value={userEmail}
-                    onChange={(e) => setUserEmail(e.target.id)}
+                    onChange={(e) => setUserEmail(e.target.value)}
                     label='Enter Email'
                   />
                 </div>
@@ -119,7 +130,7 @@ function SignIn() {
                   <TextField
                     type='password'
                     value={userPassword}
-                    onChange={(e) => setUserPassowrd(e.target.id)}
+                    onChange={(e) => setUserPassowrd(e.target.value)}
                     className={classes.textfieldStyle}
                     label='Enter Password'
                   />
@@ -131,13 +142,21 @@ function SignIn() {
               <div className={classes.buttonStyle}>
                 <Button className={classes.signUpbutton}>SignUp</Button>
                 <Button onClick={loginUser} className={classes.signinButton}>
-                  SignIn
+                  {isLoading ? 'Signing In' : 'Sign In'}
+                  {isLoading ? (
+                    <i
+                      style={{ fontSize: 20, marginLeft: 20 }}
+                      className='fas fa-spinner fa-pulse'
+                    ></i>
+                  ) : (
+                    ''
+                  )}
                 </Button>
               </div>
             </div>
           </div>
         </Grid>
-        <Grid xs={12} md={12} lg={3}></Grid>
+        <Grid item xs={12} md={12} lg={3}></Grid>
       </Grid>
     </div>
   );

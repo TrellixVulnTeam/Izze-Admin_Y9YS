@@ -14,7 +14,7 @@ function Routers() {
           path='/'
           render={(props) => (
             <TopbarComponent {...props}>
-              <LoginPage />
+              <LoginPage {...props} />
             </TopbarComponent>
           )}
         />

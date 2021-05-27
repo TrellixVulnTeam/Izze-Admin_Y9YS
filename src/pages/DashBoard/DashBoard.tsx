@@ -12,7 +12,9 @@ import Modal from '@material-ui/core/Modal';
 import Button from '@material-ui/core/Button';
 import CustomModel from '../../components/Model/Model';
 import Divider from '@material-ui/core/Divider';
+import CloseIcon from '@material-ui/icons/Close';
 import Grid from '@material-ui/core/Grid';
+import Fade from '@material-ui/core/Fade';
 
 const useStyles = makeStyles((theme) => ({
   table: {
@@ -43,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
     width: '40%',
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[5],
-    borderRadius: 20,
+    borderRadius: 10,
     padding: theme.spacing(2, 4, 3),
     outline: 'none',
     [theme.breakpoints.down('md')]: {
@@ -164,65 +166,71 @@ function DashBoard() {
           aria-labelledby='simple-modal-title'
           aria-describedby='simple-modal-description'
         >
-          <div className={classes.paper}>
-            <Typography className={classes.additemsstyle}>
-              {modelTitle === 'Add' ? 'Add Items' : 'Edit Items'}
-            </Typography>
-            <div style={{ paddingTop: 20 }}>
-              <TextField
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-                className={classes.ItemNamestyle}
-                label='Item Name'
+          <Fade in={open}>
+            <div className={classes.paper}>
+              <Typography className={classes.additemsstyle}>
+                {modelTitle === 'Add' ? 'Add Items' : 'Edit Items'}
+              </Typography>
+              <CloseIcon
+                onClick={() => setOpen(!open)}
+                style={{ float: 'right', marginTop: -25, cursor: 'pointer' }}
               />
-            </div>
-            <div className={classes.textfieldStyles}>
-              <TextField
-                value={calories}
-                onChange={(e) => setCalories(e.target.value)}
-                className={classes.materialtextfieldstyle}
-                label='Calories'
-              />
-              <TextField
-                value={fat}
-                onChange={(e) => setFat(e.target.value)}
-                className={classes.materialtextfieldstyle}
-                label='Fat'
-              />
-            </div>
-            <div className={classes.textfieldStyles}>
-              <TextField
-                value={carbs}
-                onChange={(e) => setCarbs(e.target.value)}
-                className={classes.materialtextfieldstyle}
-                label='Carbs'
-              />
-              <TextField
-                value={protein}
-                onChange={(e) => setProteins(e.target.value)}
-                className={classes.materialtextfieldstyle}
-                label='Proteins'
-              />
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                paddingTop: '20px',
-              }}
-            >
-              <Button
-                onClick={
-                  modelTitle === 'Add'
-                    ? () => addAndEditFuntion('Add')
-                    : () => addAndEditFuntion('Edit')
-                }
-                className={classes.addButtonStyle}
+              <div style={{ paddingTop: 20 }}>
+                <TextField
+                  value={itemName}
+                  onChange={(e) => setItemName(e.target.value)}
+                  className={classes.ItemNamestyle}
+                  label='Item Name'
+                />
+              </div>
+              <div className={classes.textfieldStyles}>
+                <TextField
+                  value={calories}
+                  onChange={(e) => setCalories(e.target.value)}
+                  className={classes.materialtextfieldstyle}
+                  label='Calories'
+                />
+                <TextField
+                  value={fat}
+                  onChange={(e) => setFat(e.target.value)}
+                  className={classes.materialtextfieldstyle}
+                  label='Fat'
+                />
+              </div>
+              <div className={classes.textfieldStyles}>
+                <TextField
+                  value={carbs}
+                  onChange={(e) => setCarbs(e.target.value)}
+                  className={classes.materialtextfieldstyle}
+                  label='Carbs'
+                />
+                <TextField
+                  value={protein}
+                  onChange={(e) => setProteins(e.target.value)}
+                  className={classes.materialtextfieldstyle}
+                  label='Proteins'
+                />
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  paddingTop: '20px',
+                }}
               >
-                {modelTitle === 'Add' ? 'Add' : 'Edit'}
-              </Button>
+                <Button
+                  onClick={
+                    modelTitle === 'Add'
+                      ? () => addAndEditFuntion('Add')
+                      : () => addAndEditFuntion('Edit')
+                  }
+                  className={classes.addButtonStyle}
+                >
+                  {modelTitle === 'Add' ? 'Add' : 'Edit'}
+                </Button>
+              </div>
             </div>
-          </div>
+          </Fade>
         </Modal>
       </div>
       <div className={classes.card}>
@@ -290,36 +298,49 @@ function DashBoard() {
           <Typography className={classes.additemsstyle}>
             {modelTitle2 === 'View' ? 'View Item' : 'Delete Item'}
           </Typography>
-          <Grid container>
-            <Grid xs={6}>
-              <Typography className={classes.viewmodelText}>Dessert</Typography>
-              <Typography className={classes.viewmodelText}>
-                Calories
-              </Typography>
-              <Typography className={classes.viewmodelText}>Fat</Typography>
-              <Typography className={classes.viewmodelText}>Carbs</Typography>
-              <Typography className={classes.viewmodelText}>Protein</Typography>
-            </Grid>
-            <Grid xs={6}>
-              <Typography className={classes.viewmodelText}>
-                {viewAndDeleteData.name}
-              </Typography>
-              <Typography className={classes.viewmodelText}>
-                {viewAndDeleteData.Calories}
-              </Typography>
-              <Typography className={classes.viewmodelText}>
-                {viewAndDeleteData.Fat}
-              </Typography>
-              <Typography className={classes.viewmodelText}>
-                {viewAndDeleteData.Carbs}
-              </Typography>
-              <Typography className={classes.viewmodelText}>
-                {viewAndDeleteData.Protein}
-              </Typography>
-            </Grid>
-          </Grid>
-
-          <Divider style={{ marginTop: 30 }} />
+          {modelTitle2 === 'View' ? (
+            <div>
+              <Grid container>
+                <Grid item xs={6}>
+                  <Typography className={classes.viewmodelText}>
+                    Dessert
+                  </Typography>
+                  <Typography className={classes.viewmodelText}>
+                    Calories
+                  </Typography>
+                  <Typography className={classes.viewmodelText}>Fat</Typography>
+                  <Typography className={classes.viewmodelText}>
+                    Carbs
+                  </Typography>
+                  <Typography className={classes.viewmodelText}>
+                    Protein
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography className={classes.viewmodelText}>
+                    {viewAndDeleteData.name}
+                  </Typography>
+                  <Typography className={classes.viewmodelText}>
+                    {viewAndDeleteData.Calories}
+                  </Typography>
+                  <Typography className={classes.viewmodelText}>
+                    {viewAndDeleteData.Fat}
+                  </Typography>
+                  <Typography className={classes.viewmodelText}>
+                    {viewAndDeleteData.Carbs}
+                  </Typography>
+                  <Typography className={classes.viewmodelText}>
+                    {viewAndDeleteData.Protein}
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Divider style={{ marginTop: 30 }} />
+            </div>
+          ) : (
+            <Typography style={{ fontSize: 18, paddingTop: 20 }}>
+              Are you sure want to delete this item ?
+            </Typography>
+          )}
           <div
             style={{
               display: 'flex',
