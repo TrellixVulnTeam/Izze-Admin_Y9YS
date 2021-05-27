@@ -1,0 +1,26 @@
+body {
+  background-color: #f3f3f4;
+}
+.App {
+  text-align: center;
+}
+
+.AccordionStyle .MuiAccordionSummary-root {
+  padding: 0px !important;
+}
+
+.expandmoreIcon {
+  position: absolute !important;
+  right: 0 !important;
+  margin-right: 15px !important;
+}
+
+.expandmoreIconanimation {
+  position: absolute !important;
+  right: 0 !important;
+  margin-right: 15px !important;
+  transform: rotate(180deg);
+}
+.MuiAccordionSummary-root {
+  padding: 0px !important;
+}
