@@ -29,6 +29,9 @@ const useStyles = makeStyles(() => ({
     position: 'fixed',
     width: '17%',
     flex: '0 0 auto',
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
   },
   content: {
     overflowY: 'auto',

@@ -22,6 +22,9 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import CenterFocusStrongIcon from '@material-ui/icons/CenterFocusStrong';
+import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+import CustomuploadButton from '../../components/Buttons/UploadButton';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -48,6 +51,10 @@ const useStyles = makeStyles((theme: any) => ({
     backgroundColor: theme.palette.green.main,
     cursor: 'pointer',
     color: 'white',
+    '&:hover': {
+      backgroundColor: theme.palette.green.main,
+      color: 'white',
+    },
   },
   modal: {
     display: 'flex',
@@ -96,20 +103,89 @@ const useStyles = makeStyles((theme: any) => ({
     fontSize: 15,
     fontWeight: 500,
   },
+  imgpreviewName: {
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%',
+    height: 200,
+    marginTop: 20,
+  },
+  ImageStyle: {
+    maxWidth: '100%',
+    maxHeight: '100%',
+  },
+  textareastyle: {
+    borderRadius: 5,
+    width: '100%',
+    height: '100px !important',
+    paddingLeft: 4,
+    paddingTop: 10,
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    outline: 'none',
+  },
+  uploadButtonStyle: {
+    backgroundColor: 'white',
+    color: theme.palette.green.main,
+    border: `1px solid ${theme.palette.green.main}`,
+  },
 }));
 
 const tableData = [
-  { name: 'Ice-Cream', Calories: 1, Fat: 1, Carbs: 1, Protein: 1 },
-  { name: 'Banana', Calories: 2, Fat: 2, Carbs: 2, Protein: 2 },
-  { name: 'Orange', Calories: 3, Fat: 3, Carbs: 3, Protein: 3 },
-  { name: 'Apple', Calories: 4, Fat: 4, Carbs: 4, Protein: 4 },
-  { name: 'Potato', Calories: 5, Fat: 5, Carbs: 5, Protein: 5 },
-  { name: 'Nuts', Calories: 6, Fat: 6, Carbs: 6, Protein: 6 },
-  { name: 'Peanuts', Calories: 7, Fat: 7, Carbs: 7, Protein: 7 },
-  { name: 'Butter', Calories: 8, Fat: 8, Carbs: 8, Protein: 8 },
-  { name: 'Egg', Calories: 9, Fat: 9, Carbs: 9, Protein: 9 },
-  { name: 'Chicken', Calories: 10, Fat: 10, Carbs: 10, Protein: 10 },
-  { name: 'Mutton', Calories: 11, Fat: 11, Carbs: 11, Protein: 11 },
+  {
+    name: 'Ice-Cream',
+    Calories: 'The API documentation of the Typography',
+    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
+  },
+  {
+    name: 'Banana',
+    Calories: 'The API documentation of the Typography',
+    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
+  },
+  {
+    name: 'Orange',
+    Calories: 'The API documentation of the Typography',
+    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
+  },
+  {
+    name: 'Apple',
+    Calories: 'The API documentation of the Typography',
+    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
+  },
+  {
+    name: 'Potato',
+    Calories: 'The API documentation of the Typography',
+    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
+  },
+  {
+    name: 'Nuts',
+    Calories: 'The API documentation of the Typography',
+    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
+  },
+  {
+    name: 'Peanuts',
+    Calories: 'The API documentation of the Typography',
+    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
+  },
+  {
+    name: 'Butter',
+    Calories: 8,
+    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
+  },
+  {
+    name: 'Egg',
+    Calories: 9,
+    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
+  },
+  {
+    name: 'Chicken',
+    Calories: 10,
+    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
+  },
+  {
+    name: 'Mutton',
+    Calories: 11,
+    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
+  },
 ];
 
 function DashBoard() {
@@ -120,31 +196,25 @@ function DashBoard() {
   const [modelTitle2, setModelTitle2] = React.useState('');
   const [modelTitle, setModelTitle] = React.useState('');
   const [itemName, setItemName] = React.useState('');
-  const [calories, setCalories] = React.useState('');
-  const [fat, setFat] = React.useState('');
-  const [carbs, setCarbs] = React.useState('');
-  const [protein, setProteins] = React.useState('');
+  const [images, setImages] = React.useState<any>('');
+  const [description, setDescription] = React.useState('');
+  const [imageLoading, setImageLoading] = React.useState(true);
 
   const openAddCategoriesModel = (type: any, values: any) => {
     setOpen(!open);
     setModelTitle(type);
     if (values !== 'Add') {
       setItemName(values.name);
-      setCalories(values.Calories);
-      setFat(values.Fat);
-      setCarbs(values.Carbs);
-      setProteins(values.Protein);
     }
+  };
+
+  const imageUpload = () => {
+    alert('done');
   };
 
   const addAndEditFuntion = (type: any) => {
     if (type === 'Add') {
-      setOpen(!open);
-      setItemName('');
-      setCalories('');
-      setFat('');
-      setCarbs('');
-      setProteins('');
+      imageUpload();
     } else {
       setOpen(!open);
     }
@@ -154,6 +224,15 @@ function DashBoard() {
     setViewAndEditModel(!viewAndEditModel);
     setModelTitle2(type);
     setViewAndDeleteData(value);
+  };
+
+  const handleImageUpload = (event: any) => {
+    let reader = new FileReader();
+    let file = event.target.files[0];
+    reader.onloadend = () => {
+      setImages(reader.result);
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -202,40 +281,45 @@ function DashBoard() {
             />
             <div style={{ paddingTop: 20 }}>
               <TextField
+                id='outlined-basic'
+                label='Item Name'
+                variant='outlined'
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
                 className={classes.ItemNamestyle}
-                label='Item Name'
               />
             </div>
-            <div className={classes.textfieldStyles}>
-              <TextField
-                value={calories}
-                onChange={(e) => setCalories(e.target.value)}
-                className={classes.materialtextfieldstyle}
-                label='Calories'
-              />
-              <TextField
-                value={fat}
-                onChange={(e) => setFat(e.target.value)}
-                className={classes.materialtextfieldstyle}
-                label='Fat'
+            <div style={{ paddingTop: 20 }}>
+              <TextareaAutosize
+                className={classes.textareastyle}
+                rowsMin={3}
+                placeholder='Description'
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
             </div>
-            <div className={classes.textfieldStyles}>
-              <TextField
-                value={carbs}
-                onChange={(e) => setCarbs(e.target.value)}
-                className={classes.materialtextfieldstyle}
-                label='Carbs'
-              />
-              <TextField
-                value={protein}
-                onChange={(e) => setProteins(e.target.value)}
-                className={classes.materialtextfieldstyle}
-                label='Proteins'
+            <div>
+              <CustomuploadButton
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  paddingTop: 20,
+                }}
+                onChange={handleImageUpload}
               />
             </div>
+            {images === '' ? (
+              ''
+            ) : (
+              <div className={classes.imgpreviewName}>
+                <img
+                  src={images}
+                  alt={'Uploading Images'}
+                  className={classes.ImageStyle}
+                />
+              </div>
+            )}
+
             <div
               style={{
                 display: 'flex',
@@ -262,11 +346,9 @@ function DashBoard() {
           <Table className={classes.table} aria-label='simple table'>
             <TableHead>
               <TableRow>
-                <TableCell>Dessert (100g serving)</TableCell>
-                <TableCell align='center'>Calories</TableCell>
-                <TableCell align='center'>Fat</TableCell>
-                <TableCell align='center'>Carbs</TableCell>
-                <TableCell align='center'>Protein</TableCell>
+                <TableCell>Ingredients Name</TableCell>
+                <TableCell align='center'>Image</TableCell>
+                <TableCell align='center'>Discription</TableCell>
                 <TableCell align='center'>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -277,10 +359,12 @@ function DashBoard() {
                     <TableCell component='th' scope='row'>
                       {value.name}
                     </TableCell>
-                    <TableCell align='center'>{value.Calories}</TableCell>
-                    <TableCell align='center'>{value.Fat}</TableCell>
-                    <TableCell align='center'>{value.Carbs}</TableCell>
-                    <TableCell align='center'>{value.Protein}</TableCell>
+                    <TableCell align='center'>
+                      <Typography>{value.Calories}</Typography>
+                    </TableCell>
+                    <TableCell align='center'>
+                      <Typography>{value.Fat}</Typography>
+                    </TableCell>
                     <TableCell align='center'>
                       <div
                         style={{
@@ -327,7 +411,7 @@ function DashBoard() {
           </Table>
         </TableContainer>
       </div>
-      <CustomModel
+      {/* <CustomModel
         open={viewAndEditModel}
         onCancel={() => setViewAndEditModel(false)}
       >
@@ -414,7 +498,7 @@ function DashBoard() {
             )}
           </div>
         </div>
-      </CustomModel>
+      </CustomModel> */}
     </div>
   );
 }

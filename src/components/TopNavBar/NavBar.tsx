@@ -12,7 +12,6 @@ import {
   Toolbar,
 } from '@material-ui/core';
 import { Hidden } from '@material-ui/core';
-
 import Navigation from './Navigation';
 import NavigationConfig from './NavigationConfig';
 

@@ -1,31 +1,20 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
-
+import firebase from '../../firebase';
 import { makeStyles } from '@material-ui/styles';
 import {
   AppBar,
-  Badge,
   Button,
   IconButton,
   Toolbar,
   Hidden,
-  Input,
   colors,
-  Popper,
-  Paper,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  ClickAwayListener,
 } from '@material-ui/core';
-import LockIcon from '@material-ui/icons/LockOutlined';
-import NotificationsIcon from '@material-ui/icons/NotificationsOutlined';
 import InputIcon from '@material-ui/icons/Input';
 import MenuIcon from '@material-ui/icons/Menu';
-import SearchIcon from '@material-ui/icons/Search';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -81,16 +70,19 @@ const useStyles = makeStyles((theme: any) => ({
   },
   logoutButton: {
     marginLeft: theme.spacing(1),
+    textTransform: 'capitalize',
   },
   logoutIcon: {
+    fontSize: 20,
     marginRight: theme.spacing(1),
   },
 }));
 
 const TopBar = (props: any) => {
-  const { onOpenNavBarMobile, className, ...rest } = props;
-
   const classes = useStyles();
+  const navigate = useNavigate();
+  const { onOpenNavBarMobile, className, ...rest } = props;
+  const [isLoading, setIsLoading] = React.useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -100,9 +92,21 @@ const TopBar = (props: any) => {
   }, []);
 
   const handleLogout = () => {
-    // history.push('/auth/login');
-    // dispatch(logout());
+    setIsLoading(true);
+    firebase
+      .auth()
+      .signOut()
+      .then(() => {
+        setIsLoading(false);
+        localStorage.clear();
+        navigate('/login');
+      })
+      .catch((error: any) => {
+        throw error;
+      });
   };
+
+  console.log(navigate);
 
   return (
     <AppBar {...rest} className={clsx(classes.root, className)}>
@@ -118,8 +122,16 @@ const TopBar = (props: any) => {
             color='inherit'
             onClick={handleLogout}
           >
-            <InputIcon className={classes.logoutIcon} />
-            Sign out
+            {isLoading ? '' : <InputIcon className={classes.logoutIcon} />}
+            {isLoading ? 'Signing-out' : 'Sign-out'}
+            {isLoading ? (
+              <i
+                style={{ fontSize: 15, marginLeft: 20 }}
+                className='fas fa-spinner fa-pulse'
+              ></i>
+            ) : (
+              ''
+            )}
           </Button>
         </Hidden>
         <Hidden lgUp>

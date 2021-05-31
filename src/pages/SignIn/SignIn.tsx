@@ -141,8 +141,8 @@ function SignIn(props: any) {
   };
 
   const onSuccessLogin = (response: any) => {
-    setIsLoading(false);
     navigate(IngredientsRoute);
+    setIsLoading(false);
   };
 
   const handleKeyPress = (e: any) => {
