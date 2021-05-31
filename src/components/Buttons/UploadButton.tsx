@@ -40,7 +40,7 @@ function UploadButton(props: any) {
               style={{ paddingRight: '10px' }}
               className='fas fa-cloud-upload-alt'
             ></i>
-            Upload Item
+            {props.ButtonName}
           </Button>
         </label>
       </div>

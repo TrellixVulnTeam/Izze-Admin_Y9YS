@@ -2,6 +2,7 @@ import 'firebase/analytics';
 import firebase from 'firebase/app';
 import 'firebase/messaging';
 import 'firebase/performance';
+import 'firebase/firestore';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -40,4 +41,3 @@ const FirebaseApp: FirebaseAppProps = {
 };
 
 export default FirebaseApp;
-

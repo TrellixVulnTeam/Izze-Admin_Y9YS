@@ -4,7 +4,7 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
-import firebase from '../../firebase';
+import firebase from 'firebase/app';
 import { makeStyles } from '@material-ui/core/styles';
 import { LoginApi } from '../../Services/Api';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ import * as Yup from 'yup';
 import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { DashboardRoute, IngredientsRoute } from '../../Routes/RoutesConstants';
+import 'firebase/auth';
 
 const useStyles = makeStyles((theme) => ({
   loginStyle: {
@@ -114,11 +115,12 @@ function SignIn(props: any) {
   const [invalidUserEmail, setInvalidUserEmail] = React.useState(false);
   const [invalidUserPassword, setInvalidUserPassword] = React.useState(false);
 
-  const loginUser = (userEmail: any, userPassword: any) => {
+  const loginUser = (value: any) => {
+    setLoginCredentials(value);
     setIsLoading(true);
     firebase
       .auth()
-      .signInWithEmailAndPassword(userEmail, userPassword)
+      .signInWithEmailAndPassword(value.userEmail, value.userPassword)
       .then((response: any) => {
         localStorage.setItem('uid', response.user.uid);
       })
@@ -145,11 +147,11 @@ function SignIn(props: any) {
     setIsLoading(false);
   };
 
-  const handleKeyPress = (e: any) => {
-    if (e.key === 'Enter') {
-      loginUser(loginCredentials.userEmail, loginCredentials.userPassword);
-    }
-  };
+  // const handleKeyPress = (e: any) => {
+  //   if (e.key === 'Enter') {
+  //     loginUser(loginCredentials.userEmail, loginCredentials.userPassword);
+  //   }
+  // };
   return (
     <div>
       <Grid container>
@@ -165,10 +167,7 @@ function SignIn(props: any) {
                 <Formik
                   validationSchema={validationSchema}
                   initialValues={{ userEmail: '', userPassword: '' }}
-                  onSubmit={(value: any) => {
-                    setLoginCredentials(value);
-                    loginUser(value.userEmail, value.userPassword);
-                  }}
+                  onSubmit={loginUser}
                 >
                   {(props) => {
                     const {
@@ -187,7 +186,7 @@ function SignIn(props: any) {
                             value={values.userEmail}
                             onChange={handleChange('userEmail')}
                             label='Enter Email'
-                            onKeyPress={handleKeyPress}
+                            // onKeyPress={handleKeyPress}
                           />
                           <div>
                             <Typography className={classes.errors}>

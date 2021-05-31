@@ -11,7 +11,6 @@ import TextField from '@material-ui/core/TextField';
 import Modal from '@material-ui/core/Modal';
 import Button from '@material-ui/core/Button';
 import CustomModel from '../../components/Model/Model';
-import Divider from '@material-ui/core/Divider';
 import CloseIcon from '@material-ui/icons/Close';
 import Grid from '@material-ui/core/Grid';
 import Fade from '@material-ui/core/Fade';
@@ -19,12 +18,19 @@ import AddIcon from '@material-ui/icons/Add';
 import Page from '../../components/Page/Page';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
-import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import CenterFocusStrongIcon from '@material-ui/icons/CenterFocusStrong';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CustomuploadButton from '../../components/Buttons/UploadButton';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Tooltip from '@material-ui/core/Tooltip';
+import {
+  AddIngredientsApi,
+  ListIngredientsApi,
+  DeleteIngredientsApi,
+} from '../../Services/IngredientsAPI/Index';
+import firebase from 'firebase';
+import 'firebase/firestore';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -123,6 +129,7 @@ const useStyles = makeStyles((theme: any) => ({
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     outline: 'none',
   },
+
   uploadButtonStyle: {
     backgroundColor: 'white',
     color: theme.palette.green.main,
@@ -130,67 +137,10 @@ const useStyles = makeStyles((theme: any) => ({
   },
 }));
 
-const tableData = [
-  {
-    name: 'Ice-Cream',
-    Calories: 'The API documentation of the Typography',
-    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
-  },
-  {
-    name: 'Banana',
-    Calories: 'The API documentation of the Typography',
-    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
-  },
-  {
-    name: 'Orange',
-    Calories: 'The API documentation of the Typography',
-    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
-  },
-  {
-    name: 'Apple',
-    Calories: 'The API documentation of the Typography',
-    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
-  },
-  {
-    name: 'Potato',
-    Calories: 'The API documentation of the Typography',
-    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
-  },
-  {
-    name: 'Nuts',
-    Calories: 'The API documentation of the Typography',
-    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
-  },
-  {
-    name: 'Peanuts',
-    Calories: 'The API documentation of the Typography',
-    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
-  },
-  {
-    name: 'Butter',
-    Calories: 8,
-    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
-  },
-  {
-    name: 'Egg',
-    Calories: 9,
-    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
-  },
-  {
-    name: 'Chicken',
-    Calories: 10,
-    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
-  },
-  {
-    name: 'Mutton',
-    Calories: 11,
-    Fat: 'The API documentation of the Typography React component. Learn more about the props and the CSS customization points.',
-  },
-];
-
 function DashBoard() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [viewAndEditModel, setViewAndEditModel] = React.useState(false);
   const [viewAndDeleteData, setViewAndDeleteData] = React.useState<any>('');
   const [modelTitle2, setModelTitle2] = React.useState('');
@@ -198,22 +148,60 @@ function DashBoard() {
   const [itemName, setItemName] = React.useState('');
   const [images, setImages] = React.useState<any>('');
   const [description, setDescription] = React.useState('');
-  const [imageLoading, setImageLoading] = React.useState(true);
+  const [getFiles, setGetFiles] = React.useState<any>('');
+  const [ingredientsData, setIngredientsData] = React.useState<any>('');
 
   const openAddCategoriesModel = (type: any, values: any) => {
     setOpen(!open);
     setModelTitle(type);
     if (values !== 'Add') {
       setItemName(values.name);
+      setDescription(values.description);
+      setImages(values.image);
     }
   };
 
-  const imageUpload = () => {
-    alert('done');
+  const imageUpload = async () => {
+    return new Promise((resolve, reject) => {
+      const storage = firebase.storage();
+      storage
+        .ref(`images/${getFiles.name}`)
+        .put(getFiles)
+        .then(async (imageResult) => {
+          const download_url = await storage
+            .ref(`images/${getFiles.name}`)
+            .getDownloadURL();
+          resolve(download_url);
+          // setGetFirebaseUrl(download_url)
+          let addIngredients = {
+            name: itemName,
+            image: download_url,
+            description: description,
+          };
+          console.log(addIngredients);
+          const storeIngredientsData = await AddIngredientsApi(
+            addIngredients,
+            onSuccessAddedIngredient
+          );
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  };
+
+  const onSuccessAddedIngredient = () => {
+    setOpen(!open);
+    setIsLoading(false);
+    setImages('');
+    setDescription('');
+    setItemName('');
+    ingredientsList();
   };
 
   const addAndEditFuntion = (type: any) => {
     if (type === 'Add') {
+      setIsLoading(true);
       imageUpload();
     } else {
       setOpen(!open);
@@ -233,6 +221,42 @@ function DashBoard() {
       setImages(reader.result);
     };
     reader.readAsDataURL(file);
+    setGetFiles(file);
+  };
+
+  const handleModelClose = () => {
+    setOpen(!open);
+    setImages('');
+    setDescription('');
+    setGetFiles('');
+  };
+
+  const ingredientsList = () => {
+    let getList = {
+      page_no: 1,
+      page_limit: 10,
+    };
+    ListIngredientsApi(getList, onSuccessIngredientList);
+  };
+
+  const onSuccessIngredientList = (response: any) => {
+    setIngredientsData(response.data);
+  };
+
+  React.useEffect(() => {
+    ingredientsList();
+  }, []);
+
+  const confirmDeleteIngredients = () => {
+    let deleteId = {
+      id: viewAndDeleteData._id,
+    };
+    DeleteIngredientsApi(deleteId, onSuccessDeletIngredients);
+  };
+
+  const onSuccessDeletIngredients = () => {
+    setViewAndEditModel(false);
+    ingredientsList();
   };
 
   return (
@@ -265,7 +289,7 @@ function DashBoard() {
 
       <Modal
         open={open}
-        onClose={() => setOpen(!open)}
+        onClose={handleModelClose}
         className={classes.modal}
         aria-labelledby='simple-modal-title'
         aria-describedby='simple-modal-description'
@@ -276,7 +300,12 @@ function DashBoard() {
               {modelTitle === 'Add' ? 'Add Items' : 'Edit Items'}
             </Typography>
             <CloseIcon
-              onClick={() => setOpen(!open)}
+              onClick={() => {
+                setOpen(!open);
+                setImages('');
+                setDescription('');
+                setItemName('');
+              }}
               style={{ float: 'right', marginTop: -25, cursor: 'pointer' }}
             />
             <div style={{ paddingTop: 20 }}>
@@ -305,6 +334,7 @@ function DashBoard() {
                   justifyContent: 'center',
                   paddingTop: 20,
                 }}
+                ButtonName={'Upload image'}
                 onChange={handleImageUpload}
               />
             </div>
@@ -328,6 +358,18 @@ function DashBoard() {
               }}
             >
               <Button
+                style={{ marginRight: 20, width: '20%' }}
+                className={classes.uploadButtonStyle}
+                onClick={() => {
+                  setOpen(!open);
+                  setImages('');
+                  setDescription('');
+                  setItemName('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
                 onClick={
                   modelTitle === 'Add'
                     ? () => addAndEditFuntion('Add')
@@ -335,7 +377,15 @@ function DashBoard() {
                 }
                 className={classes.addButtonStyle}
               >
-                {modelTitle === 'Add' ? 'Add' : 'Edit'}
+                {modelTitle === 'Add' ? (isLoading ? 'Adding' : 'Add') : 'Edit'}
+                {isLoading ? (
+                  <i
+                    style={{ fontSize: 15, marginLeft: 20 }}
+                    className='fas fa-spinner fa-pulse'
+                  ></i>
+                ) : (
+                  ''
+                )}
               </Button>
             </div>
           </div>
@@ -353,65 +403,78 @@ function DashBoard() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {tableData.map((value, index) => {
-                return (
-                  <TableRow hover style={{ cursor: 'pointer' }} key={index}>
-                    <TableCell component='th' scope='row'>
-                      {value.name}
-                    </TableCell>
-                    <TableCell align='center'>
-                      <Typography>{value.Calories}</Typography>
-                    </TableCell>
-                    <TableCell align='center'>
-                      <Typography>{value.Fat}</Typography>
-                    </TableCell>
-                    <TableCell align='center'>
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-evenly',
-                        }}
-                      >
-                        <Tooltip title='View' arrow>
-                          <IconButton style={{ padding: 5 }}>
-                            <CenterFocusStrongIcon
-                              style={{ color: '#41A58D' }}
-                              onClick={() =>
-                                viewAndDeleteModelOpen('View', value)
-                              }
-                            />
-                          </IconButton>
+              {ingredientsData &&
+                ingredientsData.map((value: any, index: any) => {
+                  return (
+                    <TableRow hover style={{ cursor: 'pointer' }} key={index}>
+                      <TableCell component='th' scope='row'>
+                        {value.name}
+                      </TableCell>
+                      <TableCell align='center'>
+                        <Tooltip title={value.image} aria-label='add'>
+                          <Typography>
+                            {value.image.length >= 25
+                              ? `${value.image.substring(0, 40)}...`
+                              : value.image}
+                          </Typography>
                         </Tooltip>
-                        <Tooltip title='Edit' arrow>
-                          <IconButton style={{ padding: 5 }}>
-                            <EditIcon
-                              style={{ color: '#41A58D' }}
-                              onClick={() =>
-                                openAddCategoriesModel('Edit', value)
-                              }
-                            />
-                          </IconButton>
+                      </TableCell>
+                      <TableCell align='center'>
+                        <Tooltip title={value.description} aria-label='add'>
+                          <Typography>
+                            {value.description.length >= 25
+                              ? `${value.description.substring(0, 40)}...`
+                              : value.description}
+                          </Typography>
                         </Tooltip>
-                        <Tooltip title='Delete' arrow>
-                          <IconButton style={{ padding: 5 }}>
-                            <DeleteIcon
-                              style={{ color: '#41A58D' }}
-                              onClick={() =>
-                                viewAndDeleteModelOpen('Delete', value)
-                              }
-                            />
-                          </IconButton>
-                        </Tooltip>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                      </TableCell>
+                      <TableCell align='center'>
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-evenly',
+                          }}
+                        >
+                          <Tooltip title='View' arrow>
+                            <IconButton style={{ padding: 5 }}>
+                              <CenterFocusStrongIcon
+                                style={{ color: '#41A58D' }}
+                                onClick={() =>
+                                  viewAndDeleteModelOpen('View', value)
+                                }
+                              />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title='Edit' arrow>
+                            <IconButton style={{ padding: 5 }}>
+                              <EditIcon
+                                style={{ color: '#41A58D' }}
+                                onClick={() =>
+                                  openAddCategoriesModel('Edit', value)
+                                }
+                              />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title='Delete' arrow>
+                            <IconButton style={{ padding: 5 }}>
+                              <DeleteIcon
+                                style={{ color: '#41A58D' }}
+                                onClick={() =>
+                                  viewAndDeleteModelOpen('Delete', value)
+                                }
+                              />
+                            </IconButton>
+                          </Tooltip>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
             </TableBody>
           </Table>
         </TableContainer>
       </div>
-      {/* <CustomModel
+      <CustomModel
         open={viewAndEditModel}
         onCancel={() => setViewAndEditModel(false)}
       >
@@ -421,41 +484,19 @@ function DashBoard() {
           </Typography>
           {modelTitle2 === 'View' ? (
             <div>
-              <Grid container>
-                <Grid item xs={6}>
-                  <Typography className={classes.viewmodelText}>
-                    Dessert
-                  </Typography>
-                  <Typography className={classes.viewmodelText}>
-                    Calories
-                  </Typography>
-                  <Typography className={classes.viewmodelText}>Fat</Typography>
-                  <Typography className={classes.viewmodelText}>
-                    Carbs
-                  </Typography>
-                  <Typography className={classes.viewmodelText}>
-                    Protein
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography className={classes.viewmodelText}>
-                    {viewAndDeleteData.name}
-                  </Typography>
-                  <Typography className={classes.viewmodelText}>
-                    {viewAndDeleteData.Calories}
-                  </Typography>
-                  <Typography className={classes.viewmodelText}>
-                    {viewAndDeleteData.Fat}
-                  </Typography>
-                  <Typography className={classes.viewmodelText}>
-                    {viewAndDeleteData.Carbs}
-                  </Typography>
-                  <Typography className={classes.viewmodelText}>
-                    {viewAndDeleteData.Protein}
-                  </Typography>
-                </Grid>
-              </Grid>
-              <Divider style={{ marginTop: 30 }} />
+              <Typography className={classes.viewmodelText}>
+                {viewAndDeleteData.name}
+              </Typography>
+              <Typography className={classes.viewmodelText}>
+                {viewAndDeleteData.description}
+              </Typography>
+              <div className={classes.imgpreviewName}>
+                <img
+                  src={viewAndDeleteData.image}
+                  alt={'Uploading Images'}
+                  className={classes.ImageStyle}
+                />
+              </div>
             </div>
           ) : (
             <Typography style={{ fontSize: 18, paddingTop: 20 }}>
@@ -470,7 +511,12 @@ function DashBoard() {
             }}
           >
             {modelTitle2 === 'View' ? (
-              <Button className={classes.addButtonStyle}>Ok</Button>
+              <Button
+                onClick={() => setViewAndEditModel(false)}
+                className={classes.addButtonStyle}
+              >
+                Ok
+              </Button>
             ) : (
               <div>
                 <Button
@@ -481,6 +527,7 @@ function DashBoard() {
                     textTransform: 'capitalize',
                     marginRight: 40,
                   }}
+                  onClick={() => setViewAndEditModel(false)}
                 >
                   No
                 </Button>
@@ -491,6 +538,7 @@ function DashBoard() {
                     border: '2px solid #41A58D',
                     textTransform: 'capitalize',
                   }}
+                  onClick={confirmDeleteIngredients}
                 >
                   Yes
                 </Button>
@@ -498,7 +546,7 @@ function DashBoard() {
             )}
           </div>
         </div>
-      </CustomModel> */}
+      </CustomModel>
     </div>
   );
 }

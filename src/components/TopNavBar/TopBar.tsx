@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
-import firebase from '../../firebase';
+import firebase from 'firebase/app';
 import { makeStyles } from '@material-ui/styles';
 import {
   AppBar,
@@ -105,8 +105,6 @@ const TopBar = (props: any) => {
         throw error;
       });
   };
-
-  console.log(navigate);
 
   return (
     <AppBar {...rest} className={clsx(classes.root, className)}>
