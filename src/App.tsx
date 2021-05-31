@@ -1,11 +1,27 @@
 import './App.css';
-import Routers from './routes/Routers';
+import React, { Suspense } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import Routers from './Routes/index';
+import ErrorBoundary from "./components/ErrorBoundary";
+import theme from './theme';
+import { ThemeProvider } from '@material-ui/core';
 
 function App() {
   return (
-    <div className='App'>
-      <Routers />
-    </div>
+    <ErrorBoundary>
+      <ThemeProvider theme={theme}>
+      {/* <MuiThemeProvider theme={THEME}>
+        <SnackbarContextProvider> */}
+      <Router>
+        <Suspense fallback={<div>Loading</div>}>
+          <Routers />
+        </Suspense>
+
+      </Router>
+      {/* </SnackbarContextProvider>
+      </MuiThemeProvider> */}
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 
