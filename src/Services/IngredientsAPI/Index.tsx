@@ -29,3 +29,13 @@ export const DeleteIngredientsApi = (data: any, callback: any) => {
       throw error;
     });
 };
+
+export const EditIngredientsApi = (data: any, callback: any) => {
+  return CommonApi('Post', '/app/editIngredient', data)
+    .then((response: any) => {
+      callback(response.data);
+    })
+    .catch((error: any) => {
+      throw error;
+    });
+};

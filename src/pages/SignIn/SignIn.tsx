@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
@@ -14,6 +14,15 @@ import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { DashboardRoute, IngredientsRoute } from '../../Routes/RoutesConstants';
 import 'firebase/auth';
+import {
+  AuthStateChange,
+  signInWithCredenrials,
+} from '../../utils/firebaseUtils';
+import useSnackbar from '../../hook/useSnackbar';
+import { PostApi } from '../../utils/ApiService';
+import useService from '../../hook/useService';
+import { useStore } from '../../Mobx/Helpers/UseStore';
+import Loader from '../../components/Loader/Loader';
 
 const useStyles = makeStyles((theme) => ({
   loginStyle: {
@@ -109,8 +118,12 @@ function SignIn(props: any) {
   const classes = useStyles();
   const navigate = useNavigate();
   const theme = useTheme();
+  const Snackbar = useSnackbar();
+  const { Post } = useService();
+  const { UserStore } = useStore();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [isLoading, setIsLoading] = React.useState(false);
+  const [authLoading, setAuthLoading] = React.useState(true);
   const [loginCredentials, setLoginCredentials] = React.useState<any>('');
   const [invalidUserEmail, setInvalidUserEmail] = React.useState(false);
   const [invalidUserPassword, setInvalidUserPassword] = React.useState(false);
@@ -118,34 +131,32 @@ function SignIn(props: any) {
   const loginUser = (value: any) => {
     setLoginCredentials(value);
     setIsLoading(true);
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(value.userEmail, value.userPassword)
+    signInWithCredenrials(value.userEmail, value.userPassword)
       .then((response: any) => {
-        localStorage.setItem('uid', response.user.uid);
-      })
-      .then(() => {
         setIsLoading(false);
-        LoginApi({}, onSuccessLogin);
+        localStorage.setItem('uid', response.user.uid);
+        UserStore.setIdToken(response.user.uid);
       })
       .catch((error: any) => {
+        console.log('Firebase Login Error', error);
+        Snackbar.show(error.message, 'error');
         setIsLoading(false);
-        if (error.code === 'auth/user-not-found') {
-          setInvalidUserEmail(true);
-        } else if (error.code === 'auth/wrong-password') {
-          setInvalidUserEmail(false);
-          setInvalidUserPassword(true);
-        } else {
-          setInvalidUserPassword(false);
-        }
-        throw error.message;
       });
   };
 
-  const onSuccessLogin = (response: any) => {
-    navigate(IngredientsRoute);
-    setIsLoading(false);
+  const authStateChanged = (user: any) => {
+    if (user) {
+      navigate(IngredientsRoute);
+      setAuthLoading(true);
+    } else {
+      setAuthLoading(false);
+    }
   };
+
+  useEffect(() => {
+    const unsubscribe = AuthStateChange(authStateChanged);
+    return () => unsubscribe();
+  }, []);
 
   // const handleKeyPress = (e: any) => {
   //   if (e.key === 'Enter') {
@@ -153,7 +164,7 @@ function SignIn(props: any) {
   //   }
   // };
   return (
-    <div>
+    <AuthLoader loading={authLoading}>
       <Grid container>
         <Grid item xs={12} md={12} lg={3}></Grid>
         <Grid item xs={12} md={12} lg={6}>
@@ -247,8 +258,18 @@ function SignIn(props: any) {
         </Grid>
         <Grid item xs={12} md={12} lg={3}></Grid>
       </Grid>
-    </div>
+    </AuthLoader>
   );
 }
+
+const AuthLoader = ({ loading, children }: any) => {
+  const [aLoading, setALoading] = useState(loading);
+
+  useEffect(() => {
+    setALoading(loading);
+  }, [loading]);
+
+  return <>{aLoading ? <Loader /> : children}</>;
+};
 
 export default SignIn;

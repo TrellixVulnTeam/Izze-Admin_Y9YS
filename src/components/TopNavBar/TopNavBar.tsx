@@ -5,6 +5,7 @@ import TopBar from './TopBar';
 import NavBar from './NavBar';
 import Grid from '@material-ui/core/Grid';
 import Toolbar from '@material-ui/core/Toolbar';
+import Loader from '../Loader/Loader';
 
 // import { NavBar, TopBar, ChatBar } from './components';
 
@@ -70,7 +71,7 @@ const TopNavBar = (props: any) => {
           </Grid>
           <Grid item xs={12} lg={10}>
             <main className={classes.content}>
-              <Suspense fallback={<div>Loading</div>}>
+              <Suspense fallback={<Loader />}>
                 <Toolbar />
                 <Outlet />
               </Suspense>

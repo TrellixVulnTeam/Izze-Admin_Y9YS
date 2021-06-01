@@ -1,34 +1,26 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
 import { Typography } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
 import Modal from '@material-ui/core/Modal';
 import Button from '@material-ui/core/Button';
 import CustomModel from '../../components/Model/Model';
 import CloseIcon from '@material-ui/icons/Close';
-import Grid from '@material-ui/core/Grid';
+import CancelIcon from '@material-ui/icons/Cancel';
 import Fade from '@material-ui/core/Fade';
 import AddIcon from '@material-ui/icons/Add';
 import Page from '../../components/Page/Page';
-import EditIcon from '@material-ui/icons/Edit';
-import DeleteIcon from '@material-ui/icons/Delete';
-import IconButton from '@material-ui/core/IconButton';
-import CenterFocusStrongIcon from '@material-ui/icons/CenterFocusStrong';
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 import CustomuploadButton from '../../components/Buttons/UploadButton';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Tooltip from '@material-ui/core/Tooltip';
+import CustomTable from '../../components/CustomTable/CustomTable';
 import {
   AddIngredientsApi,
   ListIngredientsApi,
   DeleteIngredientsApi,
+  EditIngredientsApi,
 } from '../../Services/IngredientsAPI/Index';
+import Skeleton from '@material-ui/lab/Skeleton';
 import firebase from 'firebase';
 import 'firebase/firestore';
 
@@ -44,14 +36,8 @@ const useStyles = makeStyles((theme: any) => ({
   },
   header: {
     marginBottom: theme.spacing(3),
-  },
-  table: {
-    width: '100%',
-    margin: 'auto',
-  },
-  card: {
-    backgroundColor: 'white',
-    margin: 'auto',
+    display: 'flex',
+    justifyContent: 'space-between',
   },
   addcategoriesStyle: {
     backgroundColor: theme.palette.green.main,
@@ -109,6 +95,13 @@ const useStyles = makeStyles((theme: any) => ({
     fontSize: 15,
     fontWeight: 500,
   },
+  viewmodelTextName: {
+    textAlign: 'start',
+    marginTop: 20,
+    fontSize: 20,
+    fontWeight: 500,
+    color: theme.palette.green.main,
+  },
   imgpreviewName: {
     display: 'flex',
     justifyContent: 'center',
@@ -135,12 +128,24 @@ const useStyles = makeStyles((theme: any) => ({
     color: theme.palette.green.main,
     border: `1px solid ${theme.palette.green.main}`,
   },
+  SearchStyle: {
+    width: '50%',
+  },
+  DeleteIcon: {
+    position: 'absolute',
+    marginLeft: '36%',
+    marginTop: '-1%',
+    opacity: 0.6,
+    cursor: 'pointer',
+  },
 }));
 
 function DashBoard() {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [contentLoading, setContentLoading] = React.useState(true);
+  const [modelIsLoading, setModelIsLoading] = React.useState(false);
   const [viewAndEditModel, setViewAndEditModel] = React.useState(false);
   const [viewAndDeleteData, setViewAndDeleteData] = React.useState<any>('');
   const [modelTitle2, setModelTitle2] = React.useState('');
@@ -150,14 +155,22 @@ function DashBoard() {
   const [description, setDescription] = React.useState('');
   const [getFiles, setGetFiles] = React.useState<any>('');
   const [ingredientsData, setIngredientsData] = React.useState<any>('');
+  const [ingredientsId, setIngredientsId] = React.useState('');
+  const [pageValue, setPageValue] = React.useState(1);
+  const [pageCount, setPageCount] = React.useState('');
 
   const openAddCategoriesModel = (type: any, values: any) => {
     setOpen(!open);
     setModelTitle(type);
     if (values !== 'Add') {
+      setIngredientsId(values._id);
       setItemName(values.name);
       setDescription(values.description);
       setImages(values.image);
+      setModelIsLoading(true);
+      setTimeout(() => {
+        setModelIsLoading(false);
+      }, 3000);
     }
   };
 
@@ -172,13 +185,11 @@ function DashBoard() {
             .ref(`images/${getFiles.name}`)
             .getDownloadURL();
           resolve(download_url);
-          // setGetFirebaseUrl(download_url)
           let addIngredients = {
             name: itemName,
             image: download_url,
             description: description,
           };
-          console.log(addIngredients);
           const storeIngredientsData = await AddIngredientsApi(
             addIngredients,
             onSuccessAddedIngredient
@@ -191,6 +202,7 @@ function DashBoard() {
   };
 
   const onSuccessAddedIngredient = () => {
+    setContentLoading(true);
     setOpen(!open);
     setIsLoading(false);
     setImages('');
@@ -204,14 +216,38 @@ function DashBoard() {
       setIsLoading(true);
       imageUpload();
     } else {
-      setOpen(!open);
+      editIngredients();
     }
+  };
+
+  const editIngredients = async () => {
+    let editIngredientsData = {
+      id: ingredientsId,
+      name: itemName,
+      image: images,
+      description: description,
+    };
+    let editDatas = await EditIngredientsApi(
+      editIngredientsData,
+      onSuccessEditedIntegration
+    );
+    return editDatas;
+  };
+
+  const onSuccessEditedIntegration = () => {
+    setContentLoading(true);
+    setOpen(!open);
+    ingredientsList();
   };
 
   const viewAndDeleteModelOpen = (type: any, value: any) => {
     setViewAndEditModel(!viewAndEditModel);
     setModelTitle2(type);
     setViewAndDeleteData(value);
+    setModelIsLoading(true);
+    setTimeout(() => {
+      setModelIsLoading(false);
+    }, 3000);
   };
 
   const handleImageUpload = (event: any) => {
@@ -231,21 +267,24 @@ function DashBoard() {
     setGetFiles('');
   };
 
-  const ingredientsList = () => {
+  const ingredientsList = async () => {
     let getList = {
-      page_no: 1,
+      page_no: pageValue,
       page_limit: 10,
     };
+    console.log(getList);
     ListIngredientsApi(getList, onSuccessIngredientList);
   };
 
   const onSuccessIngredientList = (response: any) => {
     setIngredientsData(response.data);
+    setPageCount(response.page_count);
+    setContentLoading(false);
   };
 
   React.useEffect(() => {
     ingredientsList();
-  }, []);
+  }, [pageValue]);
 
   const confirmDeleteIngredients = () => {
     let deleteId = {
@@ -255,26 +294,36 @@ function DashBoard() {
   };
 
   const onSuccessDeletIngredients = () => {
+    setContentLoading(true);
     setViewAndEditModel(false);
+    ingredientsList();
+  };
+
+  const handlePageChange = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setContentLoading(true);
+    setPageValue(value);
     ingredientsList();
   };
 
   return (
     <div className={classes.root}>
       <Page title='Projects List' />
-      <div className={classes.header}>
-        <Grid
-          alignItems='flex-end'
-          container
-          justify='space-between'
-          spacing={3}
-        >
-          <Grid item>
-            <Typography component='h1' variant='h3'>
-              See the latest opportunities
-            </Typography>
-          </Grid>
-          <Grid item>
+      {contentLoading ? (
+        <CircularProgress style={{ marginTop: '23%', marginLeft: '48%' }} />
+      ) : (
+        <div>
+          <div className={classes.header}>
+            <TextField
+              id='outlined-basic'
+              label='Search'
+              variant='outlined'
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+              className={classes.SearchStyle}
+            />
             <Button
               variant='contained'
               onClick={() => openAddCategoriesModel('Add', 'Add')}
@@ -283,270 +332,259 @@ function DashBoard() {
               <AddIcon className={classes.addIcon} />
               Add Items
             </Button>
-          </Grid>
-        </Grid>
-      </div>
-
-      <Modal
-        open={open}
-        onClose={handleModelClose}
-        className={classes.modal}
-        aria-labelledby='simple-modal-title'
-        aria-describedby='simple-modal-description'
-      >
-        <Fade in={open}>
-          <div className={classes.paper}>
-            <Typography className={classes.additemsstyle}>
-              {modelTitle === 'Add' ? 'Add Items' : 'Edit Items'}
-            </Typography>
-            <CloseIcon
-              onClick={() => {
-                setOpen(!open);
-                setImages('');
-                setDescription('');
-                setItemName('');
-              }}
-              style={{ float: 'right', marginTop: -25, cursor: 'pointer' }}
-            />
-            <div style={{ paddingTop: 20 }}>
-              <TextField
-                id='outlined-basic'
-                label='Item Name'
-                variant='outlined'
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-                className={classes.ItemNamestyle}
-              />
-            </div>
-            <div style={{ paddingTop: 20 }}>
-              <TextareaAutosize
-                className={classes.textareastyle}
-                rowsMin={3}
-                placeholder='Description'
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-            <div>
-              <CustomuploadButton
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  paddingTop: 20,
-                }}
-                ButtonName={'Upload image'}
-                onChange={handleImageUpload}
-              />
-            </div>
-            {images === '' ? (
-              ''
-            ) : (
-              <div className={classes.imgpreviewName}>
-                <img
-                  src={images}
-                  alt={'Uploading Images'}
-                  className={classes.ImageStyle}
-                />
-              </div>
-            )}
-
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                paddingTop: '20px',
-              }}
-            >
-              <Button
-                style={{ marginRight: 20, width: '20%' }}
-                className={classes.uploadButtonStyle}
-                onClick={() => {
-                  setOpen(!open);
-                  setImages('');
-                  setDescription('');
-                  setItemName('');
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={
-                  modelTitle === 'Add'
-                    ? () => addAndEditFuntion('Add')
-                    : () => addAndEditFuntion('Edit')
-                }
-                className={classes.addButtonStyle}
-              >
-                {modelTitle === 'Add' ? (isLoading ? 'Adding' : 'Add') : 'Edit'}
-                {isLoading ? (
-                  <i
-                    style={{ fontSize: 15, marginLeft: 20 }}
-                    className='fas fa-spinner fa-pulse'
-                  ></i>
-                ) : (
-                  ''
-                )}
-              </Button>
-            </div>
           </div>
-        </Fade>
-      </Modal>
-      <div className={classes.card}>
-        <TableContainer>
-          <Table className={classes.table} aria-label='simple table'>
-            <TableHead>
-              <TableRow>
-                <TableCell>Ingredients Name</TableCell>
-                <TableCell align='center'>Image</TableCell>
-                <TableCell align='center'>Discription</TableCell>
-                <TableCell align='center'>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {ingredientsData &&
-                ingredientsData.map((value: any, index: any) => {
-                  return (
-                    <TableRow hover style={{ cursor: 'pointer' }} key={index}>
-                      <TableCell component='th' scope='row'>
-                        {value.name}
-                      </TableCell>
-                      <TableCell align='center'>
-                        <Tooltip title={value.image} aria-label='add'>
-                          <Typography>
-                            {value.image.length >= 25
-                              ? `${value.image.substring(0, 40)}...`
-                              : value.image}
-                          </Typography>
-                        </Tooltip>
-                      </TableCell>
-                      <TableCell align='center'>
-                        <Tooltip title={value.description} aria-label='add'>
-                          <Typography>
-                            {value.description.length >= 25
-                              ? `${value.description.substring(0, 40)}...`
-                              : value.description}
-                          </Typography>
-                        </Tooltip>
-                      </TableCell>
-                      <TableCell align='center'>
-                        <div
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-evenly',
-                          }}
-                        >
-                          <Tooltip title='View' arrow>
-                            <IconButton style={{ padding: 5 }}>
-                              <CenterFocusStrongIcon
-                                style={{ color: '#41A58D' }}
-                                onClick={() =>
-                                  viewAndDeleteModelOpen('View', value)
-                                }
-                              />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title='Edit' arrow>
-                            <IconButton style={{ padding: 5 }}>
-                              <EditIcon
-                                style={{ color: '#41A58D' }}
-                                onClick={() =>
-                                  openAddCategoriesModel('Edit', value)
-                                }
-                              />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title='Delete' arrow>
-                            <IconButton style={{ padding: 5 }}>
-                              <DeleteIcon
-                                style={{ color: '#41A58D' }}
-                                onClick={() =>
-                                  viewAndDeleteModelOpen('Delete', value)
-                                }
-                              />
-                            </IconButton>
-                          </Tooltip>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </div>
-      <CustomModel
-        open={viewAndEditModel}
-        onCancel={() => setViewAndEditModel(false)}
-      >
-        <div>
-          <Typography className={classes.additemsstyle}>
-            {modelTitle2 === 'View' ? 'View Item' : 'Delete Item'}
-          </Typography>
-          {modelTitle2 === 'View' ? (
-            <div>
-              <Typography className={classes.viewmodelText}>
-                {viewAndDeleteData.name}
-              </Typography>
-              <Typography className={classes.viewmodelText}>
-                {viewAndDeleteData.description}
-              </Typography>
-              <div className={classes.imgpreviewName}>
-                <img
-                  src={viewAndDeleteData.image}
-                  alt={'Uploading Images'}
-                  className={classes.ImageStyle}
-                />
-              </div>
-            </div>
-          ) : (
-            <Typography style={{ fontSize: 18, paddingTop: 20 }}>
-              Are you sure want to delete this item ?
-            </Typography>
-          )}
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              paddingTop: '20px',
-            }}
+          <Modal
+            open={open}
+            onClose={handleModelClose}
+            className={classes.modal}
+            aria-labelledby='simple-modal-title'
+            aria-describedby='simple-modal-description'
           >
-            {modelTitle2 === 'View' ? (
-              <Button
-                onClick={() => setViewAndEditModel(false)}
-                className={classes.addButtonStyle}
-              >
-                Ok
-              </Button>
-            ) : (
-              <div>
-                <Button
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#41A58D',
-                    border: '2px solid #41A58D',
-                    textTransform: 'capitalize',
-                    marginRight: 40,
+            <Fade in={open}>
+              <div className={classes.paper}>
+                <Typography className={classes.additemsstyle}>
+                  {modelTitle === 'Add' ? 'Add Items' : 'Edit Items'}
+                </Typography>
+                <CloseIcon
+                  onClick={() => {
+                    setOpen(!open);
+                    setImages('');
+                    setDescription('');
+                    setItemName('');
                   }}
-                  onClick={() => setViewAndEditModel(false)}
-                >
-                  No
-                </Button>
-                <Button
-                  style={{
-                    backgroundColor: '#41A58D',
-                    color: 'white',
-                    border: '2px solid #41A58D',
-                    textTransform: 'capitalize',
-                  }}
-                  onClick={confirmDeleteIngredients}
-                >
-                  Yes
-                </Button>
+                  style={{ float: 'right', marginTop: -25, cursor: 'pointer' }}
+                />
+                {modelIsLoading === true && modelTitle === 'Edit' ? (
+                  <div style={{ marginTop: 40 }}>
+                    <Skeleton
+                      animation='wave'
+                      height={30}
+                      width='80%'
+                      style={{ marginTop: 40 }}
+                    />
+                    <Skeleton animation='wave' height={30} width='80%' />
+                    <Skeleton
+                      animation='wave'
+                      height={400}
+                      width='100%'
+                      style={{ marginTop: -40 }}
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{ paddingTop: 20 }}>
+                      <TextField
+                        id='outlined-basic'
+                        label='Item Name'
+                        variant='outlined'
+                        value={itemName}
+                        onChange={(e) => setItemName(e.target.value)}
+                        className={classes.ItemNamestyle}
+                      />
+                    </div>
+                    <div style={{ paddingTop: 20 }}>
+                      <TextareaAutosize
+                        className={classes.textareastyle}
+                        rowsMin={3}
+                        placeholder='Description'
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <CustomuploadButton
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'center',
+                          paddingTop: 20,
+                        }}
+                        ButtonName={'Upload image'}
+                        onChange={handleImageUpload}
+                      />
+                    </div>
+                    {images === '' ? (
+                      ''
+                    ) : (
+                      <div className={classes.imgpreviewName}>
+                        <img
+                          src={images}
+                          alt={'Uploading Images'}
+                          className={classes.ImageStyle}
+                        />
+                        {modelTitle ? (
+                          <CancelIcon
+                            onClick={() => setImages('')}
+                            className={classes.DeleteIcon}
+                          />
+                        ) : (
+                          ''
+                        )}
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        paddingTop: '20px',
+                      }}
+                    >
+                      <Button
+                        style={{ marginRight: 20, width: '20%' }}
+                        className={classes.uploadButtonStyle}
+                        onClick={() => {
+                          setOpen(!open);
+                          setImages('');
+                          setDescription('');
+                          setItemName('');
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={
+                          modelTitle === 'Add'
+                            ? () => addAndEditFuntion('Add')
+                            : () => addAndEditFuntion('Edit')
+                        }
+                        className={classes.addButtonStyle}
+                      >
+                        {modelTitle === 'Add'
+                          ? isLoading
+                            ? 'Adding'
+                            : 'Add'
+                          : 'Edit'}
+                        {isLoading ? (
+                          <i
+                            style={{ fontSize: 15, marginLeft: 20 }}
+                            className='fas fa-spinner fa-pulse'
+                          ></i>
+                        ) : (
+                          ''
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </Fade>
+          </Modal>
+          <div>
+            <CustomTable
+              tableBodyData={ingredientsData}
+              onEditFunction={(value: any) =>
+                openAddCategoriesModel('Edit', value)
+              }
+              onViewFunction={(value: any) =>
+                viewAndDeleteModelOpen('View', value)
+              }
+              onDeleteFunction={(value: any) =>
+                viewAndDeleteModelOpen('Delete', value)
+              }
+              paginationOnChange={handlePageChange}
+              page={pageValue}
+              pageCount={pageCount}
+            />
           </div>
+          <CustomModel
+            open={viewAndEditModel}
+            onCancel={() => setViewAndEditModel(false)}
+          >
+            <div>
+              <Typography className={classes.additemsstyle}>
+                {modelTitle2 === 'View' ? 'View Item' : 'Delete Item'}
+              </Typography>
+              {modelTitle2 === 'View' ? (
+                modelIsLoading ? (
+                  <div style={{ marginTop: 40 }}>
+                    <Skeleton
+                      animation='wave'
+                      height={30}
+                      width='80%'
+                      style={{ marginTop: 40 }}
+                    />
+                    <Skeleton animation='wave' height={30} width='80%' />
+                    <Skeleton
+                      animation='wave'
+                      height={350}
+                      width='100%'
+                      style={{ marginTop: -30 }}
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <Typography className={classes.viewmodelTextName}>
+                      {viewAndDeleteData.name}
+                    </Typography>
+                    <Typography className={classes.viewmodelText}>
+                      {viewAndDeleteData.description}
+                    </Typography>
+                    <div className={classes.imgpreviewName}>
+                      <img
+                        src={viewAndDeleteData.image}
+                        alt={'Uploading Images'}
+                        className={classes.ImageStyle}
+                      />
+                    </div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        paddingTop: '20px',
+                      }}
+                    >
+                      <Button
+                        onClick={() => setViewAndEditModel(false)}
+                        className={classes.addButtonStyle}
+                      >
+                        Ok
+                      </Button>
+                    </div>
+                  </div>
+                )
+              ) : (
+                <div>
+                  <Typography style={{ fontSize: 18, paddingTop: 20 }}>
+                    Are you sure want to delete this item ?
+                  </Typography>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      paddingTop: '20px',
+                    }}
+                  >
+                    <div>
+                      <Button
+                        style={{
+                          backgroundColor: 'white',
+                          color: '#41A58D',
+                          border: '2px solid #41A58D',
+                          textTransform: 'capitalize',
+                          marginRight: 40,
+                        }}
+                        onClick={() => setViewAndEditModel(false)}
+                      >
+                        No
+                      </Button>
+                      <Button
+                        style={{
+                          backgroundColor: '#41A58D',
+                          color: 'white',
+                          border: '2px solid #41A58D',
+                          textTransform: 'capitalize',
+                        }}
+                        onClick={confirmDeleteIngredients}
+                      >
+                        Yes
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CustomModel>
         </div>
-      </CustomModel>
+      )}
     </div>
   );
 }
