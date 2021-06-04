@@ -1,7 +1,5 @@
 import Axios from 'axios';
-
-const BaseUrl = 'http://188.166.228.50:3009/'
-
+const BaseUrl = 'http://188.166.228.50:3009/';
 export const PostApi = (url: any, data: any = {}, idToken: any = null) => {
   return Axios({
     method: 'POST',
@@ -13,5 +11,5 @@ export const PostApi = (url: any, data: any = {}, idToken: any = null) => {
       'Content-Type': 'application/json',
       authorization: `Token ${idToken}`,
     },
-  });
+  }).then((res: any) => res.data);
 };

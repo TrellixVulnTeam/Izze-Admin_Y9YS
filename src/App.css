@@ -34,3 +34,6 @@ body {
 .MuiAccordionSummary-root {
   padding: 0px !important;
 }
+.MuiNativeSelect-select:focus {
+  background: none !important;
+}

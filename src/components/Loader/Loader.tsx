@@ -1,10 +1,8 @@
 // eslint-disable-next-line
 import React, { useEffect } from 'react';
-import { Box, LinearProgress } from '@material-ui/core';
-// import React from 'react';
-// import Backdrop from '@material-ui/core/Backdrop';
+import { Box, TableCell, TableRow } from '@material-ui/core';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme: any) =>
   createStyles({
@@ -18,6 +16,9 @@ const useStyles = makeStyles((theme: any) =>
       color: theme.palette.green.main,
       backgroundColor: 'white',
     },
+    lColor: {
+      color: theme.palette.green.main,
+    }
   }),
 );
 
@@ -36,34 +37,30 @@ const PageLoader = () => {
   );
 };
 
+export const TableLoader = (props: any) => {
+  const { colSpan = 10 } = props
+  const classes = useStyles()
+  return (
+    <TableRow>
+      <TableCell align='center' colSpan={colSpan}>
+        <CircularProgress className={classes.lColor} />
+      </TableCell>
+    </TableRow>
+  )
+}
+
+export const TableNoData = (props: any) => {
+  const { colSpan = 10, children } = props
+  const classes = useStyles()
+  return (
+    <TableRow>
+      <TableCell align='center' colSpan={colSpan}>
+        {children}
+      </TableCell>
+    </TableRow>
+  )
+}
+
 export default PageLoader;
 
 
-
-// import React from 'react';
-// import Backdrop from '@material-ui/core/Backdrop';
-// import CircularProgress from '@material-ui/core/CircularProgress';
-// import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-
-// const useStyles = makeStyles((theme: any) =>
-//   createStyles({
-//     backdrop: {
-//       zIndex: theme.zIndex.drawer + 1,
-//       color: theme.palette.green.main,
-//       backgroundColor: 'white'
-//     },
-//   }),
-// );
-
-// const Loader = () => {
-//   const classes = useStyles();
-//   return (
-//     <div>
-//       <Backdrop className={classes.backdrop} open={true}>
-//         <CircularProgress color="inherit" />
-//       </Backdrop>
-//     </div>
-//   );
-// }
-
-// export default Loader

@@ -1,6 +1,7 @@
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
+import 'firebase/storage'; 
 
 export const AuthStateChange = (callback: any) => {
   const subscriber = firebase.auth().onAuthStateChanged(callback);
@@ -13,6 +14,16 @@ export const signInWithCredenrials = async (email: string, password: string) => 
     .signInWithEmailAndPassword(email, password)
 
 };
+
+export const imageUpload = async (file: any) => {
+    return firebase.storage()
+    .ref(`images/${file.name}`)
+    .put(file)
+    .then(async (imageResult) => {
+      const download_url = await imageResult.ref.getDownloadURL();
+      return download_url
+    })
+}
 
 export const LogoutUser = async () => {
   return firebase.auth().signOut().then(() => localStorage.clear());

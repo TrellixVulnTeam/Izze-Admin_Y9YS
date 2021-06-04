@@ -20,8 +20,8 @@ import {
   DeleteIngredientsApi,
   EditIngredientsApi,
 } from '../../Services/IngredientsAPI/Index';
-import Skeleton from '@material-ui/lab/Skeleton';
 import firebase from 'firebase';
+import CustomSkeletonLoader from '../../components/Common/SkeletonLoading/SkeletonLoading';
 import 'firebase/firestore';
 
 const useStyles = makeStyles((theme: any) => ({
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme: any) => ({
     width: theme.breakpoints.values.lg,
     maxWidth: '100%',
     margin: '0 auto',
-    padding: theme.spacing(3),
+    padding: theme.spacing(2),
   },
   addIcon: {
     marginRight: theme.spacing(1),
@@ -138,7 +138,22 @@ const useStyles = makeStyles((theme: any) => ({
     opacity: 0.6,
     cursor: 'pointer',
   },
+  errors: {
+    textAlign: 'initial',
+    fontWeight: 400,
+    fontSize: 12,
+    color: 'red',
+    marginTop: theme.spacing(1),
+  },
 }));
+
+const tableHeader = [
+  'S.No',
+  'Ingredients Name',
+  'Ingredients Image',
+  'Ingredients Description',
+  'Action',
+];
 
 function DashBoard() {
   const classes = useStyles();
@@ -158,6 +173,10 @@ function DashBoard() {
   const [ingredientsId, setIngredientsId] = React.useState('');
   const [pageValue, setPageValue] = React.useState(1);
   const [pageCount, setPageCount] = React.useState('');
+  // Validation
+  const [nameError, setNameError] = React.useState(false);
+  const [descriptionError, setDescriptionError] = React.useState(false);
+  const [imageError, setImageError] = React.useState(false);
 
   const openAddCategoriesModel = (type: any, values: any) => {
     setOpen(!open);
@@ -175,6 +194,7 @@ function DashBoard() {
   };
 
   const imageUpload = async () => {
+    setIsLoading(true);
     return new Promise((resolve, reject) => {
       const storage = firebase.storage();
       storage
@@ -213,8 +233,18 @@ function DashBoard() {
 
   const addAndEditFuntion = (type: any) => {
     if (type === 'Add') {
-      setIsLoading(true);
-      imageUpload();
+      if (itemName === '') {
+        setNameError(true);
+      } else if (description === '') {
+        setNameError(false);
+        setDescriptionError(true);
+      } else if (images === '') {
+        setDescriptionError(false);
+        setImageError(true);
+      } else {
+        setImageError(false);
+        imageUpload();
+      }
     } else {
       editIngredients();
     }
@@ -356,19 +386,7 @@ function DashBoard() {
                 />
                 {modelIsLoading === true && modelTitle === 'Edit' ? (
                   <div style={{ marginTop: 40 }}>
-                    <Skeleton
-                      animation='wave'
-                      height={30}
-                      width='80%'
-                      style={{ marginTop: 40 }}
-                    />
-                    <Skeleton animation='wave' height={30} width='80%' />
-                    <Skeleton
-                      animation='wave'
-                      height={400}
-                      width='100%'
-                      style={{ marginTop: -40 }}
-                    />
+                    <CustomSkeletonLoader />
                   </div>
                 ) : (
                   <div>
@@ -382,6 +400,11 @@ function DashBoard() {
                         className={classes.ItemNamestyle}
                       />
                     </div>
+                    {nameError && (
+                      <Typography className={classes.errors}>
+                        Enter Ingredients Name
+                      </Typography>
+                    )}
                     <div style={{ paddingTop: 20 }}>
                       <TextareaAutosize
                         className={classes.textareastyle}
@@ -391,6 +414,11 @@ function DashBoard() {
                         onChange={(e) => setDescription(e.target.value)}
                       />
                     </div>
+                    {descriptionError && (
+                      <Typography className={classes.errors}>
+                        Enter Ingredients Description
+                      </Typography>
+                    )}
                     <div>
                       <CustomuploadButton
                         style={{
@@ -402,6 +430,14 @@ function DashBoard() {
                         onChange={handleImageUpload}
                       />
                     </div>
+                    {imageError && (
+                      <Typography
+                        style={{ textAlign: 'center' }}
+                        className={classes.errors}
+                      >
+                        Please select Image
+                      </Typography>
+                    )}
                     {images === '' ? (
                       ''
                     ) : (
@@ -470,6 +506,7 @@ function DashBoard() {
           </Modal>
           <div>
             <CustomTable
+              tableHeaders={tableHeader}
               tableBodyData={ingredientsData}
               onEditFunction={(value: any) =>
                 openAddCategoriesModel('Edit', value)
@@ -496,19 +533,7 @@ function DashBoard() {
               {modelTitle2 === 'View' ? (
                 modelIsLoading ? (
                   <div style={{ marginTop: 40 }}>
-                    <Skeleton
-                      animation='wave'
-                      height={30}
-                      width='80%'
-                      style={{ marginTop: 40 }}
-                    />
-                    <Skeleton animation='wave' height={30} width='80%' />
-                    <Skeleton
-                      animation='wave'
-                      height={350}
-                      width='100%'
-                      style={{ marginTop: -30 }}
-                    />
+                    <CustomSkeletonLoader />
                   </div>
                 ) : (
                   <div>

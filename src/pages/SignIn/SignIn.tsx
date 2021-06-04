@@ -181,13 +181,8 @@ function SignIn(props: any) {
                   onSubmit={loginUser}
                 >
                   {(props) => {
-                    const {
-                      values,
-                      errors,
-                      handleChange,
-                      handleSubmit,
-                      handleBlur,
-                    } = props;
+                    const { values, errors, handleChange, handleSubmit } =
+                      props;
                     return (
                       <form onSubmit={handleSubmit}>
                         <div className={classes.textboxStyle}>

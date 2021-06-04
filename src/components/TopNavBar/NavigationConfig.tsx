@@ -19,7 +19,12 @@ import PersonIcon from '@material-ui/icons/PersonOutlined';
 import ReceiptIcon from '@material-ui/icons/ReceiptOutlined';
 import SettingsIcon from '@material-ui/icons/SettingsOutlined';
 import ViewModuleIcon from '@material-ui/icons/ViewModule';
-import { DashboardRoute, IngredientsRoute } from '../../Routes/RoutesConstants';
+import {
+  DashboardRoute,
+  EquipmentRoute,
+  IngredientsRoute,
+  SkincareRoute,
+} from '../../Routes/RoutesConstants';
 
 export default [
   {
@@ -33,6 +38,16 @@ export default [
       {
         title: 'Ingredients',
         href: IngredientsRoute,
+        icon: BarChartIcon,
+      },
+      {
+        title: 'Equipments',
+        href: EquipmentRoute,
+        icon: BarChartIcon,
+      },
+      {
+        title: 'Skin Care',
+        href: SkincareRoute,
         icon: BarChartIcon,
       },
       {

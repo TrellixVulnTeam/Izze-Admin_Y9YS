@@ -50,11 +50,16 @@ function CustomTable(props: any) {
         <Table className={classes.table} aria-label='simple table'>
           <TableHead>
             <TableRow>
-              <TableCell>S.No</TableCell>
-              <TableCell align='center'>Ingredients Name</TableCell>
-              <TableCell align='center'>Image</TableCell>
-              <TableCell align='center'>Discription</TableCell>
-              <TableCell align='center'>Actions</TableCell>
+              {props.tableHeaders.map((item: any, index: any) => {
+                return (
+                  <TableCell
+                    key={index}
+                    align={item !== 'S.No' ? 'center' : 'left'}
+                  >
+                    {item}
+                  </TableCell>
+                );
+              })}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -95,7 +100,7 @@ function CustomTable(props: any) {
                           <IconButton style={{ padding: 5 }}>
                             <CenterFocusStrongIcon
                               style={{ color: '#41A58D' }}
-                              onClick={() => props.onViewFunction(value)}
+                              onClick={() => props.onViewFunction(value, index)}
                             />
                           </IconButton>
                         </Tooltip>
@@ -103,7 +108,7 @@ function CustomTable(props: any) {
                           <IconButton style={{ padding: 5 }}>
                             <EditIcon
                               style={{ color: '#41A58D' }}
-                              onClick={() => props.onEditFunction(value)}
+                              onClick={() => props.onEditFunction(value, index)}
                             />
                           </IconButton>
                         </Tooltip>
@@ -111,7 +116,9 @@ function CustomTable(props: any) {
                           <IconButton style={{ padding: 5 }}>
                             <DeleteIcon
                               style={{ color: '#41A58D' }}
-                              onClick={() => props.onDeleteFunction(value)}
+                              onClick={() =>
+                                props.onDeleteFunction(value, index)
+                              }
                             />
                           </IconButton>
                         </Tooltip>
@@ -130,7 +137,7 @@ function CustomTable(props: any) {
           ''
         )}
       </TableContainer>
-      {props.tableBodyData.length === 10 ? (
+      {props.tableBodyData.length <= 10 ? (
         <div className={classes.paginationpadding}>
           <Pagination
             className={classes.paginationstyle}
