@@ -1,28 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
-import firebase from 'firebase/app';
-import { makeStyles } from '@material-ui/core/styles';
-import { LoginApi } from '../../Services/Api';
-import { useNavigate } from 'react-router-dom';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
-import { useTheme } from '@material-ui/core/styles';
+import Grid from '@material-ui/core/Grid';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { DashboardRoute, IngredientsRoute } from '../../Routes/RoutesConstants';
-import 'firebase/auth';
-import {
-  AuthStateChange,
-  signInWithCredenrials,
-} from '../../utils/firebaseUtils';
-import useSnackbar from '../../hook/useSnackbar';
-import { PostApi } from '../../utils/ApiService';
-import useService from '../../hook/useService';
-import { useStore } from '../../Mobx/Helpers/UseStore';
+import { Formik } from 'formik';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
 import Loader from '../../components/Loader/Loader';
+import useService from '../../hook/useService';
+import useSnackbar from '../../hook/useSnackbar';
+import { useStore } from '../../Mobx/Helpers/UseStore';
+import { DashboardRoute } from '../../Routes/RoutesConstants';
+import { AuthStateChange, signInWithCredenrials } from '../../utils/FirebaseUtils';
 
 const useStyles = makeStyles((theme) => ({
   loginStyle: {
@@ -146,7 +138,7 @@ function SignIn(props: any) {
 
   const authStateChanged = (user: any) => {
     if (user) {
-      navigate(IngredientsRoute);
+      navigate(DashboardRoute);
       setAuthLoading(true);
     } else {
       setAuthLoading(false);
@@ -192,7 +184,7 @@ function SignIn(props: any) {
                             value={values.userEmail}
                             onChange={handleChange('userEmail')}
                             label='Enter Email'
-                            // onKeyPress={handleKeyPress}
+                          // onKeyPress={handleKeyPress}
                           />
                           <div>
                             <Typography className={classes.errors}>

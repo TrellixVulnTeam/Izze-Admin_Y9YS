@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme: any) => ({
   },
 }));
 
-const Equipment = () => {
+const SkinCareIngredients = () => {
   const classes = useStyles();
   const { Post } = useService();
   const Snackbar = useSnackbar();
@@ -88,11 +88,11 @@ const Equipment = () => {
     data: {},
   });
 
-  const listEquipments = async () => {
+  const listIngredients = async () => {
     setLoading(true);
-    Post('app/listEquipment', stateData)
+    Post('app/listSkinCareIngredient', stateData)
       .then((res: any) => {
-        console.log('listEquipment', res);
+        console.log('listSkinCareIngredient', res);
         setLoading(false);
         if (!res.error) {
           setDataList(res.data);
@@ -121,7 +121,7 @@ const Equipment = () => {
       ...prevState,
       isOpen: true,
       isEdit: false,
-      title: 'Add Equipment',
+      title: 'Add Ingredient',
       okBtnText: 'Save',
     }));
   };
@@ -132,7 +132,7 @@ const Equipment = () => {
       isOpen: true,
       isEdit: true,
       data,
-      title: 'Edit Equipment',
+      title: 'Edit Ingredient',
       okBtnText: 'Edit',
     }));
   };
@@ -142,7 +142,7 @@ const Equipment = () => {
       ...prevState,
       isOpen: true,
       data,
-      title: 'View Equipment',
+      title: 'View Ingredient',
     }));
   };
 
@@ -150,7 +150,7 @@ const Equipment = () => {
     const { openModel, setLoading, closeModel } = ConfModel;
     const submitFunction = () => {
       setLoading(true);
-      Post('app/deleteEquipment', { id: data._id })
+      Post('app/deleteSkinCareIngredient', { id: data._id })
         .then(async (res: any) => {
           setLoading(false);
           closeModel();
@@ -174,23 +174,23 @@ const Equipment = () => {
   };
 
   const onSuccessAction = () => {
-    listEquipments();
+    listIngredients();
     closeAddEditDialog();
   };
 
   useEffect(() => {
-    listEquipments();
+    listIngredients();
   }, [stateData]);
 
   return (
     <div className={classes.root}>
-      <Page title='Equipments' />
+      <Page title='Ingredients' />
 
       {/* =======Header====== */}
       <Grid alignItems='flex-end' container justify='space-between' spacing={3}>
         <Grid item>
           <Typography component='h1' variant='h3'>
-            Equipments
+            Ingredients
           </Typography>
         </Grid>
         <Grid item>
@@ -384,7 +384,7 @@ const AddEditDailog = (props: any) => {
 
   const addData = (data: any, { setSubmitting, resetForm }: any) => {
     setSubmitting(true);
-    Post('app/addEquipment', data)
+    Post('app/addSkinCareIngredient', data)
       .then((res: any) => {
         Snackbar.show(res.message, 'success');
         setSubmitting(false);
@@ -398,7 +398,7 @@ const AddEditDailog = (props: any) => {
 
   const editData = (data: any, { setSubmitting, resetForm }: any) => {
     setSubmitting(true);
-    Post('app/editEquipment', data)
+    Post('app/editSkinCareIngredient', data)
       .then((res: any) => {
         Snackbar.show(res.message, 'success');
         setSubmitting(false);
@@ -599,4 +599,4 @@ const ViewDailog = (props: any) => {
   );
 };
 
-export default Equipment;
+export default SkinCareIngredients;

@@ -6,7 +6,7 @@ import useService from '../../hook/useService';
 import useSnackbar from '../../hook/useSnackbar';
 import { useStore } from '../../Mobx/Helpers/UseStore';
 import { SigninRoute } from '../../Routes/RoutesConstants';
-import { AuthStateChange } from '../../utils/firebaseUtils';
+import { AuthStateChange } from '../../utils/FirebaseUtils';
 
 const HomeLayout = () => {
   const { Post, Logout } = useService()

@@ -35,7 +35,7 @@ const reduceChildRoutes = (props: any) => {
   const { items, page, depth, location } = props;
 
   if (page.children) {
-    const open = matchPath({ path: page.href, caseSensitive: false }, location.pathname);
+    const open = matchPath({ path: page.href, caseSensitive: false, end: false }, location.pathname);
 
     items.push(
       <NavigationListItem

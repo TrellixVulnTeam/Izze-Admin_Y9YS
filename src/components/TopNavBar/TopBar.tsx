@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
+import LogoImage from '../../assets/logo.png';
 import firebase from 'firebase/app';
 import { makeStyles } from '@material-ui/styles';
 import {
@@ -76,6 +77,11 @@ const useStyles = makeStyles((theme: any) => ({
     fontSize: 20,
     marginRight: theme.spacing(1),
   },
+  logoContainer : {
+    width : '200px',
+    height : '64px',
+    marginLeft: theme.spacing(2),
+  }
 }));
 
 const TopBar = (props: any) => {
@@ -110,7 +116,9 @@ const TopBar = (props: any) => {
     <AppBar {...rest} className={clsx(classes.root, className)}>
       <Toolbar>
         <RouterLink to='/'>
-          <img alt='Logo' src='/images/logos/logo--white.svg' />
+          <div className={classes.logoContainer}>
+            <img alt='Logo' src={LogoImage}  style={{maxWidth : '100%',maxHeight : '100%'}}/>
+          </div>
         </RouterLink>
         <div className={classes.flexGrow} />
 

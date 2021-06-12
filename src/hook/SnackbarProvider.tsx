@@ -12,7 +12,7 @@ const initialOrigin: SnackbarOrigin = {
   horizontal: 'center'
 };
 
-const SnackbarAutoHideDuration: number = 7000;
+const SnackbarAutoHideDuration: number = 3000;
 
 export type Severity = 'success' | 'info' | 'warning' | 'error' | undefined;
 
@@ -30,7 +30,7 @@ const initialState: stateType = {
   message: '',
   origin: initialOrigin,
   severity: undefined,
-  autoHide: false,
+  autoHide: true,
   autoHideDuration: SnackbarAutoHideDuration
 };
 
@@ -49,7 +49,7 @@ class SnackbarProvider extends React.Component {
       message,
       origin: position || initialState.origin,
       severity,
-      autoHide,
+      autoHide: autoHide || initialState.autoHide,
       autoHideDuration: autoHideDuration || initialState.autoHideDuration
     });
   };

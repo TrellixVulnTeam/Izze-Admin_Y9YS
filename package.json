@@ -9,6 +9,8 @@
     "@testing-library/jest-dom": "^5.12.0",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
+    "@tiptap/react": "^2.0.0-beta.45",
+    "@tiptap/starter-kit": "^2.0.0-beta.76",
     "@types/jest": "^26.0.23",
     "@types/node": "^15.6.1",
     "@types/react-dom": "^17.0.5",
@@ -17,10 +19,13 @@
     "formik": "^2.2.8",
     "history": "^5.0.0",
     "mobx": "^5.15.7",
+    "mobx-persist": "^0.4.1",
     "mobx-react": "^6.3.1",
+    "mobx-react-lite": "^3.2.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-helmet": "^6.1.0",
+    "react-perfect-scrollbar": "^1.5.8",
     "react-router": "^6.0.0-beta.0",
     "react-router-dom": "^6.0.0-beta.0",
     "react-scripts": "4.0.3",
@@ -55,6 +60,7 @@
   "devDependencies": {
     "@types/react": "^17.0.8",
     "@types/react-helmet": "^6.1.1",
-    "@types/react-router-dom": "^5.1.7"
+    "@types/react-router-dom": "^5.1.7",
+    "node-sass": "^6.0.0"
   }
 }

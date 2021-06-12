@@ -11,6 +11,7 @@ import FirebaseApp from './utils/FirebaseInit';
 import SnackbarProvider from './hook/SnackbarProvider';
 import { ServiceProvider } from './hook/useService';
 import Loader from './components/Loader/Loader';
+import './TipTap.scss'
 
 FirebaseApp.InitializeApp();
 

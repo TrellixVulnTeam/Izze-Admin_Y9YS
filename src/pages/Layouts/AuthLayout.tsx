@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Loader from '../../components/Loader/Loader';
-import { AuthStateChange } from '../../utils/firebaseUtils';
+import { AuthStateChange } from '../../utils/FirebaseUtils';
 
 
 const AuthLayout = () => {
