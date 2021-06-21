@@ -1,6 +1,6 @@
 import './App.css';
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, HashRouter } from 'react-router-dom';
 import Routers from './Routes/index';
 import ErrorBoundary from './components/ErrorBoundary';
 import theme from './theme';
@@ -11,7 +11,7 @@ import FirebaseApp from './utils/FirebaseInit';
 import SnackbarProvider from './hook/SnackbarProvider';
 import { ServiceProvider } from './hook/useService';
 import Loader from './components/Loader/Loader';
-import './TipTap.scss'
+import './TipTap.scss';
 
 FirebaseApp.InitializeApp();
 
@@ -22,11 +22,11 @@ function App() {
         <ServiceProvider>
           <SnackbarProvider>
             <ThemeProvider theme={theme}>
-              <Router>
+              <HashRouter>
                 <Suspense fallback={<Loader />}>
                   <Routers />
                 </Suspense>
-              </Router>
+              </HashRouter>
             </ThemeProvider>
           </SnackbarProvider>
         </ServiceProvider>

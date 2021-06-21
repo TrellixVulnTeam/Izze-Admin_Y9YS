@@ -26,6 +26,7 @@ import {
   Button,
   CircularProgress,
   Select,
+  Tab,
 } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import AddIcon from '@material-ui/icons/Add';
@@ -35,12 +36,13 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
-import { Pagination } from '@material-ui/lab';
+import { Pagination, TabContext, TabList, TabPanel } from '@material-ui/lab';
 import CenterFocusStrongIcon from '@material-ui/icons/CenterFocusStrong';
 import { TableLoader, TableNoData } from '../../components/Loader/Loader';
 import useSnackbar from '../../hook/useSnackbar';
 import useService from '../../hook/useService';
 import useConfModel from '../../hook/useConfModel';
+import { SkinCareRecipeViewContent } from '../SkinCareRecipe/SkinCareRecipe';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -100,6 +102,34 @@ const useStyles = makeStyles((theme: any) => ({
     height: theme.spacing(10),
     margin: 'auto',
     marginTop: '20px',
+  },
+  //
+  tabRoot: {
+    minWidth: 72,
+  },
+  tabIndicator: {
+    backgroundColor: theme.palette.green.main,
+  },
+  tabTextColorInherit: {
+    backgroundColor: theme.palette.green.main,
+    color: 'white',
+    border: '1px solid white'
+  },
+  tabPanelRoot: {
+    paddingTop: 0,
+    paddingBottom: 0,
+    width: '100%'
+  },
+  listItemRoot: {
+    backgroundColor: '#7ac0af2b',
+    margin: '10px 0px'
+  },
+  noListItemRoot: {
+    backgroundColor: '#f500571c',
+    margin: '10px 0px'
+  },
+  paperRoot: {
+    display: 'flex'
   },
 }));
 
@@ -350,7 +380,7 @@ const SkinCarePlan = () => {
         onClose={closeAddEditDialog}
         onSuccess={onSuccessAction}
       />
-      <ViewSkincarePlan {...viewDialog} onClose={closeViewDialog} />
+      {viewDialog.isOpen && <ViewSkincarePlan {...viewDialog} onClose={closeViewDialog} />}
     </div>
   );
 }
@@ -563,7 +593,7 @@ const AddEditDialog = (props: any) => {
                               color='inherit'
                               align={'center'}
                             >
-                              {recData.day}
+                              {`Day - ${recData.day}`}
                             </Typography>
                           </Paper>
                         </Grid>
@@ -640,10 +670,19 @@ const AddEditDialog = (props: any) => {
 const ViewSkincarePlan = (props: any) => {
   const { isOpen, title, onClose, data } = props;
   const classes = useStyles();
-  const [formDatas, setFormDatas] = React.useState(data);
+  const [formValue, setFormValue] = useState(data);
+  const [value, setValue] = React.useState('1');
 
-  React.useEffect(() => {
-    setFormDatas(data);
+  const handleChange = (event: React.ChangeEvent<{}>, newValue: string) => {
+    setValue(newValue);
+  };
+
+  const getDropValues = (dropValues: any, value: string) => {
+    return dropValues.find(({ id }: any) => id == value)?.name || ''
+  };
+
+  useEffect(() => {
+    setFormValue(data);
   }, [props]);
 
   return (
@@ -660,85 +699,47 @@ const ViewSkincarePlan = (props: any) => {
       </DialogTitle>
 
       <DialogContent dividers>
-        <Grid container spacing={3}>
-          <Grid item xs={5}>
-            <div className={classes.sBetween}>
-              <Typography variant='h5'>Skin Types</Typography>
-            </div>
-          </Grid>
-          <Grid item xs={1}>
-            <div className={classes.sBetween}>
-              <Typography variant='h5'>:</Typography>
-            </div>
-          </Grid>
-          <Grid item xs={5}>
-            <div className={classes.sBetween}>
-              <Typography variant='h5'>{formDatas?.skin_type}</Typography>
-            </div>
-          </Grid>
-          <Grid item xs={1}></Grid>
+        <Paper >
+          <Table>
+            <TableBody>
+              <TableRow >
+                <TableCell>Skin Type</TableCell>
+                <TableCell><strong>{getDropValues(SkinTypeDrop, formValue?.skin_type)}</strong></TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Skin Issues</TableCell>
+                <TableCell><strong>{getDropValues(SkinIssueDrop, formValue?.skin_issues)}</strong></TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </Paper>
 
-          <Grid item xs={5}>
-            <div className={classes.sBetween}>
-              <Typography variant='h5'>Skin Issues</Typography>
-            </div>
-          </Grid>
-          <Grid item xs={1}>
-            <div className={classes.sBetween}>
-              <Typography variant='h5'>:</Typography>
-            </div>
-          </Grid>
-          <Grid item xs={5}>
-            <div className={classes.sBetween}>
-              <Typography variant='h5'>{formDatas?.skin_issues}</Typography>
-            </div>
-          </Grid>
-          <Grid xs={1}></Grid>
+        <Paper className={classes.paperRoot}>
+          <TabContext value={value || ''}>
 
-          {/* recipe With ingredients */}
-          {formDatas?.recipes?.map((datas: any, index: number) => (
-            <Grid key={index} item xs={12}>
-              <Typography variant='h5' style={{ color: '#41A58D' }}>
-                {datas.recipe.recipe_name}
-              </Typography>
-              <Grid container>
-                {datas.recipe.ingredients.length === 0 ? (
-                  <Grid item xs={12}>
-                    <Typography
-                      variant='h5'
-                      style={{ marginTop: '20px' }}
-                      align='center'
-                    >
-                      No Ingredients
-                    </Typography>
-                  </Grid>
-                ) : (
-                  datas.recipe.ingredients.map((value: any, index: any) => (
-                    <Grid item xs={4}>
-                      <Avatar
-                        className={classes.ingredientsAvatarStyle}
-                        variant='circular'
-                        src={value.image}
-                      />
-                      <Typography
-                        className={classes.mTop}
-                        variant='h5'
-                        align='center'
-                      >
-                        {value.name}
-                      </Typography>
-                      <Typography variant='subtitle2' align='center'>
-                        {value.description.length >= 25
-                          ? `${value.description.substring(0, 30)}...`
-                          : ''}
-                      </Typography>
-                    </Grid>
-                  ))
-                )}
-              </Grid>
-            </Grid>
-          ))}
-        </Grid>
+            <TabList
+              classes={{
+                indicator: classes.tabIndicator
+              }}
+              onChange={handleChange}
+              orientation="vertical"
+              variant="standard"
+            >
+              {formValue?.recipes?.map((item: any) =>
+                <Tab
+                  classes={{ root: classes.tabRoot, textColorInherit: classes.tabTextColorInherit }}
+                  label={`Day - ${item.day}`}
+                  value={item.day.toString()} />
+              )}
+            </TabList>
+    
+            {formValue?.recipes?.map((item: any, index: any) =>
+              <TabPanel key={index} className={classes.tabPanelRoot} value={item.day.toString()}>
+                <SkinCareRecipeViewContent data={item.recipe} />
+              </TabPanel>)}
+          </TabContext>
+        </Paper>
+
       </DialogContent>
 
       <DialogActions>

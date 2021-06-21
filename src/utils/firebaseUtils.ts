@@ -17,7 +17,7 @@ export const signInWithCredenrials = async (email: string, password: string) => 
 
 export const imageUpload = async (file: any) => {
     return firebase.storage()
-    .ref(`images/${file.name}`)
+    .ref(`images/${file.name}-${new Date().getTime()}`)
     .put(file)
     .then(async (imageResult) => {
       const download_url = await imageResult.ref.getDownloadURL();

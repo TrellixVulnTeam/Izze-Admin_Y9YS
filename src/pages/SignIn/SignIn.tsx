@@ -1,138 +1,102 @@
-import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
-import Grid from '@material-ui/core/Grid';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { Formik } from 'formik';
+import { Button, Card, CardContent, CircularProgress, Divider, Link, TextField, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import * as Yup from 'yup';
-import Loader from '../../components/Loader/Loader';
-import useService from '../../hook/useService';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import Logo from '../../assets/Images/logo.png';
+import Page from '../../components/Page/Page';
 import useSnackbar from '../../hook/useSnackbar';
 import { useStore } from '../../Mobx/Helpers/UseStore';
-import { DashboardRoute } from '../../Routes/RoutesConstants';
 import { AuthStateChange, signInWithCredenrials } from '../../utils/FirebaseUtils';
+import Loader from '../../components/Loader/Loader';
+import { DashboardRoute } from '../../Routes/RoutesConstants';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
-const useStyles = makeStyles((theme) => ({
-  loginStyle: {
-    width: '80%',
-    backgroundColor: 'white',
-    margin: 'auto',
-    padding: theme.spacing(2),
-    marginTop: theme.spacing(22),
-    borderRadius: '10px',
-    boxShadow: ' 0px 20px 40px #0000001F',
-    [theme.breakpoints.down('md')]: {
-      width: '90%',
-    },
+// const useStyles1 = makeStyles((theme: any) =>{console.log(theme)})
+const useStyles = makeStyles((theme: any) => ({
+  root: {
+    height: '100%',
+    padding: theme.spacing(6, 2)
   },
-  SigninTextStyle: {
-    textAlign: 'start',
-    paddingLeft: theme.spacing(3),
-    paddingBottom: theme.spacing(2),
-    paddingTop: theme.spacing(1),
-    fontWeight: 500,
-    color: '#41A58D',
-  },
-  textboxStyle: {
-    paddingTop: theme.spacing(1),
-  },
-  textboxStyle1: {
-    paddingTop: theme.spacing(5),
-  },
-  textfieldStyle: {
-    width: '90%',
-  },
-  forgotpasswordStyle: {
-    paddingTop: theme.spacing(3),
-    paddingRight: theme.spacing(3),
-    textAlign: 'end',
-    textDecoration: 'underline',
-    cursor: 'pointer',
-  },
-  buttonStyle: {
+  rootMain: {
     display: 'flex',
-    flex: 1,
-    justifyContent: 'space-between',
-    padding: theme.spacing(3.5),
+    alignItems: 'center',
+    justifyContent: 'center'
   },
-  signUpbutton: {
-    width: '40%',
-    backgroundColor: 'white',
-    border: '2px solid #41A58D',
-    color: '#41A58D',
-    textTransform: 'capitalize',
-    '&:hover': {
-      backgroundColor: '#41A58D',
-      color: 'white',
-    },
+  card: {
+    width: theme.breakpoints.values.sm,
+    maxWidth: '100%',
+    overflow: 'unset',
+    display: 'flex',
+    position: 'relative',
+    '& > *': {
+      flexGrow: 1,
+      flexBasis: '50%',
+      width: '50%'
+    }
   },
-  signinButton: {
-    width: '40%',
-    backgroundColor: '#41A58D',
-    color: 'white',
-    textTransform: 'capitalize',
-    '&:hover': {
-      backgroundColor: 'white',
-      color: '#41A58D',
-      border: '2px solid #41A58D',
-    },
+  content: {
+    padding: theme.spacing(3, 4, 3, 4)
   },
-  textfields: {
-    paddingLeft: theme.spacing(3),
+  logoImgDiv: {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: theme.spacing(2, 0),
+  },
+  logoImg: {
+    width: theme.spacing(20),
+    height: theme.spacing(10),
+  },
+  loginForm: {
+    marginTop: theme.spacing(3)
   },
   divider: {
-    width: '85%',
-    marginLeft: theme.spacing(3),
+    margin: theme.spacing(2, 0)
   },
-  errors: {
-    textAlign: 'initial',
-    fontWeight: 400,
-    fontSize: 12,
-    color: 'red',
-    marginTop: theme.spacing(1),
+  btnLoading: {
+    color: 'white'
+  },
+  fields: {
+    margin: theme.spacing(-1),
+    display: 'flex',
+    flexWrap: 'wrap',
+    '& > *': {
+      flexGrow: 1,
+      margin: theme.spacing(1)
+    }
+  },
+  themeButton: {
+    marginTop: theme.spacing(2),
+    color: theme.palette.white,
+    backgroundColor: theme.palette.green.main,
+    '&:hover': {
+      backgroundColor: theme.palette.green.dark,
+    },
+    '&:disabled': {
+      backgroundColor: theme.palette.green.main,
+    },
   },
 }));
 
-const validationSchema = Yup.object().shape({
-  userEmail: Yup.string()
-    .email('Enter the valid Email.')
-    .required('Required *.'),
-  userPassword: Yup.string()
-    .min(8, 'Password must be atleast 8 character.')
-    .required('Required *.'),
-});
-
-function SignIn(props: any) {
+const Signin = () => {
   const classes = useStyles();
   const navigate = useNavigate();
-  const theme = useTheme();
   const Snackbar = useSnackbar();
-  const { Post } = useService();
   const { UserStore } = useStore();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [authLoading, setAuthLoading] = React.useState(true);
-  const [loginCredentials, setLoginCredentials] = React.useState<any>('');
-  const [invalidUserEmail, setInvalidUserEmail] = React.useState(false);
-  const [invalidUserPassword, setInvalidUserPassword] = React.useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
-  const loginUser = (value: any) => {
-    setLoginCredentials(value);
-    setIsLoading(true);
-    signInWithCredenrials(value.userEmail, value.userPassword)
+  const loginUser = (value: any, { setSubmitting }: any) => {
+    setSubmitting(true);
+    signInWithCredenrials(value.email, value.password)
       .then((response: any) => {
-        setIsLoading(false);
+        setSubmitting(false);
         localStorage.setItem('uid', response.user.uid);
         UserStore.setIdToken(response.user.uid);
       })
       .catch((error: any) => {
         console.log('Firebase Login Error', error);
         Snackbar.show(error.message, 'error');
-        setIsLoading(false);
+        setSubmitting(false);
       });
   };
 
@@ -150,104 +114,98 @@ function SignIn(props: any) {
     return () => unsubscribe();
   }, []);
 
-  // const handleKeyPress = (e: any) => {
-  //   if (e.key === 'Enter') {
-  //     loginUser(loginCredentials.userEmail, loginCredentials.userPassword);
-  //   }
-  // };
   return (
     <AuthLoader loading={authLoading}>
-      <Grid container>
-        <Grid item xs={12} md={12} lg={3}></Grid>
-        <Grid item xs={12} md={12} lg={6}>
-          <div className={classes.loginStyle}>
-            <div>
-              <Typography variant='h5' className={classes.SigninTextStyle}>
-                SignIn
-              </Typography>
+      <div className={classes.root}>
+        <Page title='Login' />
+        <div className={classes.logoImgDiv} ><img className={classes.logoImg} src={Logo} /></div>
+        <div className={classes.rootMain}>
+          <Card className={classes.card}>
+            <CardContent className={classes.content}>
+              <Typography
+                gutterBottom
+                variant="h3"
+              >
+                Login
+               </Typography>
+              <Formik
+                enableReinitialize
+                initialValues={{ email: '', password: '' }}
+                onSubmit={loginUser}
+                validationSchema={Yup.object().shape({
+                  email: Yup.string().trim().required('Email is required'),
+                  password: Yup.string().trim().required('Password is required'),
+                })}
+              >
+                {({
+                  values,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  setFieldValue,
+                  handleSubmit,
+                  isSubmitting,
+                }) => (
+
+                  <form className={classes.loginForm} onSubmit={handleSubmit}>
+                    <div className={classes.fields}>
+                      <TextField
+                        fullWidth
+                        label="Email address"
+                        name="email"
+                        variant="outlined"
+                        error={Boolean(touched.email && errors.email)}
+                        helperText={touched.email && errors.email}
+                        value={values.email}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      <TextField
+                        fullWidth
+                        label="Password"
+                        name="password"
+                        type="password"
+                        variant="outlined"
+                        error={Boolean(touched.password && errors.password)}
+                        helperText={touched.password && errors.password}
+                        value={values.password}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                    </div>
+                    <Button
+                      fullWidth
+                      className={classes.themeButton}
+                      disabled={isSubmitting}
+                      size="large"
+                      type="submit"
+                      variant="contained"
+                    >
+                      {isSubmitting ? <CircularProgress className={classes.btnLoading} size={25} /> : 'Login'}
+                    </Button>
+                  </form>
+                )}
+              </Formik>
+
               <Divider className={classes.divider} />
-              <div className={classes.textfields}>
-                <Formik
-                  validationSchema={validationSchema}
-                  initialValues={{ userEmail: '', userPassword: '' }}
-                  onSubmit={loginUser}
-                >
-                  {(props) => {
-                    const { values, errors, handleChange, handleSubmit } =
-                      props;
-                    return (
-                      <form onSubmit={handleSubmit}>
-                        <div className={classes.textboxStyle}>
-                          <TextField
-                            type='text'
-                            className={classes.textfieldStyle}
-                            value={values.userEmail}
-                            onChange={handleChange('userEmail')}
-                            label='Enter Email'
-                          // onKeyPress={handleKeyPress}
-                          />
-                          <div>
-                            <Typography className={classes.errors}>
-                              {invalidUserEmail
-                                ? 'Invalid email, Please enter the valid email.'
-                                : errors.userEmail}
-                            </Typography>
-                          </div>
-                        </div>
-                        <div className={classes.textboxStyle1}>
-                          <TextField
-                            type='password'
-                            value={values.userPassword}
-                            onChange={handleChange('userPassword')}
-                            className={classes.textfieldStyle}
-                            label='Enter Password'
-                          />
-                          <div>
-                            <Typography className={classes.errors}>
-                              {invalidUserPassword
-                                ? 'Invalid password, Please enter the valid password.'
-                                : errors.userPassword}
-                            </Typography>
-                          </div>
-                        </div>
-                        <Typography className={classes.forgotpasswordStyle}>
-                          Forgot Password ?
-                        </Typography>
-                        <div className={classes.buttonStyle}>
-                          <Button className={classes.signUpbutton}>
-                            SignUp
-                          </Button>
-                          <Button
-                            type='submit'
-                            style={
-                              isMobile && isLoading ? { width: '50%' } : {}
-                            }
-                            className={classes.signinButton}
-                          >
-                            {isLoading ? 'Signing In' : 'Sign In'}
-                            {isLoading ? (
-                              <i
-                                style={{ fontSize: 15, marginLeft: 20 }}
-                                className='fas fa-spinner fa-pulse'
-                              ></i>
-                            ) : (
-                              ''
-                            )}
-                          </Button>
-                        </div>
-                      </form>
-                    );
-                  }}
-                </Formik>
-              </div>
-            </div>
-          </div>
-        </Grid>
-        <Grid item xs={12} md={12} lg={3}></Grid>
-      </Grid>
+              <Link
+                align="center"
+                color="textPrimary"
+                component={RouterLink}
+                to="/auth/forget-password"
+                underline="always"
+                variant="subtitle2"
+              >
+                Forget Password?
+          </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </AuthLoader>
   );
-}
+};
 
 const AuthLoader = ({ loading, children }: any) => {
   const [aLoading, setALoading] = useState(loading);
@@ -259,4 +217,6 @@ const AuthLoader = ({ loading, children }: any) => {
   return <>{aLoading ? <Loader /> : children}</>;
 };
 
-export default SignIn;
+export default Signin;
+
+

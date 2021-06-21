@@ -12,6 +12,10 @@ import {
   FormHelperText,
   Grid,
   IconButton,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
   makeStyles,
   Paper,
   Table,
@@ -96,22 +100,50 @@ const useStyles = makeStyles((theme: any) => ({
     width: '100%',
     height: '50px',
   },
-  avatarStyles: {
-    width: theme.spacing(15),
-    height: theme.spacing(15),
-    // margin: 'auto',
-  },
-  ingredientsAvatarStyle: {
+  //
+  avatarRoot: {
+    borderRadius: 10,
+    marginRight: 15,
     width: theme.spacing(10),
     height: theme.spacing(10),
+  },
+  textPrimary: {
+    fontWeight: 'bold'
+  },
+  textSecondary: {
+    color: '#f0c100'
+  },
+  ingrdientsGridMain: {
+    marginTop: 10
+  },
+  ingredientsAvatarRoot: {
+    width: theme.spacing(7),
+    height: theme.spacing(7),
     margin: 'auto',
   },
-  marginTopStyle: {
-    marginTop: theme.spacing(2),
+  timeText: {
+    display: 'flex',
+    alignItems: 'center'
   },
-  adjustmentTop: {
-    marginTop: '5px',
+  htmlContentGrid: {
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
+    paddingTop: theme.spacing(1),
   },
+  noIngredientsText: {
+    marginBottom: theme.spacing(3),
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  htmlContent: {
+    '& ul': {
+      paddingLeft: '1.2rem',
+    },
+    '& p': {
+      textAlign: 'justify',
+    }
+  }
+
 }));
 
 const SkinCareRecipe = () => {
@@ -865,7 +897,7 @@ const ViewDailog = (props: any) => {
       disableBackdropClick
       disableEscapeKeyDown
       fullWidth
-      maxWidth='md'
+      maxWidth='sm'
       aria-labelledby='dialog-view-title'
       open={isOpen}
     >
@@ -874,93 +906,7 @@ const ViewDailog = (props: any) => {
       </DialogTitle>
 
       <DialogContent dividers>
-        <Grid container spacing={3}>
-          <Grid item justify='flex-end' md={2} xs={12}>
-            <Avatar
-              className={classes.avatarStyles}
-              variant='square'
-              src={formValue?.recipe_image}
-            />
-          </Grid>
-          <Grid item md={10} xs={12}>
-            <Typography variant='h6' align='left'>
-              {formValue?.recipe_name}
-            </Typography>
-            <Typography
-              variant='subtitle1'
-              align='left'
-              style={{ marginTop: '5px', color: '#E7B000' }}
-            >
-              {formValue?.recipe_description}
-            </Typography>
-          </Grid>
-          <Grid item md={12} xs={12}>
-            <Typography variant='h6' align='left' style={{ color: '#41A58D' }}>
-              Ingredients
-            </Typography>
-          </Grid>
-          <Grid container>
-            {formValue?.ingredients?.length !== 0 ? (
-              formValue?.ingredients?.map((value: any, index: any) => {
-                return (
-                  <Grid
-                    className={classes.adjustmentTop}
-                    key={index}
-                    item
-                    xs={6}
-                    md={4}
-                  >
-                    <Avatar
-                      className={classes.ingredientsAvatarStyle}
-                      variant='circular'
-                      src={value.image}
-                    />
-                    <Typography variant='h6' align='center'>
-                      {value.name}
-                    </Typography>
-                    <Typography
-                      className={classes.adjustmentTop}
-                      variant='subtitle1'
-                      align='center'
-                    >
-                      {value.description.length >= 25
-                        ? `${value.description.substring(0, 30)}...`
-                        : ''}
-                    </Typography>
-                  </Grid>
-                );
-              })
-            ) : (
-              <Grid xs={12}>
-                <Typography variant='subtitle1' align='center'>
-                  No Ingredients
-                </Typography>
-              </Grid>
-            )}
-          </Grid>
-          <Grid item md={12} xs={12}>
-            <Typography variant='h6' align='left' style={{ color: '#41A58D' }}>
-              Preparation
-            </Typography>
-            <Typography
-              className={classes.adjustmentTop}
-              variant='body2'
-              align='left'
-            >
-              <TimerIcon style={{ fontSize: '13px' }} /> {'  '}
-              {formValue?.preparation_time}
-            </Typography>
-          </Grid>
-          <Grid item md={12} xs={12}>
-            <div style={{ paddingLeft: '20px', paddingRight: '20px' }}>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: formValue?.preparation_description,
-                }}
-              ></div>
-            </div>
-          </Grid>
-        </Grid>
+        <SkinCareRecipeViewContent {...props} />
       </DialogContent>
 
       <DialogActions>
@@ -971,5 +917,63 @@ const ViewDailog = (props: any) => {
     </Dialog>
   );
 };
+
+export const SkinCareRecipeViewContent = (props: any) => {
+  const { isOpen, title, onClose, data } = props;
+  const classes = useStyles();
+  const [formValue, setFormValue] = useState(data);
+
+  useEffect(() => {
+    setFormValue(data);
+  }, [props]);
+  return (
+    <>
+      <List>
+        <ListItem disableGutters>
+          <ListItemAvatar>
+            <Avatar className={classes.avatarRoot} src={formValue?.recipe_image} />
+          </ListItemAvatar>
+          <ListItemText
+            classes={{
+              primary: classes.textPrimary,
+              secondary: classes.textSecondary
+            }}
+            primary={formValue?.recipe_name}
+            secondary={formValue?.recipe_description}
+          />
+        </ListItem>
+      </List>
+
+      <Typography variant='h6' align='left' style={{ color: '#41A58D' }}>INGREDIENTS</Typography>
+
+      <Grid container spacing={2} className={classes.ingrdientsGridMain} justify='center'>
+        {formValue?.ingredients?.map((value: any, index: any) =>
+          <Grid key={index} item xs={4} md={3}>
+            <Avatar className={classes.ingredientsAvatarRoot} src={value?.image} />
+            <Typography variant='h6' align='center'>{value?.name}</Typography>
+            <Typography variant='subtitle2' align='center'>{value?.quantity}</Typography>
+          </Grid>
+        )}
+        {formValue?.ingredients?.length == 0 &&
+          <Grid item xs={12} md={12} className={classes.noIngredientsText}>
+            <div>No Ingredients</div>
+          </Grid>
+        }
+      </Grid>
+
+      <Typography variant='h6' align='left' style={{ color: '#41A58D' }}>PREPARATION</Typography>
+      <Typography variant='body2' align='center' className={classes.timeText}>
+        <TimerIcon fontSize='inherit' />
+        <span>{formValue?.preparation_time}</span>
+      </Typography>
+
+      <Grid container >
+        <Grid item xs={12} md={12} className={classes.htmlContentGrid}>
+          <div className={classes.htmlContent} dangerouslySetInnerHTML={{ __html: formValue?.preparation_description }} />
+        </Grid>
+      </Grid>
+    </>
+  )
+}
 
 export default SkinCareRecipe;

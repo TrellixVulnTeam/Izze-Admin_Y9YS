@@ -19,17 +19,25 @@ import SettingsIcon from '@material-ui/icons/SettingsOutlined';
 import ViewModuleIcon from '@material-ui/icons/ViewModule';
 import {
   DashboardRoute,
-
-  EquipmentsRoute,
-
-  ExerciseRoute,
-
+  
   SkinCareIngredientsRoute,
   SkinCarePlanRoute,
   SkinCareRecipeRoute,
   SkinCareRoute,
+
+  EquipmentsRoute,
+  ExerciseRoute,
   WorkoutPlanRoute,
-  WorkoutRoute
+  WorkoutRoute,
+
+  NutritionRoute,
+  NutritionIngredientsRoute,
+  NutritionPlanRoute,
+
+  MealRoute,
+  MealRecipesRoute,
+  MealPlanRoute
+  
 } from '../../Routes/RoutesConstants';
 
 export default [
@@ -80,6 +88,39 @@ export default [
           },
         ],
       },
+
+      {
+        title: 'Nutrition',
+        href: NutritionRoute,
+        icon: BarChartIcon,
+        children: [
+          {
+            title: 'Ingredients',
+            href: NutritionIngredientsRoute,
+          },
+          {
+            title: 'Plan',
+            href: NutritionPlanRoute,
+          },
+        ],
+      },
+
+      {
+        title: 'Meal Plan',
+        href: MealRoute,
+        icon: BarChartIcon,
+        children: [
+          {
+            title: 'Recipe',
+            href: MealRecipesRoute,
+          },
+          {
+            title: 'Plan',
+            href: MealPlanRoute,
+          },
+        ],
+      },
+
       {
         title: 'Multi level',
         href: '/dashboards',

@@ -1,56 +1,24 @@
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  makeStyles,
-  Avatar,
-  Card,
-  CardActions,
-  CardContent,
-  InputLabel,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  FormControl,
-  FormHelperText,
-  Grid,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tooltip,
-  Typography,
-  TextField,
-  Button,
-  CircularProgress,
-  Select,
-  Tabs,
-  Tab,
-} from '@material-ui/core';
-import Autocomplete from '@material-ui/lab/Autocomplete';
+import { Avatar, Button, Card, CardActions, CardContent, CircularProgress, Dialog, DialogActions, DialogContent, Grid, IconButton, makeStyles, Paper, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography } from '@material-ui/core';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import ListItemText from '@material-ui/core/ListItemText';
 import AddIcon from '@material-ui/icons/Add';
-import Page from '../../components/Page/Page';
-import DialogTitle from '../../components/DialogTitlle/DialogTitle';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
+import CenterFocusStrongIcon from '@material-ui/icons/CenterFocusStrong';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import { Pagination, TabContext, TabList, TabPanel } from '@material-ui/lab';
-import CenterFocusStrongIcon from '@material-ui/icons/CenterFocusStrong';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import { Formik } from 'formik';
+import React, { useEffect, useRef, useState } from 'react';
+import * as Yup from 'yup';
+import DialogTitle from '../../components/DialogTitlle/DialogTitle';
 import { TableLoader, TableNoData } from '../../components/Loader/Loader';
-import useSnackbar from '../../hook/useSnackbar';
-import useService from '../../hook/useService';
+import Page from '../../components/Page/Page';
 import useConfModel from '../../hook/useConfModel';
+import useService from '../../hook/useService';
+import useSnackbar from '../../hook/useSnackbar';
 
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import ImageIcon from '@material-ui/icons/Image';
-import WorkIcon from '@material-ui/icons/Work';
-import BeachAccessIcon from '@material-ui/icons/BeachAccess';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -112,13 +80,32 @@ const useStyles = makeStyles((theme: any) => ({
     marginTop: '20px',
   },
   //
+  tabRoot: {
+    minWidth: 72,
+  },
   tabIndicator: {
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.green.main,
   },
   tabTextColorInherit: {
     backgroundColor: theme.palette.green.main,
     color: 'white',
     border: '1px solid white'
+  },
+  tabPanelRoot: {
+    paddingTop: 0,
+    paddingBottom: 0,
+    width: '100%'
+  },
+  listItemRoot: {
+    backgroundColor: '#7ac0af2b',
+    margin: '10px 0px'
+  },
+  noListItemRoot: {
+    backgroundColor: '#f500571c',
+    margin: '10px 0px'
+  },
+  paperRoot: {
+    display: 'flex'
   },
 }));
 
@@ -424,7 +411,7 @@ const AddEditDialog = (props: any) => {
     experience_level: '',
     intensity: '',
     gym_access: null,
-    workouts: Array(10).fill(null).map((d, i) => ({ day: i + 1, ...workoutInitalValue })),
+    workouts: Array(7).fill(null).map((d, i) => ({ day: i + 1, ...workoutInitalValue })),
   };
 
 
@@ -488,17 +475,19 @@ const AddEditDialog = (props: any) => {
     if (isEdit) {
       const { workouts, _id, ...rest } = data;
       const editData = { ...rest, id: _id };
+      const CurrentWorkoutIds = workoutList.map(({ _id }: any) => _id)
       editData.workouts = workouts.map((data: any) => {
-        data.before_workout = data.before_workout.map(({ _id }: any) => ({ id: _id }));
-        data.workout = data.workout.map(({ _id }: any) => ({ id: _id }));;
-        data.after_workout = data.after_workout.map(({ _id }: any) => ({ id: _id }));;
+        data.before_workout = data.before_workout.filter(({ _id }: any) => CurrentWorkoutIds.includes(_id)).map(({ _id }: any) => ({ id: _id }));
+        data.workout = data.workout.filter(({ _id }: any) => CurrentWorkoutIds.includes(_id)).map(({ _id }: any) => ({ id: _id }));
+        data.after_workout = data.after_workout.filter(({ _id }: any) => CurrentWorkoutIds.includes(_id)).map(({ _id }: any) => ({ id: _id }));
         return data;
       });
+      console.log('editData', editData)
       setInitialValue(editData);
     } else {
       setInitialValue(initialFormValues);
     }
-  }, [props]);
+  }, [props, workoutList]);
 
   useEffect(() => {
     listAllWorkout();
@@ -594,7 +583,7 @@ const AddEditDialog = (props: any) => {
                       renderInput={(params: any) => (
                         <TextField
                           {...params}
-                          label='Gym Access'
+                          label='Intensity'
                           variant='outlined'
                           error={Boolean(touched.intensity && errors.intensity)}
                           helperText={touched.intensity && errors.intensity}
@@ -618,7 +607,7 @@ const AddEditDialog = (props: any) => {
                       renderInput={(params: any) => (
                         <TextField
                           {...params}
-                          label='gym_access'
+                          label='Gym Access'
                           variant='outlined'
                           error={Boolean(touched.gym_access && errors.gym_access)}
                           helperText={touched.gym_access && errors.gym_access}
@@ -638,7 +627,7 @@ const AddEditDialog = (props: any) => {
                             component='div'
                             className={classes.dayPaper}
                           >
-                            <Typography color='inherit' align='center'>{worData.day}</Typography>
+                            <Typography color='inherit' align='center'>{`Day - ${worData.day}`}</Typography>
                           </Paper>
                         </Grid>
 
@@ -755,6 +744,10 @@ const ViewWorkoutPlan = (props: any) => {
     setValue(newValue);
   };
 
+  const getDropValues = (dropValues: any, value: string) => {
+    return dropValues.find(({ id }: any) => id == value)?.name || ''
+  };
+
   useEffect(() => {
     console.log('view data', data)
     setFormValue(data);
@@ -774,8 +767,26 @@ const ViewWorkoutPlan = (props: any) => {
       </DialogTitle>
 
       <DialogContent dividers>
+        <Paper >
+          <Table>
+            <TableBody>
+              <TableRow >
+                <TableCell>Experience Level</TableCell>
+                <TableCell><strong>{getDropValues(ExperienceDrop, formValue?.experience_level)}</strong></TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Intensity</TableCell>
+                <TableCell><strong>{getDropValues(IntensityDrop, formValue?.intensity)}</strong></TableCell>
+              </TableRow>
+              <TableRow >
+                <TableCell>Gym Access</TableCell>
+                <TableCell><strong>{getDropValues(GymAccessDrop, formValue?.gym_access)}</strong></TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </Paper>
 
-        <Paper style={{ display: 'flex' }}>
+        <Paper className={classes.paperRoot}>
           <TabContext value={value || ''}>
             <TabList
               classes={{
@@ -784,34 +795,32 @@ const ViewWorkoutPlan = (props: any) => {
               onChange={handleChange}
               orientation="vertical"
               variant="standard"
-
             >
-
               {formValue?.workouts.map((item: any) =>
                 <Tab
-                  classes={{ textColorInherit: classes.tabTextColorInherit }}
-                  label={item.day}
+                  classes={{ root: classes.tabRoot, textColorInherit: classes.tabTextColorInherit }}
+                  label={`Day - ${item.day}`}
                   value={item.day.toString()} />
               )}
-
             </TabList>
 
-
             {formValue?.workouts.map((item: any) =>
-              <TabPanel value={item.day.toString()}>
+              <TabPanel className={classes.tabPanelRoot} value={item.day.toString()}>
                 <List>
                   <div>Before Workout</div>
                   {item?.before_workout.map((data: any) => <WorkoutListItem data={data} />)}
+                  {item?.before_workout?.length == 0 && <NoWorkoutListItem />}
                   <div>Workout</div>
                   {item?.workout.map((data: any) => <WorkoutListItem data={data} />)}
+                  {item?.workout?.length == 0 && <NoWorkoutListItem />}
                   <div>After Workout</div>
                   {item?.after_workout.map((data: any) => <WorkoutListItem data={data} />)}
+                  {item?.after_workout?.length == 0 && <NoWorkoutListItem />}
                 </List>
               </TabPanel>)}
-
-
           </TabContext>
         </Paper>
+
       </DialogContent>
 
       <DialogActions>
@@ -824,17 +833,29 @@ const ViewWorkoutPlan = (props: any) => {
 };
 
 const WorkoutListItem = (props: any) => {
+  const classes = useStyles()
   const [listData, setListData] = useState(props.data)
   useEffect(() => {
     setListData(props.data)
   }, [props.data])
   return (
-    <ListItem>
+    <ListItem className={classes.listItemRoot}>
       <ListItemAvatar>
         <Avatar variant='square' src={listData?.workout_image} />
       </ListItemAvatar>
       <ListItemText
         primary={listData?.workout_name}
+      />
+    </ListItem>
+  )
+}
+
+const NoWorkoutListItem = (props: any) => {
+  const classes = useStyles()
+  return (
+    <ListItem className={classes.noListItemRoot}>
+      <ListItemText
+        primary={'No Workout'}
       />
     </ListItem>
   )

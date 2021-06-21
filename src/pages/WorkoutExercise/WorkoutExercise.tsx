@@ -11,6 +11,10 @@ import {
   FormControl,
   FormHelperText,
   Grid,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
   IconButton,
   makeStyles,
   Paper,
@@ -116,6 +120,46 @@ const useStyles = makeStyles((theme: any) => ({
   adjustmentTop: {
     marginTop: '5px',
   },
+  avatarRoot: {
+    borderRadius: 10,
+    marginRight: 15,
+    width: theme.spacing(10),
+    height: theme.spacing(10),
+  },
+  textPrimary: {
+    marginTop: 10,
+    fontWeight: 'bold',
+  },
+  textSecondary: {
+    marginTop: 10,
+    color: '#f0c100',
+  },
+  ingrdientsGridMain: {
+    marginTop: 10,
+  },
+  ingredientsAvatarRoot: {
+    width: theme.spacing(7),
+    height: theme.spacing(7),
+    margin: 'auto',
+  },
+  htmlContentGrid: {
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
+    paddingTop: theme.spacing(1),
+  },
+  noIngredientsText: {
+    marginBottom: theme.spacing(3),
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  htmlContent: {
+    '& ul': {
+      paddingLeft: '1.2rem',
+    },
+    '& p': {
+      textAlign: 'justify',
+    },
+  },
 }));
 
 const WorkoutExercise = () => {
@@ -171,7 +215,7 @@ const WorkoutExercise = () => {
       ...prevState,
       isOpen: true,
       isEdit: false,
-      title: 'Add Recpie',
+      title: 'Add Exercise',
       okBtnText: 'Save',
     }));
   };
@@ -182,7 +226,7 @@ const WorkoutExercise = () => {
       isOpen: true,
       isEdit: true,
       data,
-      title: 'Edit Recpie',
+      title: 'Edit Exercise',
       okBtnText: 'Edit',
     }));
   };
@@ -227,8 +271,6 @@ const WorkoutExercise = () => {
     listWorkOutExercise();
     closeAddEditDialog();
   };
-
-  console.log(dataList);
 
   useEffect(() => {
     listWorkOutExercise();
@@ -302,7 +344,7 @@ const WorkoutExercise = () => {
                       </TableCell>
                       <TableCell align='center'>{data?.workout_name}</TableCell>
                       <TableCell align='center'>
-                        <Tooltip title={data?.recipe_description}>
+                        <Tooltip title={data?.workout_description}>
                           <span>{setElipsis(data?.workout_description)}</span>
                         </Tooltip>
                       </TableCell>
@@ -550,7 +592,13 @@ const AddEditDailog = (props: any) => {
         } else {
           PostData.workout_image = file;
           PostData.workout_thumbnail = workout_thumbnail.file;
-          PostData.workoutterms = workoutterms;
+          PostData.workout_terms = workout_terms.map((items: any) => {
+            return {
+              description: items.description,
+              image: items.image.file,
+              name: items.name,
+            };
+          });
         }
         !isEdit && addData(PostData, helper);
         isEdit && editData(PostData, helper);
@@ -562,7 +610,6 @@ const AddEditDailog = (props: any) => {
   };
 
   const addData = (data: any, { setSubmitting, resetForm }: any) => {
-    console.log(data);
     setSubmitting(true);
     Post('app/addWorkout', data)
       .then((res: any) => {
@@ -619,7 +666,6 @@ const AddEditDailog = (props: any) => {
 
   useEffect(() => {
     if (isEdit) {
-      console.log(data);
       const {
         required_equipments,
         workout_terms,
@@ -702,7 +748,7 @@ const AddEditDailog = (props: any) => {
                 .trim()
                 .required('Workout term name is Required'),
               image: Yup.object({
-                file: Yup.mixed().required('A file is required'),
+                file: Yup.mixed().required('required'),
               }),
               description: Yup.string()
                 .trim()
@@ -729,7 +775,6 @@ const AddEditDailog = (props: any) => {
           isSubmitting,
         }) => (
           <>
-            {console.log(errors)}
             <DialogContent dividers>
               <Grid container spacing={3}>
                 <Grid item md={12} xs={12}>
@@ -820,6 +865,21 @@ const AddEditDailog = (props: any) => {
                           onClick={() => avatharimgRef.current.click()}
                           src={workoutValues?.image?.prevImage}
                         />
+                        <FormControl
+                          error={Boolean(
+                            touched?.workout_terms &&
+                              touched?.workout_terms[index]?.image?.file &&
+                              errors?.workout_terms &&
+                              (errors?.workout_terms[index] as any)?.image?.file
+                          )}
+                        >
+                          <FormHelperText>
+                            {touched?.workout_terms &&
+                              touched?.workout_terms[index]?.image?.file &&
+                              errors?.workout_terms &&
+                              (errors?.workout_terms[index] as any)?.image?.file}
+                          </FormHelperText>
+                        </FormControl>
                       </Grid>
 
                       <Grid item md={5} xs={12}>
@@ -893,7 +953,11 @@ const AddEditDailog = (props: any) => {
                     multiple
                     id='combo-box-demo'
                     options={equipmentList}
-                    value={equipmentList.filter((data: any) => values.required_equipments.map(({ id }: any) => id).includes(data._id))}
+                    value={equipmentList.filter((data: any) =>
+                      values.required_equipments
+                        .map(({ id }: any) => id)
+                        .includes(data._id)
+                    )}
                     onChange={handleEquipmentChange}
                     getOptionLabel={(option: any) => option.name}
                     renderInput={(params) => (
@@ -1061,14 +1125,12 @@ const ViewDailog = (props: any) => {
     setFormValue(data);
   }, [props]);
 
-  console.log(formValue);
-
   return (
     <Dialog
       disableBackdropClick
       disableEscapeKeyDown
       fullWidth
-      maxWidth='md'
+      maxWidth='sm'
       aria-labelledby='dialog-view-title'
       open={isOpen}
     >
@@ -1077,127 +1139,90 @@ const ViewDailog = (props: any) => {
       </DialogTitle>
 
       <DialogContent dividers>
-        <Grid container spacing={3}>
-          <Grid item justify='flex-end' md={2} xs={12}>
-            <Avatar
-              className={classes.avatarStyles}
-              variant='square'
-              src={formValue?.workout_image}
+        <div>
+          <img
+            src={formValue?.workout_image}
+            alt={'Workout image'}
+            className={classes.imageView}
+          />
+        </div>
+        <Typography variant='h5' align='left' className={classes.textPrimary}>{formValue?.workout_name}</Typography>
+
+        <Grid
+          container
+          spacing={2}
+          className={classes.ingrdientsGridMain}
+          justify='center'
+        >
+          {formValue?.workout_terms?.map((value: any, index: any) => (
+            <Grid key={index} item xs={4} md={3}>
+              <Avatar
+                className={classes.ingredientsAvatarRoot}
+                src={value?.image}
+              />
+              <Typography variant='h6' align='center'>
+                {value?.name}
+              </Typography>
+              <Typography variant='subtitle2' align='center'>
+                {value.description.length >= 25
+                  ? `${value.description.substring(0, 30)}...`
+                  : value.description}
+              </Typography>
+            </Grid>
+          ))}
+          {formValue?.workout_terms?.length == 0 && (
+            <Grid item xs={12} md={12} className={classes.noIngredientsText}>
+              <div>No Ingredients</div>
+            </Grid>
+          )}
+        </Grid>
+        <Typography variant='h6' align='left' className={classes.textSecondary}>{formValue?.workout_description}</Typography>
+
+        
+
+        <Typography variant='h5' align='left' style={{ color: '#41A58D' }} className={classes.textPrimary}>
+          Equipments
+        </Typography>
+
+        <Grid
+          container
+          spacing={2}
+          className={classes.ingrdientsGridMain}
+          justify='center'
+        >
+          {formValue?.required_equipments?.map((value: any, index: any) => (
+            <Grid key={index} item xs={4} md={3}>
+              <Avatar
+                className={classes.ingredientsAvatarRoot}
+                src={value?.image}
+              />
+              <Typography variant='h6' align='center'>
+                {value?.name}
+              </Typography>
+              {/* <Typography variant='subtitle2' align='center'>
+                {value.description.length >= 25
+                  ? `${value.description.substring(0, 30)}...`
+                  : value.description}
+              </Typography> */}
+            </Grid>
+          ))}
+          {formValue?.required_equipments?.length == 0 && (
+            <Grid item xs={12} md={12} className={classes.noIngredientsText}>
+              <div>No Ingredients</div>
+            </Grid>
+          )}
+        </Grid>
+
+        <Typography variant='h6' align='left' style={{ color: '#41A58D' }}>
+          How to do
+        </Typography>
+
+        <Grid container>
+          <Grid item xs={12} md={12} className={classes.htmlContentGrid}>
+            <div
+              className={classes.htmlContent}
+              dangerouslySetInnerHTML={{ __html: formValue?.how_to_do }}
             />
-          </Grid>
-          <Grid item md={10} xs={12}>
-            <Typography variant='h6' align='left'>
-              {formValue?.workout_name}
-            </Typography>
-            <Typography
-              variant='subtitle1'
-              align='left'
-              style={{ marginTop: '5px', color: '#E7B000' }}
-            >
-              {formValue?.workout_description}
-            </Typography>
-          </Grid>
-          <Grid item md={12} xs={12}>
-            <Typography variant='h6' align='left' style={{ color: '#41A58D' }}>
-              Workout Terms
-            </Typography>
-          </Grid>
-          <Grid container>
-            {formValue?.workout_terms?.length !== 0 ? (
-              formValue?.workout_terms?.map((value: any, index: any) => {
-                return (
-                  <Grid
-                    className={classes.adjustmentTop}
-                    key={index}
-                    item
-                    xs={6}
-                    md={4}
-                  >
-                    <Avatar
-                      className={classes.ingredientsAvatarStyle}
-                      variant='square'
-                      src={value?.image}
-                    />
-                    <Typography variant='h6' align='center'>
-                      {value.name}
-                    </Typography>
-                    <Typography
-                      className={classes.adjustmentTop}
-                      variant='subtitle1'
-                      align='center'
-                    >
-                      {value.description.length >= 25
-                        ? `${value.description.substring(0, 30)}...`
-                        : value.description}
-                    </Typography>
-                  </Grid>
-                );
-              })
-            ) : (
-              <Grid xs={12}>
-                <Typography variant='subtitle1' align='center'>
-                  No Ingredients
-                </Typography>
-              </Grid>
-            )}
-          </Grid>
-          <Grid item md={12} xs={12}>
-            <Typography variant='h6' align='left' style={{ color: '#41A58D' }}>
-              Equipments
-            </Typography>
-          </Grid>
-          <Grid container>
-            {formValue?.required_equipments?.length !== 0 ? (
-              formValue?.required_equipments?.map((value: any, index: any) => {
-                return (
-                  <Grid
-                    className={classes.adjustmentTop}
-                    key={index}
-                    item
-                    xs={6}
-                    md={4}
-                  >
-                    <Avatar
-                      className={classes.ingredientsAvatarStyle}
-                      variant='square'
-                      src={value.image}
-                    />
-                    <Typography variant='h6' align='center'>
-                      {value.name}
-                    </Typography>
-                    <Typography
-                      className={classes.adjustmentTop}
-                      variant='subtitle1'
-                      align='center'
-                    >
-                      {value.description.length >= 25
-                        ? `${value.description.substring(0, 30)}...`
-                        : value.description}
-                    </Typography>
-                  </Grid>
-                );
-              })
-            ) : (
-              <Grid xs={12}>
-                <Typography variant='subtitle1' align='center'>
-                  No Ingredients
-                </Typography>
-              </Grid>
-            )}
-          </Grid>
-          <Grid item md={12} xs={12}>
-            <Typography variant='h6' align='left' style={{ color: '#41A58D' }}>
-              How to do
-            </Typography>
-          </Grid>
-          <Grid item md={12} xs={12}>
-            <div style={{ paddingLeft: '20px', paddingRight: '20px' }}>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: formValue?.how_to_do,
-                }}
-              ></div>
-            </div>
           </Grid>
         </Grid>
       </DialogContent>

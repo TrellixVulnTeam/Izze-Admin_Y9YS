@@ -72,11 +72,11 @@ const NavBar = (props: any) => {
     <div className={classes.content}>
       <div className={classes.profile}>
         <Avatar
-          alt='Person'
+          alt='A'
           className={classes.avatar}
-          component={RouterLink}
-          src={'/profile/1/timeline'}
-          to='/profile/1/timeline'
+          // component={RouterLink}
+          // src={'/profile/1/timeline'}
+          // to='/profile/1/timeline'
         />
         <Typography className={classes.name} variant='h4'>
           Admin

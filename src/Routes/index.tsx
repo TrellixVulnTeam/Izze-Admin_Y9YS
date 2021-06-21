@@ -1,18 +1,19 @@
-import classes from '*.module.css';
 import { makeStyles } from '@material-ui/core';
 import React from 'react';
 import { Navigate, Outlet, useRoutes } from 'react-router-dom';
 import Equipment from '../pages/Equipment/Equipment';
 import AuthLayout from '../pages/Layouts/AuthLayout';
 import HomeLayout from '../pages/Layouts/HomeLayout';
-import RouteMap, { DashboardRoute, EquipmentsRoute, SkinCareIngredientsRoute } from './RoutesConstants';
+import RouteMap, { DashboardRoute, EquipmentsRoute, SkinCareIngredientsRoute, NutritionRoute, MealRoute } from './RoutesConstants';
 
 const SignIn = React.lazy(() => import('../pages/SignIn/SignIn'));
 const SkinCareIngredients = React.lazy(() => import('../pages/SkinCareIngredients/SkinCareIngredients'));
 const SkinCareRecipe = React.lazy(() => import('../pages/SkinCareRecipe/SkinCareRecipe'));
 const SkinCarePlan = React.lazy(()=> import('../pages/SkinCarePlan/SkinCarePlan'));
 const WorkoutPlan = React.lazy(()=>import ('../pages/WorkoutPlan/WorkoutPlan'));
-const WorkoutExercise = React.lazy(()=>import('../pages/WorkoutExercise/WorkoutExercise'))
+const WorkoutExercise = React.lazy(()=>import('../pages/WorkoutExercise/WorkoutExercise'));
+const NutritionIngredients = React.lazy(()=>import('../pages/NutritionIngredients/NutritionIngredients'));
+const NutritionPlan = React.lazy(()=>import('../pages/NutritionPlan/NutritionPlan'));
 
 const useStyles = makeStyles((theme: any) => ({
   underDevlopment: {
@@ -64,6 +65,26 @@ const AppRoutes = () => {
             { path: RouteMap.HomeLayout.EquipmentsPage, element: <Equipment /> },
             { path: RouteMap.HomeLayout.ExercisePage, element: <WorkoutExercise/> },
             { path: RouteMap.HomeLayout.WorkoutPlanPage, element:  <WorkoutPlan/> },
+          ]
+        },
+
+        { path: RouteMap.HomeLayout.NutritionPage, element: <Navigate to={NutritionRoute} />, },
+        {
+          path: RouteMap.HomeLayout.NutritionPage,
+          element: <Outlet />,
+          children: [
+            { path: RouteMap.HomeLayout.NutritionIngredientPage, element: <NutritionIngredients/> },
+            { path: RouteMap.HomeLayout.NutritionPlanPage, element: <NutritionPlan /> },
+          ]
+        },
+
+        { path: RouteMap.HomeLayout.MealPage, element: <Navigate to={MealRoute} />, },
+        {
+          path: RouteMap.HomeLayout.MealPage,
+          element: <Outlet />,
+          children: [
+            { path: RouteMap.HomeLayout.MealRecipesPage, element: <div className={classes.underDevlopment}> Under Development</div> },
+            { path: RouteMap.HomeLayout.MealPlanPage, element: <div className={classes.underDevlopment}> Under Development</div> },
           ]
         },
 

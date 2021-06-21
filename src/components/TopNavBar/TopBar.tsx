@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
-import LogoImage from '../../assets/logo.png';
+import LogoImage from '../../assets/Images/logo.png';
 import firebase from 'firebase/app';
 import { makeStyles } from '@material-ui/styles';
 import {
@@ -16,6 +16,8 @@ import {
 } from '@material-ui/core';
 import InputIcon from '@material-ui/icons/Input';
 import MenuIcon from '@material-ui/icons/Menu';
+import useConfModel from '../../hook/useConfModel';
+import { LogoutUser } from '../../utils/FirebaseUtils';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -77,69 +79,70 @@ const useStyles = makeStyles((theme: any) => ({
     fontSize: 20,
     marginRight: theme.spacing(1),
   },
-  logoContainer : {
-    width : '200px',
-    height : '64px',
-    marginLeft: theme.spacing(2),
+  logoImage: {
+    width: theme.spacing(12),
+    height: theme.spacing(5),
+    filter: 'brightness(10)'
+
   }
 }));
 
 const TopBar = (props: any) => {
   const classes = useStyles();
   const navigate = useNavigate();
+  const ConfModel = useConfModel();
   const { onOpenNavBarMobile, className, ...rest } = props;
-  const [isLoading, setIsLoading] = React.useState(false);
 
-  useEffect(() => {
-    let mounted = true;
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
-  const handleLogout = () => {
-    setIsLoading(true);
-    firebase
-      .auth()
-      .signOut()
-      .then(() => {
-        setIsLoading(false);
-        localStorage.clear();
-        navigate('/login');
+  const handleLogout = (data: any) => {
+    const { openModel, setLoading, closeModel } = ConfModel;
+    const submitFunction = () => {
+      setLoading(true);
+      LogoutUser().then(async (res: any) => {
+        setLoading(false);
+        closeModel();
       })
-      .catch((error: any) => {
-        throw error;
-      });
+        .catch((err: any) => {
+          setLoading(false);
+        });
+    };
+    openModel(submitFunction, 'Are you sure want to Logout?', 'Logout');
   };
+
+
+  // const handleLogout = () => {
+  //   setIsLoading(true);
+  //   firebase
+  //     .auth()
+  //     .signOut()
+  //     .then(() => {
+  //       setIsLoading(false);
+  //       localStorage.clear();
+  //       navigate('/login');
+  //     })
+  //     .catch((error: any) => {
+  //       throw error;
+  //     });
+  // };
 
   return (
     <AppBar {...rest} className={clsx(classes.root, className)}>
       <Toolbar>
-        <RouterLink to='/'>
-          <div className={classes.logoContainer}>
-            <img alt='Logo' src={LogoImage}  style={{maxWidth : '100%',maxHeight : '100%'}}/>
-          </div>
-        </RouterLink>
+        {/* <RouterLink to='/'> */}
+        <img alt='Logo' className={classes.logoImage} src={LogoImage} />
+        {/* </RouterLink> */}
         <div className={classes.flexGrow} />
 
-        <Hidden mdDown>
-          <Button
-            className={classes.logoutButton}
-            color='inherit'
-            onClick={handleLogout}
-          >
-            {isLoading ? '' : <InputIcon className={classes.logoutIcon} />}
-            {isLoading ? 'Signing-out' : 'Sign-out'}
-            {isLoading ? (
-              <i
-                style={{ fontSize: 15, marginLeft: 20 }}
-                className='fas fa-spinner fa-pulse'
-              ></i>
-            ) : (
-              ''
-            )}
-          </Button>
-        </Hidden>
+
+        <Button
+          className={classes.logoutButton}
+          color="inherit"
+          onClick={handleLogout}
+        >
+          <InputIcon className={classes.logoutIcon} />
+          <Hidden mdDown>Logout</Hidden>
+        </Button>
+
         <Hidden lgUp>
           <IconButton color='inherit' onClick={onOpenNavBarMobile}>
             <MenuIcon />

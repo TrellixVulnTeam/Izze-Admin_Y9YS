@@ -1,6 +1,16 @@
+@font-face {
+  font-family: 'Avenir';
+  src: url('assets/Fonts/Avenir-Medium.ttf');
+}
+
+html, body, #root {
+  font-family: 'Avenir';
+}
+
 body {
   background-color: #f3f3f4;
 }
+
 .App {
   text-align: center;
 }
@@ -31,9 +41,11 @@ body {
   margin-right: 15px !important;
   transform: rotate(180deg);
 }
+
 .MuiAccordionSummary-root {
   padding: 0px !important;
 }
+
 .MuiNativeSelect-select:focus {
   background: none !important;
 }

@@ -19,6 +19,14 @@ export const EquipmentsRoute = `${WorkoutRoute}/equipments`;
 export const ExerciseRoute = `${WorkoutRoute}/exercises`
 export const WorkoutPlanRoute = `${WorkoutRoute}/workout-plan`
 
+export const NutritionRoute = `${HomeLayout}/nutrition`;
+export const NutritionIngredientsRoute = `${NutritionRoute}/ingredients`;
+export const NutritionPlanRoute = `${NutritionRoute}/plan`;
+
+export const MealRoute = `${HomeLayout}/meal`;
+export const MealRecipesRoute = `${MealRoute}/meal-recipes`;
+export const MealPlanRoute = `${MealRoute}/meal-plan`;
+
 
 const RouteMap = {
   main: {
@@ -39,6 +47,16 @@ const RouteMap = {
     EquipmentsPage: EquipmentsRoute.replace(WorkoutRoute, ''),
     ExercisePage: ExerciseRoute.replace(WorkoutRoute, ''),
     WorkoutPlanPage: WorkoutPlanRoute.replace(WorkoutRoute, ''),
+    
+    NutritionPage: NutritionRoute.replace(HomeLayout, ''),
+    NutritionIngredientPage: NutritionIngredientsRoute.replace(NutritionRoute, ''),
+    NutritionPlanPage: NutritionPlanRoute.replace(NutritionRoute, ''),
+    
+    MealPage: MealRoute.replace(HomeLayout, ''),
+    MealRecipesPage: MealRecipesRoute.replace(MealRoute, ''),
+    MealPlanPage: MealPlanRoute.replace(MealRoute, ''),
+
+
 
 
   }
