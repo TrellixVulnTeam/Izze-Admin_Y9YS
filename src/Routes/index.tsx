@@ -14,6 +14,8 @@ const WorkoutPlan = React.lazy(()=>import ('../pages/WorkoutPlan/WorkoutPlan'));
 const WorkoutExercise = React.lazy(()=>import('../pages/WorkoutExercise/WorkoutExercise'));
 const NutritionIngredients = React.lazy(()=>import('../pages/NutritionIngredients/NutritionIngredients'));
 const NutritionPlan = React.lazy(()=>import('../pages/NutritionPlan/NutritionPlan'));
+const MealRecipe = React.lazy(()=>import('../pages/MealRecipe/MealRecipe'));
+const MealPlan = React.lazy(()=>import('../pages/MealPlan/MealPlan'));
 
 const useStyles = makeStyles((theme: any) => ({
   underDevlopment: {
@@ -83,8 +85,8 @@ const AppRoutes = () => {
           path: RouteMap.HomeLayout.MealPage,
           element: <Outlet />,
           children: [
-            { path: RouteMap.HomeLayout.MealRecipesPage, element: <div className={classes.underDevlopment}> Under Development</div> },
-            { path: RouteMap.HomeLayout.MealPlanPage, element: <div className={classes.underDevlopment}> Under Development</div> },
+            { path: RouteMap.HomeLayout.MealRecipesPage, element: <MealRecipe />},
+            { path: RouteMap.HomeLayout.MealPlanPage, element: <MealPlan />},
           ]
         },
 

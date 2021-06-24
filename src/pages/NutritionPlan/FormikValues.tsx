@@ -1,202 +1,99 @@
 import * as Yup from 'yup';
 
-interface Ingredients {
-  id: string;
+interface NutritionQuantity {
+  macros: number,
+  gram: number,
+  calories: number,
 }
 
-interface FoodItems {
-  macros: string;
-  gram: string;
-  calories: string;
+interface IntMealTime {
+  isEdit: Boolean,
+  meal_time: string,
+  order: number,
+  meals: IntMeal[],
 }
 
-interface FoodTiming {
-  ingredients: Ingredients[];
-  quantity: string;
-  protein: string;
-  fat: string;
-  carbs: string;
-  calories: string;
+interface IntIngredients {
+  id: string
+}
+
+interface IntMeal {
+  ingredients: IntIngredients[],
+  quantity: number,
+  protein: number,
+  fat: number,
+  carbs: number,
+  calories: number,
 }
 
 interface NutritionPlan {
-  goal_plan: string;
-  actvity_factor: string;
-  diet_type: string;
-  calories: string;
-  protein: FoodItems;
-  fat: FoodItems;
-  carbs: FoodItems;
-  early_morning: FoodTiming;
-  breakfast: FoodTiming;
-  mid_morning_snack: FoodTiming;
-  lunch: FoodTiming;
-  evening_snack: FoodTiming;
-  dinner: FoodTiming;
+  diet_type: string,
+  calories: string,
+  protein: NutritionQuantity,
+  fat: NutritionQuantity,
+  carbs: NutritionQuantity
+  nutrition: IntMealTime[]
 }
 
-export const initialValues: NutritionPlan = {
-  goal_plan: '',
-  actvity_factor: '',
+export const NutQuantity: NutritionQuantity = {
+  macros: 0,
+  gram: 0,
+  calories: 0,
+}
+
+export const NutMealTime: IntMealTime = {
+  isEdit: true,
+  meal_time: '',
+  order: 0,
+  meals: []
+}
+
+export const NutMeal: IntMeal = {
+  ingredients: [],
+  quantity: 0,
+  protein: 0,
+  fat: 0,
+  carbs: 0,
+  calories: 0,
+}
+
+
+export const initialFormValues: NutritionPlan = {
   diet_type: '',
   calories: '',
-  protein: {
-    macros: '',
-    gram: '',
-    calories: '',
-  },
-  fat: {
-    macros: '',
-    gram: '',
-    calories: '',
-  },
-  carbs: {
-    macros: '',
-    gram: '',
-    calories: '',
-  },
-  early_morning: {
-    ingredients: [{ id: '' }],
-    quantity: '',
-    protein: '',
-    fat: '',
-    carbs: '',
-    calories: '',
-  },
-  breakfast: {
-    ingredients: [{ id: '' }],
-    quantity: '',
-    protein: '',
-    fat: '',
-    carbs: '',
-    calories: '',
-  },
-  mid_morning_snack: {
-    ingredients: [{ id: '' }],
-    quantity: '',
-    protein: '',
-    fat: '',
-    carbs: '',
-    calories: '',
-  },
-  lunch: {
-    ingredients: [{ id: '' }],
-    quantity: '',
-    protein: '',
-    fat: '',
-    carbs: '',
-    calories: '',
-  },
-  evening_snack: {
-    ingredients: [{ id: '' }],
-    quantity: '',
-    protein: '',
-    fat: '',
-    carbs: '',
-    calories: '',
-  },
-  dinner: {
-    ingredients: [{ id: '' }],
-    quantity: '',
-    protein: '',
-    fat: '',
-    carbs: '',
-    calories: '',
-  },
+  protein: NutQuantity,
+  fat: NutQuantity,
+  carbs: NutQuantity,
+  nutrition: []
 };
 
-export const validation = {
-  validationSchema: Yup.object().shape({
-    goal_plan: Yup.string().trim().required('Goal plan is required'),
-    actvity_factor: Yup.string().trim().required('Activiy factor is required'),
-    diet_type: Yup.string().trim().required('Diet type is required'),
-    calories: Yup.string().trim().required('Calories is required'),
-    protein: Yup.object({
-      macros: Yup.string().trim().required('Macros is required'),
-      gram: Yup.string().trim().required('Gram is required'),
-      calories: Yup.string().trim().required('Calories is required'),
-    }),
-    fat: Yup.object({
-      macros: Yup.string().trim().required('Macros is required'),
-      gram: Yup.string().trim().required('Gram is required'),
-      calories: Yup.string().trim().required('Calories is required'),
-    }),
-    carbs: Yup.object({
-      macros: Yup.string().trim().required('Macros is required'),
-      gram: Yup.string().trim().required('Gram is required'),
-      calories: Yup.string().trim().required('Calories is required'),
-    }),
-    early_morning: Yup.object({
-      ingredients: Yup.array().of(
+const ValNut = Yup.object({
+  macros: Yup.string().trim().required('Macros is required'),
+  gram: Yup.string().trim().required('Gram is required'),
+  calories: Yup.string().trim().required('Calories is required'),
+})
+
+export const validation = Yup.object().shape({
+  diet_type: Yup.string().trim().required('Diet type is required'),
+  calories: Yup.number().required('Calories is required'),
+  protein: ValNut,
+  fat: ValNut,
+  carbs: ValNut,
+  nutrition: Yup.array().of(
+    Yup.object().shape({
+      meal_time: Yup.string().trim().required('Name is required'),
+      meals: Yup.array().of(
         Yup.object().shape({
-          id: Yup.string().trim().required('Ingredients is Required'),
+          ingredients: Yup.array().of(
+            Yup.object().shape({
+              id: Yup.string().trim().required('Before Workout is Required'),
+            })).min(1, 'Ingredients is Required'),
+          quantity: Yup.number().required('Quantity is required'),
+          protein: Yup.number().required('Protein is required'),
+          fat: Yup.number().required('Fat is required'),
+          carbs: Yup.number().required('Carbs is required'),
+          calories: Yup.number().required('Calories is required'),
         })
-      ),
-      quantity: Yup.string().trim().required('Quality is required'),
-      protein: Yup.string().trim().required('Protein is required'),
-      fat: Yup.string().trim().required('Fat is required'),
-      carbs: Yup.string().trim().required('Carbs is required'),
-      calories: Yup.string().trim().required('Calories is required'),
-    }),
-    breakfast: Yup.object({
-      ingredients: Yup.array().of(
-        Yup.object().shape({
-          id: Yup.string().trim().required('Ingredients is Required'),
-        })
-      ),
-      quantity: Yup.string().trim().required('Quality is required'),
-      protein: Yup.string().trim().required('Protein is required'),
-      fat: Yup.string().trim().required('Fat is required'),
-      carbs: Yup.string().trim().required('Carbs is required'),
-      calories: Yup.string().trim().required('Calories is required'),
-    }),
-    mid_morning_snack: Yup.object({
-      ingredients: Yup.array().of(
-        Yup.object().shape({
-          id: Yup.string().trim().required('Ingredients is Required'),
-        })
-      ),
-      quantity: Yup.string().trim().required('Quality is required'),
-      protein: Yup.string().trim().required('Protein is required'),
-      fat: Yup.string().trim().required('Fat is required'),
-      carbs: Yup.string().trim().required('Carbs is required'),
-      calories: Yup.string().trim().required('Calories is required'),
-    }),
-    lunch: Yup.object({
-      ingredients: Yup.array().of(
-        Yup.object().shape({
-          id: Yup.string().trim().required('Ingredients is Required'),
-        })
-      ),
-      quantity: Yup.string().trim().required('Quality is required'),
-      protein: Yup.string().trim().required('Protein is required'),
-      fat: Yup.string().trim().required('Fat is required'),
-      carbs: Yup.string().trim().required('Carbs is required'),
-      calories: Yup.string().trim().required('Calories is required'),
-    }),
-    evening_snack: Yup.object({
-      ingredients: Yup.array().of(
-        Yup.object().shape({
-          id: Yup.string().trim().required('Ingredients is Required'),
-        })
-      ),
-      quantity: Yup.string().trim().required('Quality is required'),
-      protein: Yup.string().trim().required('Protein is required'),
-      fat: Yup.string().trim().required('Fat is required'),
-      carbs: Yup.string().trim().required('Carbs is required'),
-      calories: Yup.string().trim().required('Calories is required'),
-    }),
-    dinner: Yup.object({
-      ingredients: Yup.array().of(
-        Yup.object().shape({
-          id: Yup.string().trim().required('Ingredients is Required'),
-        })
-      ),
-      quantity: Yup.string().trim().required('Quality is required'),
-      protein: Yup.string().trim().required('Protein is required'),
-      fat: Yup.string().trim().required('Fat is required'),
-      carbs: Yup.string().trim().required('Carbs is required'),
-      calories: Yup.string().trim().required('Calories is required'),
-    }),
-  }),
-};
+      ).min(1, 'Meal is Required')
+    })).min(1, 'Field is Required')
+})

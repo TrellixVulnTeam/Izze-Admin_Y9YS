@@ -570,36 +570,42 @@ const AddEditDailog = (props: any) => {
     try {
       helper.setSubmitting(true);
       const render = async () => {
-        const { workout_image, workout_thumbnail, workout_terms, ...rest } =
-          value;
-        const { file, isNew } = workout_image;
-        const workoutterms = workout_terms.map(async (data: any) => {
-          let getWorkoutImageUrl = await imageUpload(data.image.file);
-          data.image = getWorkoutImageUrl;
-          return data;
-        });
+        const { workout_image, workout_thumbnail, workout_terms, ...rest } = value;
         const PostData = rest;
-        let tempdatas = Promise.all(workoutterms).then(
+        const workoutTerms = workout_terms.map(async (data: any, index: any)=>{
+          if(data.image.isNew){
+            let getWorkoutImageUrl = await imageUpload(data.image.file);
+            data.image = getWorkoutImageUrl;
+            return data;
+          }
+          else {
+            data.image = await data.image.file;
+            return data;
+          }
+        })
+
+        let tempdatas = Promise.all(workoutTerms).then(
           (dataWithImageUrl: any) => {
             PostData.workout_terms = dataWithImageUrl;
           }
         );
-        if (isNew) {
-          PostData.workout_image = await imageUpload(file);
-          PostData.workout_thumbnail = await imageUpload(
-            workout_thumbnail.file
-          );
-        } else {
-          PostData.workout_image = file;
-          PostData.workout_thumbnail = workout_thumbnail.file;
-          PostData.workout_terms = workout_terms.map((items: any) => {
-            return {
-              description: items.description,
-              image: items.image.file,
-              name: items.name,
-            };
-          });
+
+        if(workout_image.isNew || workout_thumbnail.isNew){
+          PostData.workout_image = await imageUpload(workout_image.file);
+          PostData.workout_thumbnail = await imageUpload(workout_thumbnail.file);
         }
+        else {
+          PostData.workout_image = workout_image.file;
+          PostData.workout_thumbnail = workout_thumbnail.file;
+          PostData.workout_terms = await workout_terms.map((items: any)=>{
+            return {
+              name: items.name,
+              image: items.image.file,
+              description: items.description,
+            }
+          })
+        }
+        
         !isEdit && addData(PostData, helper);
         isEdit && editData(PostData, helper);
       };
@@ -624,6 +630,7 @@ const AddEditDailog = (props: any) => {
   };
 
   const editData = (data: any, { setSubmitting, resetForm }: any) => {
+    console.log(data)
     setSubmitting(true);
     Post('app/editWorkout', data)
       .then((res: any) => {
@@ -1106,7 +1113,7 @@ const AddEditDailog = (props: any) => {
                   <CircularProgress size={24} className={classes.lColor} />
                 ) : (
                   okBtnText
-                )}
+                 )} 
               </Button>
             </DialogActions>
           </>
