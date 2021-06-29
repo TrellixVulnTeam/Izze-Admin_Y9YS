@@ -442,7 +442,7 @@ const AddandEditDialogue = (props: any) =>{
         setAddBenifits(data.benfits)
         setInitialFormValues(editData);
       } else {
-        setInitialFormValues(initialFormValues);
+        setInitialFormValues(initialValues);
       }
     },[props])
 
@@ -471,15 +471,16 @@ const AddandEditDialogue = (props: any) =>{
             fat : Yup.string().trim().required('Fat is required'),
             carbs : Yup.string().trim().required('Carbs is required'),
             calories : Yup.string().trim().required('Calories is required'),
-            description : Yup.string().trim().required('Description is required'),
+            description : Yup.string().trim().max(250, 'Must be 250 characters or less').required('Description is required'),
             image: Yup.object({
               file: Yup.mixed().required('A file is required'),
             }),
-            benfits : Yup.array()
+            benfits : Yup.array().of(Yup.string().required('Benefits is required'))
         })}
         >
-            {({values, errors, touched, handleBlur,handleChange, submitForm, isSubmitting,})=>(
+            {({values, errors, touched, handleBlur,handleChange, submitForm, isSubmitting,}: any)=>(
                 <>
+                {console.log(errors)}
                 <DialogContent dividers>
                     <Grid container spacing = {2}>
                         <Grid item xs={12}>
@@ -575,7 +576,7 @@ const AddandEditDialogue = (props: any) =>{
                               onClick={(e)=>handleAddBenifits(e)}
                               endIcon={<ControlPointIcon />}
                             >
-                              Add Benifits
+                              Add Benefits
                             </Button>
                         </Grid>
 
@@ -585,11 +586,21 @@ const AddandEditDialogue = (props: any) =>{
                               <Grid item xs={11}>
                                 <TextField
                                     fullWidth
-                                    label='Benifits'
+                                    label='Benefits'
                                     name={`benfits[${index}]`}
                                     variant='outlined'
-                                    // error={Boolean(touched.calories && errors.calories)}
-                                    // helperText={touched.calories && errors.calories}
+                                    error={Boolean(
+                                      touched?.benfits &&
+                                      touched?.benfits[index] &&
+                                      errors?.benfits &&
+                                      (errors?.benfits[index] as any)
+                                    )}
+                                    helperText={
+                                      touched?.benfits &&
+                                      touched?.benfits[index] &&
+                                      errors?.benfits &&
+                                      (errors?.benfits[index] as any)
+                                    }
                                     value={data}
                                     onChange={(e)=>handleBenifitChange(e,index)}
                                     onBlur={handleBlur}

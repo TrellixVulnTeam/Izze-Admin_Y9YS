@@ -111,20 +111,18 @@ const useStyles = makeStyles((theme: any) => ({
 
 const ExperienceDrop = [
   { id: 'BEGINNER', name: 'Beginner' },
-  { id: 'MODERATE', name: 'Moderate' },
-  { id: 'EXPERT', name: 'Expert' },
+  { id: 'INTERMEDIATE', name: 'Intermediate' },
   { id: 'PROFESSIONAL', name: 'Professional' },
 ];
 
-const IntensityDrop = [
-  { id: 'LOW', name: 'Low', },
-  { id: 'MODERATE', name: 'Moderate' },
-  { id: 'HIGH', name: 'High' },
+const PreferredDrop = [
+  { id: 'STRENGTH', name: 'Strength Training' },
+  { id: 'HIIT', name: 'HIIT' },
 ];
 
-const GymAccessDrop = [
-  { id: true, name: 'Yes', },
-  { id: false, name: 'No' },
+const InterestsDrop = [
+  { id: 'HOME', name: 'Home Workout' },
+  { id: 'GYM', name: 'Gym Workout' },
 ];
 
 const WorkoutPlan = () => {
@@ -291,8 +289,8 @@ const WorkoutPlan = () => {
                 <TableRow>
                   <TableCell align='center'>#</TableCell>
                   <TableCell align='center'>Experience Level</TableCell>
-                  <TableCell align='center'>Intensity</TableCell>
-                  <TableCell align='center'>Gym Access</TableCell>
+                  <TableCell align='center'>Preferred Workout</TableCell>
+                  <TableCell align='center'>Interests</TableCell>
                   <TableCell align='center'>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -303,8 +301,8 @@ const WorkoutPlan = () => {
                       <TableRow hover>
                         <TableCell align='center'>{stateData.page_limit * (stateData.page_no - 1) + index + 1}</TableCell>
                         <TableCell align='center'>{getDropValues(ExperienceDrop, data?.experience_level)}</TableCell>
-                        <TableCell align='center'>{getDropValues(IntensityDrop, data?.intensity)}</TableCell>
-                        <TableCell align='center'>{getDropValues(GymAccessDrop, data?.gym_access)}</TableCell>
+                        <TableCell align='center'>{getDropValues(PreferredDrop, data?.preferred_workout)}</TableCell>
+                        <TableCell align='center'>{getDropValues(InterestsDrop, data?.interests)}</TableCell>
                         <TableCell align='center'>
                           <div className={classes.sEvenly}>
                             <Tooltip title='View' arrow>
@@ -379,8 +377,8 @@ interface WorkoutSub {
 
 interface WorkoutPlan {
   experience_level: string;
-  intensity: string;
-  gym_access: Boolean | null | string;
+  preferred_workout: string;
+  interests: string;
   workouts: WorkoutMain[];
 }
 
@@ -409,8 +407,8 @@ const AddEditDialog = (props: any) => {
 
   const initialFormValues: WorkoutPlan = {
     experience_level: '',
-    intensity: '',
-    gym_access: null,
+    preferred_workout: '',
+    interests: '',
     workouts: Array(7).fill(null).map((d, i) => ({ day: i + 1, ...workoutInitalValue })),
   };
 
@@ -513,8 +511,8 @@ const AddEditDialog = (props: any) => {
           onSubmit={onSubmit}
           validationSchema={Yup.object().shape({
             experience_level: Yup.string().trim().required('Experience Level is required'),
-            intensity: Yup.string().trim().required('Intensity is required'),
-            gym_access: Yup.string().trim().nullable().required('Gym Access is required'),
+            preferred_workout: Yup.string().trim().required('Preferred Workout is required'),
+            interests: Yup.string().trim().nullable().required('Interests is required'),
             workouts: Yup.array().of(
               Yup.object().shape({
                 before_workout: Yup.array().of(
@@ -570,23 +568,24 @@ const AddEditDialog = (props: any) => {
                       )}
                     />
                   </Grid>
+
                   <Grid item md={4} xs={4}>
                     <Autocomplete
-                      options={IntensityDrop}
-                      value={IntensityDrop.find((data: any) => data.id == values.intensity)}
+                      options={PreferredDrop}
+                      value={PreferredDrop.find((data: any) => data.id == values.preferred_workout)}
                       getOptionLabel={(option: any) => option.name}
-                      getOptionSelected={(option) => option.id == values.intensity}
+                      getOptionSelected={(option) => option.id == values.preferred_workout}
                       onChange={(event: any, newValue: any) => {
-                        setFieldValue('intensity', newValue?.id || '');
+                        setFieldValue('preferred_workout', newValue?.id || '');
                       }}
                       onBlur={handleBlur}
                       renderInput={(params: any) => (
                         <TextField
                           {...params}
-                          label='Intensity'
+                          label='Preferred Workout'
                           variant='outlined'
-                          error={Boolean(touched.intensity && errors.intensity)}
-                          helperText={touched.intensity && errors.intensity}
+                          error={Boolean(touched.preferred_workout && errors.preferred_workout)}
+                          helperText={touched.preferred_workout && errors.preferred_workout}
                           inputProps={{
                             ...params.inputProps,
                           }}
@@ -596,21 +595,21 @@ const AddEditDialog = (props: any) => {
                   </Grid>
                   <Grid item md={4} xs={4}>
                     <Autocomplete
-                      options={GymAccessDrop}
-                      value={GymAccessDrop.find((data: any) => data.id == values.gym_access)}
+                      options={InterestsDrop}
+                      value={InterestsDrop.find((data: any) => data.id == values.interests)}
                       getOptionLabel={(option: any) => option.name}
-                      getOptionSelected={(option) => option.id == values.gym_access}
+                      getOptionSelected={(option) => option.id == values.interests}
                       onChange={(event: any, newValue: any) => {
-                        setFieldValue('gym_access', newValue?.id || null);
+                        setFieldValue('interests', newValue?.id || null);
                       }}
                       onBlur={handleBlur}
                       renderInput={(params: any) => (
                         <TextField
                           {...params}
-                          label='Gym Access'
+                          label='Interests'
                           variant='outlined'
-                          error={Boolean(touched.gym_access && errors.gym_access)}
-                          helperText={touched.gym_access && errors.gym_access}
+                          error={Boolean(touched.interests && errors.interests)}
+                          helperText={touched.interests && errors.interests}
                           inputProps={{
                             ...params.inputProps,
                           }}
@@ -775,12 +774,12 @@ const ViewWorkoutPlan = (props: any) => {
                 <TableCell><strong>{getDropValues(ExperienceDrop, formValue?.experience_level)}</strong></TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>Intensity</TableCell>
-                <TableCell><strong>{getDropValues(IntensityDrop, formValue?.intensity)}</strong></TableCell>
+                <TableCell>Preferred Workout</TableCell>
+                <TableCell><strong>{getDropValues(PreferredDrop, formValue?.preferred_workout)}</strong></TableCell>
               </TableRow>
               <TableRow >
-                <TableCell>Gym Access</TableCell>
-                <TableCell><strong>{getDropValues(GymAccessDrop, formValue?.gym_access)}</strong></TableCell>
+                <TableCell>Interests</TableCell>
+                <TableCell><strong>{getDropValues(InterestsDrop, formValue?.interests)}</strong></TableCell>
               </TableRow>
             </TableBody>
           </Table>

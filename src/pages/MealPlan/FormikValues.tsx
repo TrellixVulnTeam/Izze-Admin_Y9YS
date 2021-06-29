@@ -34,7 +34,7 @@ export const MealTime: IntMealTime = {
 export const initialFormValues: MealPlan = {
   diet_type: '',
   calories: '',
-  meal_days: Array(10).fill(null).map((d, i) => ({ day: i + 1, meals: [] }))
+  meal_days: Array(14).fill(null).map((d, i) => ({ day: i + 1, meals: [] }))
 };
 
 export const validation = Yup.object().shape({

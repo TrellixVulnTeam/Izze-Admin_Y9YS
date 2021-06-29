@@ -68,9 +68,9 @@ export const initialFormValues: NutritionPlan = {
 };
 
 const ValNut = Yup.object({
-  macros: Yup.string().trim().required('Macros is required'),
-  gram: Yup.string().trim().required('Gram is required'),
-  calories: Yup.string().trim().required('Calories is required'),
+  macros: Yup.number().required('Macros is required'),
+  gram: Yup.number().required('Gram is required'),
+  calories: Yup.number().required('Calories is required'),
 })
 
 export const validation = Yup.object().shape({
@@ -88,7 +88,7 @@ export const validation = Yup.object().shape({
             Yup.object().shape({
               id: Yup.string().trim().required('Before Workout is Required'),
             })).min(1, 'Ingredients is Required'),
-          quantity: Yup.number().required('Quantity is required'),
+          quantity: Yup.string().required('Quantity is required'),
           protein: Yup.number().required('Protein is required'),
           fat: Yup.number().required('Fat is required'),
           carbs: Yup.number().required('Carbs is required'),

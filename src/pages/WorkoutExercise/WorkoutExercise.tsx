@@ -673,14 +673,7 @@ const AddEditDailog = (props: any) => {
 
   useEffect(() => {
     if (isEdit) {
-      const {
-        required_equipments,
-        workout_terms,
-        _id,
-        workout_thumbnail,
-        workout_image,
-        ...rest
-      } = data;
+      const { required_equipments, workout_terms, _id, workout_thumbnail, workout_image, ...rest } = data;
       const editData = { ...rest, id: _id };
       editData.required_equipments = required_equipments.map((data: any) => {
         // data.id = data._id;
@@ -1179,7 +1172,7 @@ const ViewDailog = (props: any) => {
           ))}
           {formValue?.workout_terms?.length == 0 && (
             <Grid item xs={12} md={12} className={classes.noIngredientsText}>
-              <div>No Ingredients</div>
+              <div>No workout terms added</div>
             </Grid>
           )}
         </Grid>
@@ -1215,7 +1208,7 @@ const ViewDailog = (props: any) => {
           ))}
           {formValue?.required_equipments?.length == 0 && (
             <Grid item xs={12} md={12} className={classes.noIngredientsText}>
-              <div>No Ingredients</div>
+              <div>No Equipments Added</div>
             </Grid>
           )}
         </Grid>

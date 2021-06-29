@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import { Avatar, Button, Card, CardActions, CardContent, CircularProgress, Dialog, DialogActions, DialogContent, Grid, IconButton, makeStyles, Paper, Tab, Table, TableBody, FormControl, FormHelperText, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Divider, Typography, Tabs } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -13,7 +13,7 @@ import { Pagination, TabContext, TabList, TabPanel } from '@material-ui/lab';
 import TipTapEditor from '../../components/TipTapEditor/TipTapEditor/TipTapEditor';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { imageUpload } from '../../utils/FirebaseUtils';
-import { Formik } from 'formik';
+import { Formik, getIn, useFormikContext } from 'formik';
 import * as Yup from 'yup';
 import DialogTitle from '../../components/DialogTitlle/DialogTitle';
 import { TableLoader, TableNoData } from '../../components/Loader/Loader';
@@ -27,6 +27,7 @@ import TimerIcon from '@material-ui/icons/Timer';
 import CarbsImages from '../../assets/Images/Carbs.png'
 import ProteinsImages from '../../assets/Images/Protein.png'
 import FatImages from '../../assets/Images/Fat.png'
+import { useEffect } from 'react';
 
 
 
@@ -346,7 +347,7 @@ function MealRecipe() {
           <Pagination
             count={pageCount}
             page={stateData.page_no}
-          onChange={onPageChange}
+            onChange={onPageChange}
           />
         </CardActions>
       </Card>
@@ -420,33 +421,9 @@ export const AddEditModel = (props: any) => {
   const [initialValues, setInitialValues] = React.useState({ ...initialFormValues });
   const formikRef = React.useRef<any>(null);
   const imageRef = React.useRef<any>(null);
-  const avatharimgRef = React.useRef<any>(null);
-  const [allIngredients, setAllIngredients] = React.useState([])
+  const [ingredientsList, setIngredientsList] = React.useState([])
   const { Post } = useService();
   const Snackbar = useSnackbar();
-
-  const onAvatarImageChange = (event: React.ChangeEvent<HTMLInputElement>, index: any) => {
-    event.persist();
-    const files = event.target.files;
-    if (files && files.length != 0) {
-      const reader = new FileReader();
-      const file = files[0];
-      reader.onloadend = () => {
-        formikRef.current.setFieldValue(`terms[${index}].image`, {
-          file,
-          prevImage: reader.result,
-          isNew: true,
-        });
-      };
-      reader.readAsDataURL(file);
-    } else {
-      formikRef.current.setFieldValue('terms', {
-        workoutTermsName: '',
-        image: { file: null, prevImage: '', isNew: null },
-        description: '',
-      });
-    }
-  }
 
   const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.persist();
@@ -519,30 +496,30 @@ export const AddEditModel = (props: any) => {
   }
 
   const addData = async (value: any, { setSubmitting, resetForm }: any) => {
-     await Post('app/addMealRecipe', value)
-        .then((res: any) => {
-          Snackbar.show(res.message, 'success');
-          setSubmitting(false);
-          resetForm();
-          onSuccess();
-        })
-        .catch((err: any) => {
-          Snackbar.show(err.message, 'error');
-        });
+    await Post('app/addMealRecipe', value)
+      .then((res: any) => {
+        Snackbar.show(res.message, 'success');
+        setSubmitting(false);
+        resetForm();
+        onSuccess();
+      })
+      .catch((err: any) => {
+        Snackbar.show(err.message, 'error');
+      });
   };
 
   const editData = async (data: any, { setSubmitting, resetForm }: any) => {
     setSubmitting(true);
-     await Post('app/editMealRecipe', data)
-        .then((res: any) => {
-          Snackbar.show(res.message, 'success');
-          setSubmitting(false);
-          resetForm();
-          onSuccess();
-        })
-        .catch((err: any) => {
-          Snackbar.show(err.message, 'error');
-        });
+    await Post('app/editMealRecipe', data)
+      .then((res: any) => {
+        Snackbar.show(res.message, 'success');
+        setSubmitting(false);
+        resetForm();
+        onSuccess();
+      })
+      .catch((err: any) => {
+        Snackbar.show(err.message, 'error');
+      });
   };
 
   const listAllMealRecipe = () => {
@@ -553,7 +530,7 @@ export const AddEditModel = (props: any) => {
             data.id = data._id;
             return data;
           });
-          setAllIngredients(getequipmentList);
+          setIngredientsList(getequipmentList);
         } else {
           Snackbar.show(res.message, 'error');
         }
@@ -561,6 +538,29 @@ export const AddEditModel = (props: any) => {
       .catch((err: any) => {
         Snackbar.show(err.message, 'error');
       });
+  }
+
+  const addMealRecipeTerms = (values: MealPlan, setFieldValue: any) => {
+    const { terms } = values
+    terms.push(mealTerms);
+    setFieldValue('terms', terms)
+  }
+
+  const addIngredients = (values: MealPlan, setFieldValue: any) => {
+    const { ingredients } = values;
+    ingredients.push(ingredientsSelect)
+    setFieldValue('ingredients', ingredients)
+  }
+
+  const removeIngredients = (values: MealPlan, items: any, setFieldValue: any) => {
+    const { ingredients } = values;
+    const sampleDummyArray = [...ingredients];
+    sampleDummyArray.splice(sampleDummyArray.indexOf(items), 1)
+    setFieldValue('ingredients', sampleDummyArray)
+  }
+
+  const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>, value: any, index: any) => {
+    formikRef.current.setFieldValue(`ingredients[${index}].id`, value?.id);
   }
 
   React.useEffect(() => {
@@ -571,14 +571,10 @@ export const AddEditModel = (props: any) => {
     if (isEdit) {
       const { terms, image, _id, ingredients, ...rest } = data;
       const editData = { ...rest, id: _id };
+      const RecipeIds = ingredientsList.map(({ _id }: any) => _id)
       editData.image = { file: image, prevImage: image, isNew: false };
-      editData.ingredients = ingredients.map((data: any) => {
-        return {
-          id: data._id,
-          quantity: data.quantity
-        }
-      })
-
+      editData.ingredients = ingredients.filter(({ _id }: any) => RecipeIds.includes(_id)).map(({ _id, quantity }: any) => ({ id: _id, quantity }))
+ 
       editData.terms = terms.map((items: any) => {
         return {
           name: items.name,
@@ -592,29 +588,6 @@ export const AddEditModel = (props: any) => {
       setInitialValues(initialFormValues)
     }
   }, [props])
-
-  const addMealRecipeTerms = (values: MealPlan, setFieldValue: any) => {
-    const { terms } = values
-    terms.push(mealTerms);
-    setFieldValue('terms', terms)
-  }
-
-  const removeMealRecipeTerms = (values: MealPlan, index: any, items: any) => {
-    const { terms } = values;
-    const sampleDummyArray = [...terms];
-    sampleDummyArray.splice(sampleDummyArray.indexOf(items), 1)
-    formikRef.current.setFieldValue('terms', sampleDummyArray);
-  }
-
-  const addIngredients = (values: MealPlan, setFieldValue: any) => {
-    const { ingredients } = values;
-    ingredients.push(ingredientsSelect)
-    setFieldValue('ingredients', ingredients)
-  }
-
-  const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>, value: any, index: any) => {
-    formikRef.current.setFieldValue(`ingredients[${index}].id`, value?.id);
-  }
 
   return (
     <>
@@ -786,110 +759,7 @@ export const AddEditModel = (props: any) => {
                     </Button>
                   </Grid>
 
-                  {values?.terms?.map((items: any, index: any) => (
-                    <Grid
-                      key={index}
-                      item
-                      container
-                      md={12}
-                      xs={12}
-                      direction='row'
-                      spacing={2}
-                    >
-                      <Grid item md={1} xs={12}>
-                        <input
-                          ref={avatharimgRef}
-                          type='file'
-                          accept='.jpg,.png,jpeg'
-                          onChange={(e) => onAvatarImageChange(e, index)}
-                          onBlur={handleBlur}
-                          hidden
-                        />
-                        <Avatar
-                          className={classes.workouttermsavatar}
-                          variant='square'
-                          onClick={() => avatharimgRef.current.click()}
-                          src={items?.image?.prevImage}
-                        />
-                        <FormControl
-                          error={Boolean(
-                            touched?.terms &&
-                            touched?.terms[index]?.image?.file &&
-                            errors?.terms &&
-                            (errors?.terms[index] as any)?.image?.file
-                          )}
-                        >
-                          <FormHelperText>
-                            {touched?.terms &&
-                              touched?.terms[index]?.image?.file &&
-                              errors?.terms &&
-                              (errors?.terms[index] as any)?.image?.file}
-                          </FormHelperText>
-                        </FormControl>
-                      </Grid>
-
-                      <Grid item md={5} xs={12}>
-                        <TextField
-                          fullWidth
-                          multiline
-                          label='Terms name'
-                          name={`terms[${index}].name`}
-                          variant='outlined'
-                          error={Boolean(
-                            touched?.terms &&
-                            touched?.terms[index]?.name &&
-                            errors?.terms &&
-                            (errors?.terms[index] as any)?.name
-                          )}
-                          helperText={
-                            touched?.terms &&
-                            touched?.terms[index]?.name &&
-                            errors?.terms &&
-                            (errors?.terms[index] as any)?.name
-                          }
-                          value={items.name}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                        />
-                      </Grid>
-                      <Grid item md={5} xs={8}>
-                        <TextField
-                          fullWidth
-                          multiline
-                          label='Terms description'
-                          name={`terms[${index}].term`}
-                          variant='outlined'
-                          error={Boolean(
-                            touched?.terms &&
-                            touched?.terms[index]?.term &&
-                            errors?.terms &&
-                            (errors?.terms[index] as any)?.term
-                          )}
-                          helperText={
-                            touched?.terms &&
-                            touched?.terms[index]?.term &&
-                            errors?.terms &&
-                            (errors?.terms[index] as any)?.term
-                          }
-                          value={items.term}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                        />
-                      </Grid>
-
-                      <Grid item md={1} xs={4}>
-                        <Button
-                          fullWidth
-                          className={classes.deleteButton}
-                          variant='contained'
-                          color='secondary'
-                          onClick={() => removeMealRecipeTerms(values, index, items)}
-                        >
-                          <DeleteIcon />
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  ))}
+                  {values?.terms?.map((items: any, index: any) => <TermsComponent key={index} index={index} />)}
 
                   <Grid item md={12} xs={12}>
                     <Button
@@ -917,8 +787,8 @@ export const AddEditModel = (props: any) => {
                       <Grid item md={5} xs={12}>
                         <Autocomplete
                           fullWidth
-                          options={allIngredients}
-                          value={allIngredients.find(
+                          options={ingredientsList}
+                          value={ingredientsList.find(
                             (data: any) => data._id == items.id
                           )}
                           getOptionLabel={(option: any) => option.name}
@@ -982,9 +852,7 @@ export const AddEditModel = (props: any) => {
                           className={classes.deleteButton}
                           variant='contained'
                           color='secondary'
-                        // onClick={() =>
-                        //   removeIngredients(values, index, setFieldValue)
-                        // }
+                          onClick={() => removeIngredients(values, items, setFieldValue)}
                         >
                           <DeleteIcon />
                         </Button>
@@ -1011,25 +879,25 @@ export const AddEditModel = (props: any) => {
                   </Grid>
 
                   <Grid item md={12} xs={12}>
-                  <FormControl
-                    fullWidth
-                    error={Boolean(
-                      touched?.preparation_description &&
-                      errors?.preparation_description
-                    )}
-                  >
-                    <TipTapEditor
-                      value={values.preparation_description}
-                      onChange={(value: any) => setFieldValue('preparation_description', value)}
-                      onBlur={() => setFieldTouched('preparation_description', true, true)}
-                    />
+                    <FormControl
+                      fullWidth
+                      error={Boolean(
+                        touched?.preparation_description &&
+                        errors?.preparation_description
+                      )}
+                    >
+                      <TipTapEditor
+                        value={values.preparation_description}
+                        onChange={(value: any) => setFieldValue('preparation_description', value)}
+                        onBlur={() => setFieldTouched('preparation_description', true, true)}
+                      />
 
-                    <FormHelperText>
-                      {touched?.preparation_description &&
-                        errors?.preparation_description}
-                    </FormHelperText>
-                  </FormControl>
-                </Grid>
+                      <FormHelperText>
+                        {touched?.preparation_description &&
+                          errors?.preparation_description}
+                      </FormHelperText>
+                    </FormControl>
+                  </Grid>
 
                   <Grid item md={12} xs={12}>
                     <input
@@ -1098,6 +966,117 @@ export const AddEditModel = (props: any) => {
   )
 }
 
+const TermsComponent = (props: any) => {
+  const FormikContext = useFormikContext()
+  const [{ values, errors, touched, setFieldValue, handleBlur, handleChange }, setFormikContext] = useState(FormikContext)
+  const { index } = props
+  const classes = useStyles()
+  const imgRef = useRef<any>(null)
+  const FieldName = `terms[${index}]`;
+  const FieldValue = getIn(values, `terms[${index}]`);
+  const FieldError = getIn(errors, `terms[${index}]`);
+  const FieldTouched = getIn(touched, `terms[${index}]`);
+
+  const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.persist();
+    const files = event.target.files;
+    if (files && files.length != 0) {
+      const reader = new FileReader();
+      const file = files[0];
+      reader.onloadend = () => {
+        setFieldValue(`${FieldName}.image`, { file, prevImage: reader.result, isNew: true, });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFieldValue(`${FieldName}.image`, { file: null, prevImage: '', isNew: null });
+    }
+  }
+
+  const removeTerm = () => {
+    const OldTerms = getIn(values, 'terms');
+    const Terms = OldTerms.filter((d: any, i: number) => i != index);
+    setFieldValue('terms', Terms);
+  }
+
+  useEffect(() => {
+    setFormikContext(FormikContext)
+  }, [FormikContext])
+
+  return (
+    <Grid
+      item
+      container
+      md={12}
+      xs={12}
+      direction='row'
+      spacing={2}
+    >
+      <Grid item md={1} xs={12}>
+        <input
+          name={`${FieldName}.image`}
+          ref={imgRef}
+          type='file'
+          accept='.jpg,.png,jpeg'
+          onChange={(e) => onImageChange(e)}
+          onBlur={handleBlur}
+          hidden
+        />
+        <Avatar
+          className={classes.workouttermsavatar}
+          variant='square'
+          onClick={() => imgRef?.current?.click()}
+          src={FieldValue?.image?.prevImage}
+        />
+        <FormControl error={Boolean(FieldTouched?.image?.file && FieldError?.image?.file)}>
+          <FormHelperText>{FieldTouched?.image?.file && FieldError?.image?.file}</FormHelperText>
+        </FormControl>
+      </Grid>
+
+      <Grid item md={5} xs={12}>
+        <TextField
+          fullWidth
+          multiline
+          label='Terms name'
+          name={`${FieldName}.name`}
+          variant='outlined'
+          error={Boolean(FieldTouched?.name && FieldError?.name)}
+          helperText={FieldTouched?.name && FieldError?.name}
+          value={FieldValue.name}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
+      </Grid>
+      <Grid item md={5} xs={8}>
+        <TextField
+          fullWidth
+          multiline
+          label='Terms description'
+          name={`${FieldName}.term`}
+          variant='outlined'
+          error={Boolean(FieldTouched?.term && FieldError?.term)}
+          helperText={FieldTouched?.term && FieldError?.term}
+          value={FieldValue.term}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
+      </Grid>
+
+      <Grid item md={1} xs={4}>
+        <Button
+          fullWidth
+          className={classes.deleteButton}
+          variant='contained'
+          color='secondary'
+          onClick={() => removeTerm()}
+        >
+          <DeleteIcon />
+        </Button>
+      </Grid>
+    </Grid>
+
+  )
+}
+
 export const ViewModel = (props: any) => {
   const { isOpen, title, onClose, data } = props;
   const classes = useStyles();
@@ -1105,7 +1084,7 @@ export const ViewModel = (props: any) => {
   React.useEffect(() => {
     setFormValue(data);
   }, [props]);
-  console.log(formValue)
+
   return (
     <Dialog
       disableBackdropClick
@@ -1162,13 +1141,13 @@ export const ViewModel = (props: any) => {
           INGREDIENTS
         </Typography>
 
-        {formValue?.ingredients?.map((items: any, index: any)=>{
+        {formValue?.ingredients?.map((items: any, index: any) => {
           return (
             <List>
               <ListItem>
-                  <ListItemAvatar>
-                   <Avatar className={classes.avatarRoot} src={items.image} />
-                  </ListItemAvatar>
+                <ListItemAvatar>
+                  <Avatar className={classes.avatarRoot} src={items.image} />
+                </ListItemAvatar>
                 <ListItemText primary={items?.name} secondary='some' />
                 <Typography>{items.calories} gm</Typography>
               </ListItem>
@@ -1191,28 +1170,28 @@ export const ViewModel = (props: any) => {
               className={classes.ingredientsAvatarRoot}
               src={CarbsImages}
             />
-            <Typography align = 'center'>Carbs</Typography>
-            <Typography align = 'center'>{formValue?.carbs}g</Typography>
+            <Typography align='center'>Carbs</Typography>
+            <Typography align='center'>{formValue?.carbs}g</Typography>
           </Grid>
           <Grid item xs={4} md={3}>
             <Avatar
               className={classes.ingredientsAvatarRoot}
               src={ProteinsImages}
             />
-            <Typography align = 'center'>Protein</Typography>
-            <Typography align = 'center'>{formValue?.protein}g</Typography>
+            <Typography align='center'>Protein</Typography>
+            <Typography align='center'>{formValue?.protein}g</Typography>
           </Grid>
           <Grid item xs={4} md={3}>
             <Avatar
               className={classes.ingredientsAvatarRoot}
               src={FatImages}
             />
-            <Typography align = 'center'>Fat</Typography>
-            <Typography align = 'center'>{formValue?.fat}g</Typography>
+            <Typography align='center'>Fat</Typography>
+            <Typography align='center'>{formValue?.fat}g</Typography>
           </Grid>
         </Grid>
 
-        <Typography variant='h6' align='left' style={{ color: '#41A58D',marginTop : '20px' }}><strong>PREPARATION</strong></Typography>
+        <Typography variant='h6' align='left' style={{ color: '#41A58D', marginTop: '20px' }}><strong>PREPARATION</strong></Typography>
         <Typography variant='body2' align='center' className={classes.timeText}>
           <TimerIcon fontSize='inherit' />
           <span>{formValue?.preparation_time}</span>
@@ -1223,7 +1202,7 @@ export const ViewModel = (props: any) => {
             <div className={classes.htmlContent} dangerouslySetInnerHTML={{ __html: formValue?.preparation_description }} />
           </Grid>
         </Grid>
-        
+
       </DialogContent>
 
       <DialogActions>

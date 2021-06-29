@@ -136,13 +136,60 @@ const useStyles = makeStyles((theme: any) => ({
 const SkinTypeDrop = [
   { id: 'DRY', name: 'Dry' },
   { id: 'OILY', name: 'Oily' },
-  { id: 'MIXED', name: 'Mixed' },
+  { id: 'COMBINATION', name: 'Combination' },
+  { id: 'NORMAL', name: 'Normal' },
+];
+
+const CurrentClimateDrop = [
+  { id: 'HOT', name: 'Hot' },
+  { id: 'COLD', name: 'Cold' },
+  { id: 'HUMID', name: 'Humid' },
+  { id: 'DRY', name: 'Dry' },
+];
+
+const SkinIrregularDrop = [
+  {
+    id: 'ACNE', name: 'Acne', SubDrop: [
+      { id: 'PIMPLES', name: 'Pimples' },
+      { id: 'BLACKHEADS', name: 'Black Heads' },
+      { id: 'WHITEHEADS', name: 'White Heads' },
+    ]
+  },
+  {
+    id: 'RASHES', name: 'Rashes', SubDrop: [
+      { id: 'SCALY', name: 'Scaly' },
+      { id: 'ITCHY', name: 'Itchy' },
+      { id: 'BUMPY', name: 'Bumpy' },
+      { id: 'BOILS', name: 'Boils' },
+      { id: 'BLISTERS', name: 'Blisters' },
+    ]
+  },
+  {
+    id: 'DISCOLORATION', name: 'Discoloration', SubDrop: [
+      { id: 'BLACKISH', name: 'Blackish' },
+      { id: 'WHITISH', name: 'Whitish' },
+      { id: 'PINKISH', name: 'Pinkish' },
+      { id: 'REDISH', name: 'Redish' },
+      { id: 'SUNSPOTS', name: 'Sun Spots' },
+    ]
+  },
+];
+
+const SkinTextureDrop = [
+  { id: 'SAGGY', name: 'Saggy', },
+  { id: 'FINELINES', name: ' Fine Lines' },
+  { id: 'WRINKLES', name: 'Wrinkles' },
+  { id: 'NONE', name: 'None' },
 ];
 
 const SkinIssueDrop = [
   { id: 'ACNE', name: 'Acne', },
   { id: 'DRYSKIN', name: 'Dry Skin' },
 ];
+
+const getSubSkinIrregular = (SkinIrregularValue: any) => {
+  return SkinIrregularDrop?.find(({ id }: any) => id == SkinIrregularValue)?.SubDrop || []
+}
 
 const SkinCarePlan = () => {
   const classes = useStyles();
@@ -308,8 +355,10 @@ const SkinCarePlan = () => {
                 <TableRow>
                   <TableCell align='center'>#</TableCell>
                   <TableCell align='center'>Skin Type</TableCell>
-                  <TableCell align='center'>Skin Issues</TableCell>
-                  {/* <TableCell align='center'>Recipes</TableCell> */}
+                  <TableCell align='center'>Current Climate</TableCell>
+                  <TableCell align='center'>Skin Irregularities</TableCell>
+                  <TableCell align='center'>Sub Skin Irregularities</TableCell>
+                  <TableCell align='center'>Skin Texture </TableCell>
                   <TableCell align='center'>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -320,10 +369,11 @@ const SkinCarePlan = () => {
                       <TableRow hover>
                         <TableCell align='center'>{stateData.page_limit * (stateData.page_no - 1) + index + 1}</TableCell>
                         <TableCell align='center'>{getDropValues(SkinTypeDrop, data?.skin_type)}</TableCell>
-                        <TableCell align='center'>{getDropValues(SkinIssueDrop, data?.skin_issues)}</TableCell>
-                        {/* <TableCell align='center'>
-                          {data?.recipes[0].recipe.recipe_name}
-                        </TableCell> */}
+                        <TableCell align='center'>{getDropValues(CurrentClimateDrop, data?.current_climate)}</TableCell>
+                        <TableCell align='center'>{getDropValues(SkinIrregularDrop, data?.skin_irregular)}</TableCell>
+                        <TableCell align='center'>{getDropValues(getSubSkinIrregular(data?.skin_irregular), data?.skin_irregular_sub)}</TableCell>
+                        <TableCell align='center'>{getDropValues(SkinTextureDrop, data?.skin_texture)}</TableCell>
+
                         <TableCell align='center'>
                           <div className={classes.sEvenly}>
                             <Tooltip title='View' arrow>
@@ -392,7 +442,10 @@ interface Recipe {
 
 interface RecipePlan {
   skin_type: string;
-  skin_issues: string;
+  current_climate: string;
+  skin_irregular: string;
+  skin_irregular_sub: string;
+  skin_texture: string;
   recipes: Recipe[];
 }
 
@@ -413,8 +466,11 @@ const AddEditDialog = (props: any) => {
   const [skinCareRecipeList, setSkinCareRecipeList] = React.useState<any>([]);
   const initialFormValues: RecipePlan = {
     skin_type: '',
-    skin_issues: '',
-    recipes: Array(10).fill(null).map((d, i) => ({ day: i + 1, id: '' })),
+    current_climate: '',
+    skin_irregular: '',
+    skin_irregular_sub: '',
+    skin_texture: '',
+    recipes: Array(7).fill(null).map((d, i) => ({ day: i + 1, id: '' })),
   };
   const [initialValue, setInitialValue] = React.useState({
     ...initialFormValues,
@@ -472,6 +528,7 @@ const AddEditDialog = (props: any) => {
       });
   };
 
+
   useEffect(() => {
     if (isEdit) {
       const { recipes, _id, ...rest } = data;
@@ -510,7 +567,10 @@ const AddEditDialog = (props: any) => {
           onSubmit={onSubmit}
           validationSchema={Yup.object().shape({
             skin_type: Yup.string().trim().required('Skin Type is required'),
-            skin_issues: Yup.string().trim().required('Skin Issues is required'),
+            current_climate: Yup.string().trim().required('Current Climate is required'),
+            skin_irregular: Yup.string().trim().required('Skin Irregularites is required'),
+            skin_irregular_sub: Yup.string().trim().required('Sub Skin Irregularites is required'),
+            skin_texture: Yup.string().trim().required('Skin Texture is required'),
             recipes: Yup.array().of(
               Yup.object().shape({
                 id: Yup.string().trim().required('Recipe is Required'),
@@ -532,7 +592,7 @@ const AddEditDialog = (props: any) => {
             <>
               <DialogContent dividers>
                 <Grid container spacing={2}>
-                  <Grid item xs={6}>
+                  <Grid item xs={4}>
                     <Autocomplete
                       options={SkinTypeDrop}
                       value={SkinTypeDrop.find((data: any) => data.id == values.skin_type)}
@@ -545,7 +605,7 @@ const AddEditDialog = (props: any) => {
                       renderInput={(params: any) => (
                         <TextField
                           {...params}
-                          label='Skin Types'
+                          label='Skin Type'
                           variant='outlined'
                           error={Boolean(touched.skin_type && errors.skin_type)}
                           helperText={touched.skin_type && errors.skin_type}
@@ -556,23 +616,24 @@ const AddEditDialog = (props: any) => {
                       )}
                     />
                   </Grid>
-                  <Grid item xs={6}>
+
+                  <Grid item xs={4}>
                     <Autocomplete
-                      options={SkinIssueDrop}
-                      value={SkinIssueDrop.find((data: any) => data.id == values.skin_issues)}
+                      options={CurrentClimateDrop}
+                      value={CurrentClimateDrop.find((data: any) => data.id == values.current_climate)}
                       getOptionLabel={(option: any) => option.name}
-                      getOptionSelected={(option) => option.id == values.skin_issues}
+                      getOptionSelected={(option) => option.id == values.current_climate}
                       onChange={(event: any, newValue: any) => {
-                        setFieldValue('skin_issues', newValue?.id || '');
+                        setFieldValue('current_climate', newValue?.id || '');
                       }}
                       onBlur={handleBlur}
                       renderInput={(params: any) => (
                         <TextField
                           {...params}
-                          label='Skin Issues'
+                          label='Current Climate'
                           variant='outlined'
-                          error={Boolean(touched.skin_issues && errors.skin_issues)}
-                          helperText={touched.skin_issues && errors.skin_issues}
+                          error={Boolean(touched.current_climate && errors.current_climate)}
+                          helperText={touched.current_climate && errors.current_climate}
                           inputProps={{
                             ...params.inputProps,
                           }}
@@ -580,6 +641,83 @@ const AddEditDialog = (props: any) => {
                       )}
                     />
                   </Grid>
+
+                  <Grid item xs={4}>
+                    <Autocomplete
+                      options={SkinTextureDrop}
+                      value={SkinTextureDrop.find((data: any) => data.id == values.skin_texture)}
+                      getOptionLabel={(option: any) => option.name}
+                      getOptionSelected={(option) => option.id == values.skin_texture}
+                      onChange={(event: any, newValue: any) => {
+                        setFieldValue('skin_texture', newValue?.id || '');
+                      }}
+                      onBlur={handleBlur}
+                      renderInput={(params: any) => (
+                        <TextField
+                          {...params}
+                          label='Skin Texture'
+                          variant='outlined'
+                          error={Boolean(touched.skin_texture && errors.skin_texture)}
+                          helperText={touched.skin_texture && errors.skin_texture}
+                          inputProps={{
+                            ...params.inputProps,
+                          }}
+                        />
+                      )}
+                    />
+                  </Grid>
+
+                  <Grid item xs={6}>
+                    <Autocomplete
+                      options={SkinIrregularDrop}
+                      value={SkinIrregularDrop.find((data: any) => data.id == values.skin_irregular)}
+                      getOptionLabel={(option: any) => option.name}
+                      getOptionSelected={(option) => option.id == values.skin_irregular}
+                      onChange={(event: any, newValue: any) => {
+                        setFieldValue('skin_irregular', newValue?.id || '');
+                        setFieldValue('skin_irregular_sub', '');
+                      }}
+                      onBlur={handleBlur}
+                      renderInput={(params: any) => (
+                        <TextField
+                          {...params}
+                          label='Skin Irregularites'
+                          variant='outlined'
+                          error={Boolean(touched.skin_irregular && errors.skin_irregular)}
+                          helperText={touched.skin_irregular && errors.skin_irregular}
+                          inputProps={{
+                            ...params.inputProps,
+                          }}
+                        />
+                      )}
+                    />
+                  </Grid>
+
+                  <Grid item xs={6}>
+                    <Autocomplete
+                      options={getSubSkinIrregular(values.skin_irregular)}
+                      value={getSubSkinIrregular(values.skin_irregular).find((data: any) => data.id == values.skin_irregular_sub)}
+                      getOptionLabel={(option: any) => option.name}
+                      getOptionSelected={(option) => option.id == values.skin_irregular_sub}
+                      onChange={(event: any, newValue: any) => {
+                        setFieldValue('skin_irregular_sub', newValue?.id || '');
+                      }}
+                      onBlur={handleBlur}
+                      renderInput={(params: any) => (
+                        <TextField
+                          {...params}
+                          label='Sub Skin Irregularites'
+                          variant='outlined'
+                          error={Boolean(touched.skin_irregular_sub && errors.skin_irregular_sub)}
+                          helperText={touched.skin_irregular_sub && errors.skin_irregular_sub}
+                          inputProps={{
+                            ...params.inputProps,
+                          }}
+                        />
+                      )}
+                    />
+                  </Grid>
+
                   {values.recipes.map((recData: any, i: any) => {
                     return (
                       <>
@@ -707,8 +845,20 @@ const ViewSkincarePlan = (props: any) => {
                 <TableCell><strong>{getDropValues(SkinTypeDrop, formValue?.skin_type)}</strong></TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>Skin Issues</TableCell>
-                <TableCell><strong>{getDropValues(SkinIssueDrop, formValue?.skin_issues)}</strong></TableCell>
+                <TableCell>Current Climate</TableCell>
+                <TableCell><strong>{getDropValues(CurrentClimateDrop, data?.current_climate)}</strong></TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Skin Irregularities</TableCell>
+                <TableCell><strong>{getDropValues(SkinIrregularDrop, data?.skin_irregular)}</strong></TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Sub Skin Irregularities</TableCell>
+                <TableCell><strong>{getDropValues(getSubSkinIrregular(data?.skin_irregular), data?.skin_irregular_sub)}</strong></TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Skin Texture</TableCell>
+                <TableCell><strong>{getDropValues(SkinTextureDrop, data?.skin_texture)}</strong></TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -732,7 +882,7 @@ const ViewSkincarePlan = (props: any) => {
                   value={item.day.toString()} />
               )}
             </TabList>
-    
+
             {formValue?.recipes?.map((item: any, index: any) =>
               <TabPanel key={index} className={classes.tabPanelRoot} value={item.day.toString()}>
                 <SkinCareRecipeViewContent data={item.recipe} />

@@ -257,7 +257,13 @@ const useStyles = makeStyles((theme: any) => ({
     color: 'white',
     justifyContent: 'space-evenly'
   },
-
+  circleBottom: {
+    color: '#eeeeee42',
+  },
+  circleTop: {
+    position: 'absolute',
+    left: 0,
+  },
 }));
 
 const DietTypeDrop = [
@@ -1154,7 +1160,7 @@ const ViewNutritionModel = (props: any) => {
               </TableRow>
               <TableRow>
                 <TableCell>Calories</TableCell>
-                <TableCell><strong>{formValue?.calories}</strong></TableCell>
+                <TableCell><strong>{formValue?.calories} Kcal</strong></TableCell>
               </TableRow>
 
             </TableBody>
@@ -1167,7 +1173,7 @@ const ViewNutritionModel = (props: any) => {
               root: classes.nutCardRoot,
               title: classes.nutCardTitle
             }}
-            title={`${formValue?.calories} cal`}
+            title={`${formValue?.calories} Kcal`}
           />
           <CardActions className={classes.nutCardAction}>
             <NutritionData title='Protein' data={formValue?.protein} />
@@ -1324,9 +1330,18 @@ const ViewNutritionModel = (props: any) => {
 };
 
 const CircularProgressWithLabel = (props: CircularProgressProps & { value: number }) => {
+  const classes = useStyles();
   return (
     <Box position="relative" display="inline-flex" color='inherit' alignItems="center">
-      <CircularProgress color='inherit' variant="determinate" {...props} />
+      <CircularProgress
+        variant="determinate"
+        className={classes.circleBottom}
+        size={50}
+        thickness={3}
+        {...props}
+        value={100}
+      />
+      <CircularProgress size={50} className={classes.circleTop} color='inherit' variant="determinate" {...props} />
       <Box
         color='inherit'
         top={0}
@@ -1363,7 +1378,7 @@ const NutritionData = (props: any) => {
         <strong>{title}</strong>
       </Typography>
       <Typography color='inherit' variant='body2' align='center'>
-        {`${data?.gram} gm`}
+        {`${data?.gram} g`}
       </Typography>
       <Typography color='inherit' variant='body2' align='center'>
         {`${data?.calories} c`}
