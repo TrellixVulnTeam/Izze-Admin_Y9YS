@@ -8,6 +8,11 @@ export const AuthStateChange = (callback: any) => {
   return subscriber;
 };
 
+export const onIdTokenChanged = (callback: any) => {
+  const subscriber = firebase.auth().onIdTokenChanged(callback);
+  return subscriber;
+};
+
 export const signInWithCredenrials = async (email: string, password: string) => {
   return firebase
     .auth()

@@ -45,6 +45,8 @@ import Page from '../../components/Page/Page';
 import useConfModel from '../../hook/useConfModel';
 import useService from '../../hook/useService';
 import useSnackbar from '../../hook/useSnackbar';
+import UnitSelect from '../../components/UnitSelect/UnitSelect';
+import UnitDropdown from '../../utils/MetricUnits';
 import { initialFormValues, NutMeal, NutMealTime, validation } from './FormikValues';
 import clsx from 'clsx'
 
@@ -263,6 +265,9 @@ const useStyles = makeStyles((theme: any) => ({
   circleTop: {
     position: 'absolute',
     left: 0,
+  },
+  textareaAdornedEnd: {
+    paddingRight: 0
   },
 }));
 
@@ -978,21 +983,25 @@ export const AddEditModel = (props: any) => {
                                         )}
                                       />
                                     </Grid>
-
-                                    <Grid item md={6} xs={6}>
+                                    <Grid item xs={12}>
                                       <TextField
                                         fullWidth
-                                        multiline
                                         label='Quantity'
                                         name={`${FieldName}.quantity`}
                                         variant='outlined'
-                                        error={Boolean(FieldTouched?.quantity && FieldErrors?.quantity)}
-                                        helperText={FieldTouched?.quantity && FieldErrors?.quantity}
+                                        error={Boolean(FieldTouched?.quantity && FieldErrors?.quantity) || Boolean(FieldTouched?.quantity_unit && FieldErrors?.quantity_unit)}
+                                        helperText={FieldTouched?.quantity && FieldErrors?.quantity || (FieldTouched?.quantity_unit && FieldErrors?.quantity_unit)}
                                         value={mealData.quantity}
                                         onChange={handleChange}
                                         onBlur={handleBlur}
+                                        InputProps={{
+                                          classes: {
+                                            adornedEnd: classes.textareaAdornedEnd
+                                          },
+                                          endAdornment: <UnitSelect id='quantity_unit' option={UnitDropdown} name={`${FieldName}.quantity_unit`} value={mealData.quantity_unit} onChange={handleChange} onBlur={handleBlur} />
+                                        }}
                                       />
-                                    </Grid>
+                                     </Grid>
 
                                     <Grid item md={6} xs={6}>
                                       <TextField

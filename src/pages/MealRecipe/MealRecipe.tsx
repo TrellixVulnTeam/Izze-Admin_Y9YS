@@ -28,6 +28,8 @@ import CarbsImages from '../../assets/Images/Carbs.png'
 import ProteinsImages from '../../assets/Images/Protein.png'
 import FatImages from '../../assets/Images/Fat.png'
 import { useEffect } from 'react';
+import UnitSelect from '../../components/UnitSelect/UnitSelect';
+import UnitDropdown from '../../utils/MetricUnits';
 
 
 
@@ -116,6 +118,9 @@ const useStyles = makeStyles((theme: any) => ({
     marginBottom: theme.spacing(3),
     display: 'flex',
     justifyContent: 'center',
+  },
+  textareaAdornedEnd: {
+    paddingRight: 0
   },
   htmlContent: {
     '& ul': {
@@ -372,7 +377,8 @@ interface MealTerms {
 
 interface Ingredients {
   id: string,
-  quantity: string
+  quantity: string,
+  quantity_unit: string,
 }
 
 interface MealPlan {
@@ -398,7 +404,8 @@ const mealTerms: MealTerms = {
 
 const ingredientsSelect: Ingredients = {
   id: '',
-  quantity: ''
+  quantity: '',
+  quantity_unit: '',
 }
 
 const initialFormValues: MealPlan = {
@@ -611,9 +618,9 @@ export const AddEditModel = (props: any) => {
             name: Yup.string().trim().required('Name is required'),
             nutrition: Yup.string().trim().required('Nutrition is required'),
             description: Yup.string().trim().required('Description is required'),
-            protein: Yup.string().trim().required('Protein is required'),
-            fat: Yup.string().trim().required('Fat is required'),
-            carbs: Yup.string().trim().required('Carbs is required'),
+            protein: Yup.number().typeError('Protein must be in number').required('Protein is required'),
+            fat: Yup.number().typeError('Fat must be in number').required('Fat is required'),
+            carbs: Yup.number().typeError('Carbs must be in number').required('Carbs is required'),
             terms: Yup.array().of(
               Yup.object().shape({
                 name: Yup.string()
@@ -630,7 +637,8 @@ export const AddEditModel = (props: any) => {
             ingredients: Yup.array().of(
               Yup.object().shape({
                 id: Yup.string().trim().required('Ingredients is Required'),
-                quantity: Yup.string().trim().required('Quantity is Required')
+                quantity: Yup.number().typeError('Quantity must be in number').required('Quantity is Required'),
+                quantity_unit: Yup.string().trim().required('Quantity unit is required'),
               })),
             preparation_time: Yup.string().trim().required('Preparation time is required'),
             preparation_description: Yup.string().trim().required('Preparation description is required'),
@@ -663,23 +671,6 @@ export const AddEditModel = (props: any) => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label='Nutrition'
-                      name='nutrition'
-                      variant='outlined'
-                      value={values.nutrition}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={Boolean(
-                        touched.nutrition && errors.nutrition
-                      )}
-                      helperText={
-                        touched.nutrition && errors.nutrition
-                      }
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
                       multiline
                       label='Description'
                       name='description'
@@ -692,6 +683,23 @@ export const AddEditModel = (props: any) => {
                       )}
                       helperText={
                         touched.description && errors.description
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label='Nutrition'
+                      name='nutrition'
+                      variant='outlined'
+                      value={values.nutrition}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={Boolean(
+                        touched.nutrition && errors.nutrition
+                      )}
+                      helperText={
+                        touched.nutrition && errors.nutrition
                       }
                     />
                   </Grid>
@@ -824,25 +832,33 @@ export const AddEditModel = (props: any) => {
                       <Grid item md={6} xs={8}>
                         <TextField
                           fullWidth
-                          multiline
                           label='Quantity'
                           name={`ingredients[${index}].quantity`}
                           variant='outlined'
-                          error={Boolean(
-                            touched?.ingredients &&
-                            touched?.ingredients[index]?.quantity &&
-                            errors?.ingredients &&
+                          error={Boolean(touched?.ingredients && touched?.ingredients[index]?.quantity && errors?.ingredients &&
                             (errors?.ingredients[index] as any)?.quantity
+                          ) || Boolean(touched?.ingredients && touched?.ingredients[index]?.quantity_unit && errors?.ingredients &&
+                            (errors?.ingredients[index] as any)?.quantity_unit
                           )}
                           helperText={
                             touched?.ingredients &&
                             touched?.ingredients[index]?.quantity &&
                             errors?.ingredients &&
                             (errors?.ingredients[index] as any)?.quantity
+                            || touched?.ingredients &&
+                            touched?.ingredients[index]?.quantity_unit &&
+                            errors?.ingredients &&
+                            (errors?.ingredients[index] as any)?.quantity_unit
                           }
                           value={items.quantity}
                           onChange={handleChange}
                           onBlur={handleBlur}
+                          InputProps={{
+                            classes: {
+                              adornedEnd: classes.textareaAdornedEnd
+                            },
+                            endAdornment: <UnitSelect id='quantity_unit' option={UnitDropdown} name={`ingredients[${index}].quantity_unit`} value={items.quantity_unit} onChange={handleChange} onBlur={handleBlur} />
+                          }}
                         />
                       </Grid>
 

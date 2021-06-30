@@ -34,7 +34,7 @@ import ControlPointIcon from '@material-ui/icons/ControlPoint';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import { Autocomplete, Pagination } from '@material-ui/lab';
-import { Formik } from 'formik';
+import { Formik, getIn, useFormikContext } from 'formik';
 import React, { useEffect, useRef, useState } from 'react';
 import * as Yup from 'yup';
 import DialogTitle from '../../components/DialogTitlle/DialogTitle';
@@ -494,32 +494,6 @@ const AddEditDailog = (props: any) => {
       });
   };
 
-  const onAvatarImageChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    index: any
-  ) => {
-    e.persist();
-    const files = e.target.files;
-    if (files && files.length != 0) {
-      const reader = new FileReader();
-      const file = files[0];
-      reader.onloadend = () => {
-        formikRef.current.setFieldValue(`workout_terms[${index}].image`, {
-          file,
-          prevImage: reader.result,
-          isNew: true,
-        });
-      };
-      reader.readAsDataURL(file);
-    } else {
-      formikRef.current.setFieldValue('workout_terms', {
-        workoutTermsName: '',
-        image: { file: null, prevImage: '', isNew: null },
-        description: '',
-      });
-    }
-  };
-
   const onImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.persist();
     const files = e.target.files;
@@ -657,18 +631,6 @@ const AddEditDailog = (props: any) => {
     let { workout_terms } = values;
     workout_terms.push(workoutTerms);
     setFieldValue('workout_terms', workout_terms);
-  };
-
-  const removeIngredients = (
-    values: Exercise,
-    i: number,
-    setFieldValue: any
-  ) => {
-    let { workout_terms } = values;
-    const TempIngredients = workout_terms.filter(
-      (data: any, index: number) => index !== i
-    );
-    setFieldValue('workout_terms', TempIngredients);
   };
 
   useEffect(() => {
@@ -838,115 +800,7 @@ const AddEditDailog = (props: any) => {
                   </Button>
                 </Grid>
 
-                {values?.workout_terms?.map(
-                  (workoutValues: any, index: any) => (
-                    <Grid
-                      key={index}
-                      item
-                      container
-                      md={12}
-                      xs={12}
-                      direction='row'
-                      spacing={2}
-                    >
-                      <Grid item md={1} xs={12}>
-                        <input
-                          // name={`workout_terms[${index}].image`}
-                          ref={avatharimgRef}
-                          type='file'
-                          accept='.jpg,.png,jpeg'
-                          onChange={(e) => onAvatarImageChange(e, index)}
-                          onBlur={handleBlur}
-                          hidden
-                        />
-                        <Avatar
-                          className={classes.workouttermsavatar}
-                          variant='square'
-                          onClick={() => avatharimgRef.current.click()}
-                          src={workoutValues?.image?.prevImage}
-                        />
-                        <FormControl
-                          error={Boolean(
-                            touched?.workout_terms &&
-                              touched?.workout_terms[index]?.image?.file &&
-                              errors?.workout_terms &&
-                              (errors?.workout_terms[index] as any)?.image?.file
-                          )}
-                        >
-                          <FormHelperText>
-                            {touched?.workout_terms &&
-                              touched?.workout_terms[index]?.image?.file &&
-                              errors?.workout_terms &&
-                              (errors?.workout_terms[index] as any)?.image?.file}
-                          </FormHelperText>
-                        </FormControl>
-                      </Grid>
-
-                      <Grid item md={5} xs={12}>
-                        <TextField
-                          fullWidth
-                          multiline
-                          label='Workout terms name'
-                          name={`workout_terms[${index}].name`}
-                          variant='outlined'
-                          error={Boolean(
-                            touched?.workout_terms &&
-                              touched?.workout_terms[index]?.name &&
-                              errors?.workout_terms &&
-                              (errors?.workout_terms[index] as any)?.name
-                          )}
-                          helperText={
-                            touched?.workout_terms &&
-                            touched?.workout_terms[index]?.name &&
-                            errors?.workout_terms &&
-                            (errors?.workout_terms[index] as any)?.name
-                          }
-                          value={workoutValues.name}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                        />
-                      </Grid>
-                      <Grid item md={5} xs={8}>
-                        <TextField
-                          fullWidth
-                          multiline
-                          label='Workout terms description'
-                          name={`workout_terms[${index}].description`}
-                          variant='outlined'
-                          error={Boolean(
-                            touched?.workout_terms &&
-                              touched?.workout_terms[index]?.description &&
-                              errors?.workout_terms &&
-                              (errors?.workout_terms[index] as any)?.description
-                          )}
-                          helperText={
-                            touched?.workout_terms &&
-                            touched?.workout_terms[index]?.description &&
-                            errors?.workout_terms &&
-                            (errors?.workout_terms[index] as any)?.description
-                          }
-                          value={workoutValues.description}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                        />
-                      </Grid>
-
-                      <Grid item md={1} xs={4}>
-                        <Button
-                          fullWidth
-                          className={classes.deleteButton}
-                          variant='contained'
-                          color='secondary'
-                          onClick={() =>
-                            removeIngredients(values, index, setFieldValue)
-                          }
-                        >
-                          <DeleteIcon />
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  )
-                )}
+                {values?.workout_terms?.map((workoutValues: any, index: any) => <WorkoutTerms key={index} index = {index} />)}
 
                 <Grid item md={12} xs={12}>
                   <Autocomplete
@@ -1115,6 +969,116 @@ const AddEditDailog = (props: any) => {
     </Dialog>
   );
 };
+
+const WorkoutTerms = (props: any) =>{
+  const classes = useStyles();
+  const FormikContext = useFormikContext();
+  const [{ values, errors, touched, setFieldValue, handleBlur, handleChange }, setFormikContext] = useState(FormikContext);
+  const { index } = props;
+  const imgRef = useRef<any>(null)
+  const FieldName = `workout_terms[${index}]`;
+  const FieldValue = getIn(values, `workout_terms[${index}]`);
+  const FieldError = getIn(errors, `workout_terms[${index}]`);
+  const FieldTouched = getIn(touched, `workout_terms[${index}]`);
+
+  const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.persist();
+    const files = event.target.files;
+    if (files && files.length != 0) {
+      const reader = new FileReader();
+      const file = files[0];
+      reader.onloadend = () => {
+        setFieldValue(`${FieldName}.image`, { file, prevImage: reader.result, isNew: true, });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFieldValue(`${FieldName}.image`, { file: null, prevImage: '', isNew: null });
+    }
+  }
+
+  const removeTerm = () => {
+    const OldTerms = getIn(values, 'terms');
+    const Terms = OldTerms.filter((d: any, i: number) => i != index);
+    setFieldValue('terms', Terms);
+  }
+
+  useEffect(() => {
+    setFormikContext(FormikContext)
+  }, [FormikContext])
+
+  return (
+    <Grid
+      item
+      container
+      md={12}
+      xs={12}
+      direction='row'
+      spacing={2}
+    >
+      <Grid item md={1} xs={12}>
+        <input
+          name={`${FieldName}.image`}
+          ref={imgRef}
+          type='file'
+          accept='.jpg,.png,jpeg'
+          onChange={(e) => onImageChange(e)}
+          onBlur={handleBlur}
+          hidden
+        />
+        <Avatar
+          className={classes.workouttermsavatar}
+          variant='square'
+          onClick={() => imgRef?.current?.click()}
+          src={FieldValue?.image?.prevImage}
+        />
+        <FormControl error={Boolean(FieldTouched?.image?.file && FieldError?.image?.file)}>
+          <FormHelperText>{FieldTouched?.image?.file && FieldError?.image?.file}</FormHelperText>
+        </FormControl>
+      </Grid>
+
+      <Grid item md={5} xs={12}>
+        <TextField
+          fullWidth
+          multiline
+          label='Terms name'
+          name={`${FieldName}.name`}
+          variant='outlined'
+          error={Boolean(FieldTouched?.name && FieldError?.name)}
+          helperText={FieldTouched?.name && FieldError?.name}
+          value={FieldValue.name}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
+      </Grid>
+      <Grid item md={5} xs={8}>
+        <TextField
+          fullWidth
+          multiline
+          label='Terms description'
+          name={`${FieldName}.term`}
+          variant='outlined'
+          error={Boolean(FieldTouched?.description && FieldError?.description)}
+          helperText={FieldTouched?.description && FieldError?.description}
+          value={FieldValue.description}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
+      </Grid>
+
+      <Grid item md={1} xs={4}>
+        <Button
+          fullWidth
+          className={classes.deleteButton}
+          variant='contained'
+          color='secondary'
+          onClick={() => removeTerm()}
+        >
+          <DeleteIcon />
+        </Button>
+      </Grid>
+    </Grid>
+  )
+}
 
 const ViewDailog = (props: any) => {
   const { isOpen, title, onClose, data } = props;
