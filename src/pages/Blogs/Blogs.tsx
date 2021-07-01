@@ -142,7 +142,14 @@ const useStyle = makeStyles((theme: any) => ({
     fontSize : '14px',
     marginLeft : '10px'
   },
-  rejectButtonStyle : { backgroundColor: 'red', color: 'white', marginLeft: '10px' }
+  rejectButtonStyle : { 
+    backgroundColor: 'red', 
+    color: 'white', 
+    marginLeft: '10px',
+    '&:hover': {
+      backgroundColor: 'red',
+    }, 
+  }
 }));
 
 const Blogs = () => {

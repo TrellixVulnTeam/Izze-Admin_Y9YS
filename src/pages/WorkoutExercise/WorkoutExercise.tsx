@@ -543,45 +543,53 @@ const AddEditDailog = (props: any) => {
   const onSubmit = (value: any, helper: any) => {
     try {
       helper.setSubmitting(true);
+
       const render = async () => {
         const { workout_image, workout_thumbnail, workout_terms, ...rest } = value;
-        const PostData = rest;
-        const workoutTerms = workout_terms.map(async (data: any, index: any)=>{
-          if(data.image.isNew){
-            let getWorkoutImageUrl = await imageUpload(data.image.file);
-            data.image = getWorkoutImageUrl;
-            return data;
+        const postData = rest;
+
+        let tempArrays = workout_terms.map(async(data: any)=>{
+          let { image, ...rest } = data;
+          let { isNew, file } = image;
+          if (isNew) {
+            return imageUpload(file).then((image) => {
+              return { image, ...rest }
+            })
           }
           else {
-            data.image = await data.image.file;
-            return data;
+            return Promise.resolve({ ...rest, image: file })
           }
         })
 
-        let tempdatas = Promise.all(workoutTerms).then(
-          (dataWithImageUrl: any) => {
-            PostData.workout_terms = dataWithImageUrl;
+        Promise.all(tempArrays).then((termData: any) => {
+          postData.workout_terms = termData;
+          let { isNew, file } = workout_image;
+          if (isNew) {
+            return imageUpload(file)
           }
-        );
+          else {
+            return file;
+          }
+        }).then((imageUrl: any) => {
+          postData.workout_image = imageUrl;
 
-        if(workout_image.isNew || workout_thumbnail.isNew){
-          PostData.workout_image = await imageUpload(workout_image.file);
-          PostData.workout_thumbnail = await imageUpload(workout_thumbnail.file);
-        }
-        else {
-          PostData.workout_image = workout_image.file;
-          PostData.workout_thumbnail = workout_thumbnail.file;
-          PostData.workout_terms = await workout_terms.map((items: any)=>{
-            return {
-              name: items.name,
-              image: items.image.file,
-              description: items.description,
-            }
-          })
-        }
-        
-        !isEdit && addData(PostData, helper);
-        isEdit && editData(PostData, helper);
+          let { isNew, file } = workout_thumbnail;
+          if (isNew) {
+            return imageUpload(file)
+          }
+          else {
+            return file;
+          }
+        }).then((imageUrl: any)=>{
+          postData.workout_thumbnail = imageUrl;
+
+          !isEdit && addData(postData, helper);
+          isEdit && editData(postData, helper);
+        }).catch((err: any) => {
+          console.log(err)
+          Snackbar.show('Internal Server Error', 'error');
+        });
+
       };
       render();
     } catch (err) {
@@ -604,7 +612,6 @@ const AddEditDailog = (props: any) => {
   };
 
   const editData = (data: any, { setSubmitting, resetForm }: any) => {
-    console.log(data)
     setSubmitting(true);
     Post('app/editWorkout', data)
       .then((res: any) => {
