@@ -27,6 +27,8 @@ export const MealRoute = `${HomeLayout}/meal`;
 export const MealRecipesRoute = `${MealRoute}/meal-recipes`;
 export const MealPlanRoute = `${MealRoute}/meal-plan`;
 
+export const BlogsRoute = `${HomeLayout}/blogs`
+
 
 const RouteMap = {
   main: {
@@ -56,7 +58,7 @@ const RouteMap = {
     MealRecipesPage: MealRecipesRoute.replace(MealRoute, ''),
     MealPlanPage: MealPlanRoute.replace(MealRoute, ''),
 
-
+    BlogsPage : BlogsRoute.replace(HomeLayout, ''),
 
 
   }

@@ -617,7 +617,7 @@ export const AddEditModel = (props: any) => {
           validationSchema={Yup.object().shape({
             name: Yup.string().trim().required('Name is required'),
             nutrition: Yup.string().trim().required('Nutrition is required'),
-            description: Yup.string().trim().required('Description is required'),
+            description: Yup.string().trim().max(250, 'Must be 250 characters or less').required('Description is required'),
             protein: Yup.number().typeError('Protein must be in number').required('Protein is required'),
             fat: Yup.number().typeError('Fat must be in number').required('Fat is required'),
             carbs: Yup.number().typeError('Carbs must be in number').required('Carbs is required'),
@@ -641,7 +641,7 @@ export const AddEditModel = (props: any) => {
                 quantity_unit: Yup.string().trim().required('Quantity unit is required'),
               })),
             preparation_time: Yup.string().trim().required('Preparation time is required'),
-            preparation_description: Yup.string().trim().required('Preparation description is required'),
+            preparation_description: Yup.string().trim().max(250, 'Must be 250 characters or less').required('Preparation description is required'),
             image: Yup.object({
               file: Yup.mixed().required('A file is required'),
             }),
@@ -1101,6 +1101,8 @@ export const ViewModel = (props: any) => {
     setFormValue(data);
   }, [props]);
 
+  console.log(formValue)
+
   return (
     <Dialog
       disableBackdropClick
@@ -1164,7 +1166,7 @@ export const ViewModel = (props: any) => {
                 <ListItemAvatar>
                   <Avatar className={classes.avatarRoot} src={items.image} />
                 </ListItemAvatar>
-                <ListItemText primary={items?.name} secondary='some' />
+                <ListItemText primary={items?.name} secondary={items?.description} />
                 <Typography>{items.calories} gm</Typography>
               </ListItem>
             </List>

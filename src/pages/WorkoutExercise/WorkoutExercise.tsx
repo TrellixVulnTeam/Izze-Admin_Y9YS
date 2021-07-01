@@ -697,6 +697,7 @@ const AddEditDailog = (props: any) => {
           }),
           workout_description: Yup.string()
             .trim()
+            .max(250, 'Must be 250 characters or less')
             .required('Workout description is required'),
           workout_thumbnail: Yup.object({
             file: Yup.mixed().required('A file is required'),
@@ -714,6 +715,7 @@ const AddEditDailog = (props: any) => {
               }),
               description: Yup.string()
                 .trim()
+                .max(250, 'Must be 250 characters or less')
                 .required('Workout description is Required'),
             })
           ),
@@ -973,7 +975,7 @@ const AddEditDailog = (props: any) => {
 const WorkoutTerms = (props: any) =>{
   const classes = useStyles();
   const FormikContext = useFormikContext();
-  const [{ values, errors, touched, setFieldValue, handleBlur, handleChange }, setFormikContext] = useState(FormikContext);
+  const [{ values, errors, touched, setFieldValue, handleBlur, handleChange }, setFormikContext] = useState<any>(FormikContext);
   const { index } = props;
   const imgRef = useRef<any>(null)
   const FieldName = `workout_terms[${index}]`;
@@ -997,9 +999,9 @@ const WorkoutTerms = (props: any) =>{
   }
 
   const removeTerm = () => {
-    const OldTerms = getIn(values, 'terms');
+    const OldTerms = getIn(values, 'workout_terms');
     const Terms = OldTerms.filter((d: any, i: number) => i != index);
-    setFieldValue('terms', Terms);
+    setFieldValue('workout_terms', Terms);
   }
 
   useEffect(() => {
@@ -1040,7 +1042,7 @@ const WorkoutTerms = (props: any) =>{
         <TextField
           fullWidth
           multiline
-          label='Terms name'
+          label='Workout terms name'
           name={`${FieldName}.name`}
           variant='outlined'
           error={Boolean(FieldTouched?.name && FieldError?.name)}
@@ -1054,8 +1056,8 @@ const WorkoutTerms = (props: any) =>{
         <TextField
           fullWidth
           multiline
-          label='Terms description'
-          name={`${FieldName}.term`}
+          label='Workout terms description'
+          name={`${FieldName}.description`}
           variant='outlined'
           error={Boolean(FieldTouched?.description && FieldError?.description)}
           helperText={FieldTouched?.description && FieldError?.description}
@@ -1066,15 +1068,17 @@ const WorkoutTerms = (props: any) =>{
       </Grid>
 
       <Grid item md={1} xs={4}>
-        <Button
-          fullWidth
-          className={classes.deleteButton}
-          variant='contained'
-          color='secondary'
-          onClick={() => removeTerm()}
-        >
-          <DeleteIcon />
-        </Button>
+        {values?.workout_terms.length > 1 && (
+          <Button
+            fullWidth
+            className={classes.deleteButton}
+            variant='contained'
+            color='secondary'
+            onClick={() => removeTerm()}
+          >
+            <DeleteIcon />
+          </Button>
+        )}
       </Grid>
     </Grid>
   )

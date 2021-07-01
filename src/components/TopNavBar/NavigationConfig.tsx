@@ -36,7 +36,9 @@ import {
 
   MealRoute,
   MealRecipesRoute,
-  MealPlanRoute
+  MealPlanRoute,
+
+  BlogsRoute
   
 } from '../../Routes/RoutesConstants';
 
@@ -122,20 +124,11 @@ export default [
       },
 
       {
-        title: 'Multi level',
-        href: '/dashboards',
-        icon: DashboardIcon,
-        children: [
-          {
-            title: 'Level 1',
-            href: '/dashboards/default',
-          },
-          {
-            title: 'Level 2',
-            href: '/dashboards/analytics',
-          },
-        ],
+        title: 'Blogs',
+        href: BlogsRoute,
+        icon: HomeIcon,
       },
+
   //     {
   //       title: 'Management',
   //       href: '/management',

@@ -71,6 +71,7 @@ export const ConfModelProvider = (props: any) => {
         onClose={closeModel}
         maxWidth="sm"
         fullWidth
+        className={classes.dialogRoot}
         aria-labelledby="alert-dialog-title"
       >
         <DialogContent>

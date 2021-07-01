@@ -591,8 +591,8 @@ const AddEditDailog = (props: any) => {
         initialValues={initialValue}
         onSubmit={onSubmit}
         validationSchema={Yup.object().shape({
-          recipe_name: Yup.string().trim().max(250, 'Must be 250 characters or less').required('Recipe name is required'),
-          recipe_description: Yup.string().trim().required('Recipe Description is required'),
+          recipe_name: Yup.string().trim().required('Recipe name is required'),
+          recipe_description: Yup.string().trim().max(250, 'Must be 250 characters or less').required('Recipe Description is required'),
           preparation_time: Yup.string()
             .trim()
             .required('Preparation time is required'),

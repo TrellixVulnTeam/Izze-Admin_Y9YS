@@ -441,6 +441,7 @@ const AddEditDailog = (props: any) => {
         onSubmit={onSubmit}
         validationSchema={Yup.object().shape({
           name: Yup.string().trim().required('Name is required'),
+          description: Yup.string().trim().max(250, 'Must be 250 characters or less').notRequired(),
           image: Yup.object({
             file: Yup.mixed().required('A file is required'),
           }),

@@ -4,7 +4,7 @@ import { Navigate, Outlet, useRoutes } from 'react-router-dom';
 import Equipment from '../pages/Equipment/Equipment';
 import AuthLayout from '../pages/Layouts/AuthLayout';
 import HomeLayout from '../pages/Layouts/HomeLayout';
-import RouteMap, { DashboardRoute, EquipmentsRoute, SkinCareIngredientsRoute, NutritionRoute, MealRoute } from './RoutesConstants';
+import RouteMap, { DashboardRoute, EquipmentsRoute, SkinCareIngredientsRoute, NutritionRoute, MealRoute , BlogsRoute} from './RoutesConstants';
 
 const SignIn = React.lazy(() => import('../pages/SignIn/SignIn'));
 const SkinCareIngredients = React.lazy(() => import('../pages/SkinCareIngredients/SkinCareIngredients'));
@@ -16,6 +16,7 @@ const NutritionIngredients = React.lazy(()=>import('../pages/NutritionIngredient
 const NutritionPlan = React.lazy(()=>import('../pages/NutritionPlan/NutritionPlan'));
 const MealRecipe = React.lazy(()=>import('../pages/MealRecipe/MealRecipe'));
 const MealPlan = React.lazy(()=>import('../pages/MealPlan/MealPlan'));
+const Blogs = React.lazy(()=>import('../pages/Blogs/Blogs'));
 
 const useStyles = makeStyles((theme: any) => ({
   underDevlopment: {
@@ -89,6 +90,8 @@ const AppRoutes = () => {
             { path: RouteMap.HomeLayout.MealPlanPage, element: <MealPlan />},
           ]
         },
+
+        { path: RouteMap.HomeLayout.BlogsPage, element: <Blogs /> }
 
         // { path: RouteMap.HomeLayout.EquipmentPage, element: <Equipment /> },
       ],
