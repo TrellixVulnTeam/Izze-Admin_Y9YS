@@ -517,7 +517,7 @@ export const AddEditModel = (props: any) => {
         initialValues={initialValue}
         onSubmit={onSubmit}
         validationSchema={Yup.object().shape({
-          description: Yup.string().trim().required('Blog Description is required'),
+          description: Yup.string().trim().max(250, 'Must be 250 characters or less').required('Blog Description is required'),
           blog_type: Yup.string().trim().required('Blog Type is required'),
           title: Yup.string().trim().required('Blog Title is required'),
           image: Yup.object({ file: Yup.mixed().required('A file is required') }),

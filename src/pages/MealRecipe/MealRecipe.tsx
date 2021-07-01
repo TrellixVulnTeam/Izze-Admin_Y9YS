@@ -631,6 +631,7 @@ export const AddEditModel = (props: any) => {
                 }),
                 term: Yup.string()
                   .trim()
+                  .max(250, 'Must be 250 characters or less')
                   .required('Meal Recipe terms is Required'),
               })
             ),
