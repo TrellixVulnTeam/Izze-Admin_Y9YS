@@ -92,7 +92,6 @@ const useStyle = makeStyles((theme: any) => ({
   },
   textSecondary: {
     marginTop: 10,
-    color: '#f0c100',
   },
   ingrdientsGridMain: {
     marginTop: 10,

@@ -18,6 +18,7 @@ import useConfModel from '../../hook/useConfModel';
 import useService from '../../hook/useService';
 import useSnackbar from '../../hook/useSnackbar';
 import { imageUpload } from '../../utils/FirebaseUtils';
+import { uploadNewImage } from '../../utils/CloudinaryUtils';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -241,7 +242,7 @@ function NutritionIngredients() {
                       </TableCell>
                       <TableCell align='center'>
                         <div className={classes.jCenter}>
-                          <Avatar variant='square' src={data?.image} />
+                          <Avatar variant='square' src={data?.image?.url} />
                         </div>
                       </TableCell>
                       <TableCell align='center'>{data?.name}</TableCell>
@@ -364,14 +365,11 @@ const AddandEditDialogue = (props: any) => {
       helper.setSubmitting(true)
       const renderSubmit = async () => {
         const { image, nutrientName, ...rest } = value;
-        const { isNew, file } = image;
         const postData = rest;
+
         postData.name = nutrientName
-        if (isNew) {
-          postData.image = await imageUpload(file);
-        } else {
-          postData.image = file;
-        }
+        postData.image = await uploadNewImage(image);
+
         !isEdit && addData(postData, helper);
         isEdit && editData(postData, helper);
       }
@@ -523,7 +521,7 @@ const AddandEditDialogue = (props: any) => {
                   <Grid item xs={6}>
                     <TextField
                       fullWidth
-                      label='Protein'
+                      label='Protein ( g )'
                       name='protein'
                       variant='outlined'
                       error={Boolean(touched.protein && errors.protein)}
@@ -537,7 +535,7 @@ const AddandEditDialogue = (props: any) => {
                   <Grid item xs={6}>
                     <TextField
                       fullWidth
-                      label='Fat'
+                      label='Fat ( g )'
                       name='fat'
                       variant='outlined'
                       error={Boolean(touched.fat && errors.fat)}
@@ -551,7 +549,7 @@ const AddandEditDialogue = (props: any) => {
                   <Grid item xs={6}>
                     <TextField
                       fullWidth
-                      label='Carbs'
+                      label='Carbs ( g )'
                       name='carbs'
                       variant='outlined'
                       error={Boolean(touched.carbs && errors.carbs)}
@@ -565,7 +563,7 @@ const AddandEditDialogue = (props: any) => {
                   <Grid item xs={6}>
                     <TextField
                       fullWidth
-                      label='Calories'
+                      label='Calories ( kcal )'
                       name='calories'
                       variant='outlined'
                       error={Boolean(touched.calories && errors.calories)}
@@ -799,7 +797,7 @@ const ViewIngredientModel = (props: any) => {
         <Grid style={{ marginTop: '20px' }} container>
           <Grid item md={12} xs={12}>
             {formValue?.image && (
-              <img className={classes.imageView} src={formValue?.image} />
+              <img className={classes.imageView} src={formValue?.image?.url} />
             )}
           </Grid>
         </Grid>

@@ -16,7 +16,8 @@ import useConfModel from '../../hook/useConfModel';
 import useService from '../../hook/useService';
 import useSnackbar from '../../hook/useSnackbar';
 import { initialFormValues, MealTime, validation } from './FormikValues';
-import clsx from 'clsx'
+import clsx from 'clsx';
+import useCalories from '../../hook/useCalories';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -430,6 +431,7 @@ export const AddEditModel = (props: any) => {
     onSuccess,
   } = props;
   const formikRef = useRef<any>(null);
+  const getCaloriesData = useCalories()
   const classes = useStyles();
   const Snackbar = useSnackbar();
   const { Post } = useService();
@@ -582,8 +584,8 @@ export const AddEditModel = (props: any) => {
                   </Grid>
                   <Grid item xs={6}>
                     <Autocomplete
-                      options={CaloriesDrop}
-                      value={CaloriesDrop.find((data: any) => data.id == values.calories)}
+                      options={getCaloriesData}
+                      value={getCaloriesData.find((data: any) => data.id == values.calories)}
                       getOptionLabel={(option: any) => option.name}
                       getOptionSelected={(option) => option.id == values.calories}
                       onChange={(event: any, newValue: any) => {
@@ -603,6 +605,9 @@ export const AddEditModel = (props: any) => {
                         />
                       )}
                     />
+                  </Grid>
+                  <Grid item xs={12}>
+                      <Typography variant='h4' align='center'><strong>Add Meal Plan</strong></Typography>
                   </Grid>
 
                   {/* <Paper className={classes.paperRoot}> */}
@@ -771,7 +776,7 @@ const ViewModel = (props: any) => {
                                       {/* <CardActionArea> */}
                                       <CardMedia
                                         className={classes.cardMediaRoot}
-                                        image={recData.image}
+                                        image={recData.image?.url}
                                         title={recData.name}
                                       />
 

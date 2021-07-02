@@ -11,3 +11,12 @@ export const uploadImageCloudinary = (file: any) => {
       return { public_id, url: secure_url }
     })
 }
+
+export const uploadNewImage = (imageData: any) => {
+  const { isNew, file } = imageData
+  if (isNew) {
+    return uploadImageCloudinary(file)
+  } else {
+    return Promise.resolve(file)
+  }
+}

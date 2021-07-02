@@ -44,8 +44,8 @@ import TipTapEditor from '../../components/TipTapEditor/TipTapEditor/TipTapEdito
 import useConfModel from '../../hook/useConfModel';
 import useService from '../../hook/useService';
 import useSnackbar from '../../hook/useSnackbar';
+import { uploadNewImage } from '../../utils/CloudinaryUtils';
 import { imageUpload } from '../../utils/FirebaseUtils';
-import TimerIcon from '@material-ui/icons/Timer';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 
 const useStyles = makeStyles((theme: any) => ({
@@ -132,7 +132,6 @@ const useStyles = makeStyles((theme: any) => ({
   },
   textSecondary: {
     marginTop: 10,
-    color: '#f0c100',
   },
   ingrdientsGridMain: {
     marginTop: 10,
@@ -339,7 +338,7 @@ const WorkoutExercise = () => {
                       </TableCell>
                       <TableCell align='center'>
                         <div className={classes.jCenter}>
-                          <Avatar variant='square' src={data?.workout_image} />
+                          <Avatar variant='square' src={data?.workout_image?.url} />
                         </div>
                       </TableCell>
                       <TableCell align='center'>{data?.workout_name}</TableCell>
@@ -447,7 +446,6 @@ const AddEditDailog = (props: any) => {
   const classes = useStyles();
   const formikRef = useRef<any>(null);
   const imageRef = useRef<any>(null);
-  const avatharimgRef = useRef<any>(null);
   const thumbnailImageRef = useRef<any>(null);
   const Snackbar = useSnackbar();
   const { Post } = useService();
@@ -546,49 +544,18 @@ const AddEditDailog = (props: any) => {
 
       const render = async () => {
         const { workout_image, workout_thumbnail, workout_terms, ...rest } = value;
+
         const postData = rest;
+        const TermPromiseArray = Promise.all(workout_terms.map(({ image, ...rest }: any) => uploadNewImage(image).then((ImgRes: any) => ({ image: ImgRes, ...rest }))))
 
-        let tempArrays = workout_terms.map(async(data: any)=>{
-          let { image, ...rest } = data;
-          let { isNew, file } = image;
-          if (isNew) {
-            return imageUpload(file).then((image) => {
-              return { image, ...rest }
-            })
-          }
-          else {
-            return Promise.resolve({ ...rest, image: file })
-          }
-        })
+        const [ImgRes, ImgTumpRes, TermRes] = await Promise.all([uploadNewImage(workout_image), uploadNewImage(workout_thumbnail), TermPromiseArray])
 
-        Promise.all(tempArrays).then((termData: any) => {
-          postData.workout_terms = termData;
-          let { isNew, file } = workout_image;
-          if (isNew) {
-            return imageUpload(file)
-          }
-          else {
-            return file;
-          }
-        }).then((imageUrl: any) => {
-          postData.workout_image = imageUrl;
+        postData.workout_image = ImgRes
+        postData.workout_thumbnail = ImgTumpRes
+        postData.workout_terms = TermRes
 
-          let { isNew, file } = workout_thumbnail;
-          if (isNew) {
-            return imageUpload(file)
-          }
-          else {
-            return file;
-          }
-        }).then((imageUrl: any)=>{
-          postData.workout_thumbnail = imageUrl;
-
-          !isEdit && addData(postData, helper);
-          isEdit && editData(postData, helper);
-        }).catch((err: any) => {
-          console.log(err)
-          Snackbar.show('Internal Server Error', 'error');
-        });
+        !isEdit && addData(postData, helper);
+        isEdit && editData(postData, helper);
 
       };
       render();
@@ -598,6 +565,7 @@ const AddEditDailog = (props: any) => {
   };
 
   const addData = (data: any, { setSubmitting, resetForm }: any) => {
+    console.log(data)
     setSubmitting(true);
     Post('app/addWorkout', data)
       .then((res: any) => {
@@ -607,6 +575,7 @@ const AddEditDailog = (props: any) => {
         onSuccess();
       })
       .catch((err: any) => {
+        setSubmitting(false);
         Snackbar.show(err.message, 'error');
       });
   };
@@ -621,6 +590,7 @@ const AddEditDailog = (props: any) => {
         onSuccess();
       })
       .catch((err: any) => {
+        setSubmitting(false);
         Snackbar.show(err.message, 'error');
       });
   };
@@ -650,6 +620,9 @@ const AddEditDailog = (props: any) => {
           id: data._id,
         };
       });
+
+      const EquipmentIds = equipmentList.map(({ _id }: any) => _id)
+      editData.required_equipments = required_equipments.filter(({ _id }: any) => EquipmentIds.includes(_id)).map(({ _id }: any) => ({ id: _id }));
       editData.workout_terms = workout_terms.map((item: any) => {
         return {
           name: item.name,
@@ -809,7 +782,7 @@ const AddEditDailog = (props: any) => {
                   </Button>
                 </Grid>
 
-                {values?.workout_terms?.map((workoutValues: any, index: any) => <WorkoutTerms key={index} index = {index} />)}
+                {values?.workout_terms?.map((workoutValues: any, index: any) => <WorkoutTerms key={index} index={index} />)}
 
                 <Grid item md={12} xs={12}>
                   <Autocomplete
@@ -831,9 +804,9 @@ const AddEditDailog = (props: any) => {
                         variant='outlined'
                         error={Boolean(
                           touched?.required_equipments &&
-                            touched?.required_equipments[0]?.id &&
-                            errors?.required_equipments &&
-                            (errors?.required_equipments[0] as any)?.id
+                          touched?.required_equipments[0]?.id &&
+                          errors?.required_equipments &&
+                          (errors?.required_equipments[0] as any)?.id
                         )}
                         helperText={
                           touched?.required_equipments &&
@@ -891,7 +864,7 @@ const AddEditDailog = (props: any) => {
                   <FormControl
                     error={Boolean(
                       touched?.workout_image?.file &&
-                        errors?.workout_image?.file
+                      errors?.workout_image?.file
                     )}
                   >
                     <FormHelperText>
@@ -924,7 +897,7 @@ const AddEditDailog = (props: any) => {
                   <FormControl
                     error={Boolean(
                       touched?.workout_thumbnail?.file &&
-                        errors?.workout_thumbnail?.file
+                      errors?.workout_thumbnail?.file
                     )}
                   >
                     <FormHelperText>
@@ -969,7 +942,7 @@ const AddEditDailog = (props: any) => {
                   <CircularProgress size={24} className={classes.lColor} />
                 ) : (
                   okBtnText
-                 )} 
+                )}
               </Button>
             </DialogActions>
           </>
@@ -979,7 +952,7 @@ const AddEditDailog = (props: any) => {
   );
 };
 
-const WorkoutTerms = (props: any) =>{
+const WorkoutTerms = (props: any) => {
   const classes = useStyles();
   const FormikContext = useFormikContext();
   const [{ values, errors, touched, setFieldValue, handleBlur, handleChange }, setFormikContext] = useState<any>(FormikContext);
@@ -1133,7 +1106,7 @@ const ViewDailog = (props: any) => {
             <Grid key={index} item xs={4} md={3}>
               <Avatar
                 className={classes.ingredientsAvatarRoot}
-                src={value?.image}
+                src={value?.image?.url}
               />
               <Typography variant='h6' align='center'>
                 {value?.name}
@@ -1153,7 +1126,7 @@ const ViewDailog = (props: any) => {
         </Grid>
         <Typography variant='h6' align='left' className={classes.textSecondary}>{formValue?.workout_description}</Typography>
 
-        
+
 
         <Typography variant='h5' align='left' style={{ color: '#41A58D' }} className={classes.textPrimary}>
           Equipments
@@ -1169,7 +1142,7 @@ const ViewDailog = (props: any) => {
             <Grid key={index} item xs={4} md={3}>
               <Avatar
                 className={classes.ingredientsAvatarRoot}
-                src={value?.image}
+                src={value?.image?.url}
               />
               <Typography variant='h6' align='center'>
                 {value?.name}

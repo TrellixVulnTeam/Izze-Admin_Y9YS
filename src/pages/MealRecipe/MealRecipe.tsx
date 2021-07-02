@@ -30,6 +30,7 @@ import FatImages from '../../assets/Images/Fat.png'
 import { useEffect } from 'react';
 import UnitSelect from '../../components/UnitSelect/UnitSelect';
 import UnitDropdown from '../../utils/MetricUnits';
+import { uploadNewImage } from '../../utils/CloudinaryUtils';
 
 
 
@@ -99,7 +100,6 @@ const useStyles = makeStyles((theme: any) => ({
   },
   textSecondary: {
     marginTop: 10,
-    color: '#f0c100',
   },
   ingrdientsGridMain: {
     marginTop: 10,
@@ -305,7 +305,7 @@ function MealRecipe() {
                       </TableCell>
                       <TableCell align='center'>
                         <div className={classes.jCenter}>
-                          <Avatar variant='square' src={data?.image} />
+                          <Avatar variant='square' src={data?.image?.url} />
                         </div>
                       </TableCell>
                       <TableCell align='center'>{data?.name}</TableCell>
@@ -463,37 +463,35 @@ export const AddEditModel = (props: any) => {
         const { terms, ...rest } = value;
         const postData = rest;
 
-        const TermPromiseArray = terms.map(async (termData: any) => {
-          let { image, ...rest } = termData
-          let { isNew, file } = image
-          if (isNew) {
-            return imageUpload(file).then((image) => {
-              return { image, ...rest }
-            })
-          }
-          else {
-            return Promise.resolve({ ...rest, image: file })
-          }
-        })
+        const TermPromiseArray = Promise.all(terms.map(({image, ...rest}: any)=>uploadNewImage(image).then((imgResponse)=>({image:imgResponse , ...rest}))));
+        const [imageResponse,TermImageResponse] = await Promise.all([uploadNewImage(postData.image),TermPromiseArray]);
 
-        Promise.all(TermPromiseArray).then((termData: any) => {
-          postData.terms = termData;
+        postData.terms = TermImageResponse;
+        postData.image = imageResponse
 
-          let { isNew, file } = postData.image;
-          if (isNew) {
-            return imageUpload(file)
-          }
-          else {
-            return file;
-          }
-        }).then((imageUrl: any) => {
-          postData.image = imageUrl
           !isEdit && addData(postData, helper);
           isEdit && editData(postData, helper);
-        }).catch((err: any) => {
-          console.log(err)
-          Snackbar.show('Internal Server Error', 'error');
-        });
+
+        // const TermPromiseArray = terms.map(async (termData: any) => {
+        //   let { image, ...rest } = termData
+        //   return uploadNewImage(image)
+        // })
+
+        // Promise.all(TermPromiseArray).then((termData: any) => {
+
+        //   postData.terms = termData;
+        //   return uploadNewImage(postData.image)
+
+        // }).then((imageUrl: any) => {
+
+        //   postData.image = imageUrl
+        //   !isEdit && addData(postData, helper);
+        //   isEdit && editData(postData, helper);
+
+        // }).catch((err: any) => {
+
+        //   Snackbar.show('Internal Server Error', 'error');
+        // });
       }
       renderSubmit()
     }
@@ -642,7 +640,7 @@ export const AddEditModel = (props: any) => {
                 quantity_unit: Yup.string().trim().required('Quantity unit is required'),
               })),
             preparation_time: Yup.string().trim().required('Preparation time is required'),
-            preparation_description: Yup.string().trim().max(250, 'Must be 250 characters or less').required('Preparation description is required'),
+            preparation_description: Yup.string().trim().required('Preparation description is required'),
             image: Yup.object({
               file: Yup.mixed().required('A file is required'),
             }),
@@ -707,7 +705,7 @@ export const AddEditModel = (props: any) => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label='Protein'
+                      label='Protein ( g )'
                       name='protein'
                       variant='outlined'
                       value={values.protein}
@@ -724,7 +722,7 @@ export const AddEditModel = (props: any) => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label='Fat'
+                      label='Fat ( g )'
                       name='fat'
                       variant='outlined'
                       value={values.fat}
@@ -741,7 +739,7 @@ export const AddEditModel = (props: any) => {
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      label='Carbs'
+                      label='Carbs ( g )'
                       name='carbs'
                       variant='outlined'
                       value={values.carbs}
@@ -812,16 +810,12 @@ export const AddEditModel = (props: any) => {
                               label='Ingredients'
                               variant='outlined'
                               error={Boolean(
-                                touched?.ingredients &&
-                                touched?.ingredients[index]?.id &&
-                                errors?.ingredients &&
-                                (errors?.ingredients[index] as any)?.id
+                                touched?.ingredients && touched?.ingredients[index]?.id &&
+                                errors?.ingredients && (errors?.ingredients[index] as Ingredients)?.id
                               )}
                               helperText={
-                                touched?.ingredients &&
-                                touched?.ingredients[index]?.id &&
-                                errors?.ingredients &&
-                                (errors?.ingredients[index] as any)?.id
+                                touched?.ingredients && touched?.ingredients[index]?.id &&
+                                errors?.ingredients && (errors?.ingredients[index] as Ingredients)?.id
                               }
                               inputProps={{
                                 ...params.inputProps,
@@ -842,14 +836,10 @@ export const AddEditModel = (props: any) => {
                             (errors?.ingredients[index] as any)?.quantity_unit
                           )}
                           helperText={
-                            touched?.ingredients &&
-                            touched?.ingredients[index]?.quantity &&
-                            errors?.ingredients &&
-                            (errors?.ingredients[index] as any)?.quantity
-                            || touched?.ingredients &&
-                            touched?.ingredients[index]?.quantity_unit &&
-                            errors?.ingredients &&
-                            (errors?.ingredients[index] as any)?.quantity_unit
+                            touched?.ingredients && touched?.ingredients[index]?.quantity &&
+                            errors?.ingredients && (errors?.ingredients[index] as any)?.quantity
+                            || touched?.ingredients && touched?.ingredients[index]?.quantity_unit &&
+                            errors?.ingredients && (errors?.ingredients[index] as any)?.quantity_unit
                           }
                           value={items.quantity}
                           onChange={handleChange}
@@ -858,7 +848,7 @@ export const AddEditModel = (props: any) => {
                             classes: {
                               adornedEnd: classes.textareaAdornedEnd
                             },
-                            endAdornment: <UnitSelect id='quantity_unit' option={UnitDropdown} name={`ingredients[${index}].quantity_unit`} value={items.quantity_unit} onChange={handleChange} onBlur={handleBlur} />
+                            endAdornment: <UnitSelect id={`ingredients[${index}].quantity_unit`} option={UnitDropdown} name={`ingredients[${index}].quantity_unit`} value={items.quantity_unit} onChange={handleChange} onBlur={handleBlur} />
                           }}
                         />
                       </Grid>
@@ -1137,7 +1127,7 @@ export const ViewModel = (props: any) => {
             <Grid key={index} item xs={4} md={3}>
               <Avatar
                 className={classes.ingredientsAvatarRoot}
-                src={value?.image}
+                src={value?.image?.url}
               />
               <Typography variant='h6' align='center'>
                 {value?.name}
@@ -1165,7 +1155,7 @@ export const ViewModel = (props: any) => {
             <List>
               <ListItem>
                 <ListItemAvatar>
-                  <Avatar className={classes.avatarRoot} src={items.image} />
+                  <Avatar className={classes.avatarRoot} src={items.image?.url} />
                 </ListItemAvatar>
                 <ListItemText primary={items?.name} secondary={items?.description} />
                 <Typography>{items.calories} gm</Typography>

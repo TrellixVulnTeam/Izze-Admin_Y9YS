@@ -14,7 +14,7 @@ import DialogTitle from '../../components/DialogTitlle/DialogTitle';
 import useService from '../../hook/useService';
 import useSnackbar from '../../hook/useSnackbar';
 import useConfModel from '../../hook/useConfModel';
-import { imageUpload } from '../../utils/FirebaseUtils';
+import { uploadNewImage } from '../../utils/CloudinaryUtils';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -245,7 +245,7 @@ const SkinCareIngredients = () => {
                       </TableCell>
                       <TableCell align='center'>
                         <div className={classes.jCenter}>
-                          <Avatar variant='square' src={data?.image} />
+                          <Avatar variant='square' src={data?.image?.url} />
                         </div>
                       </TableCell>
                       <TableCell align='center'>{data?.name}</TableCell>
@@ -366,13 +366,10 @@ const AddEditDailog = (props: any) => {
       helper.setSubmitting(true);
       const render = async () => {
         const { image, ...rest } = value;
-        const { file, isNew } = image;
         const PostData = rest;
-        if (isNew) {
-          PostData.image = await imageUpload(file);
-        } else {
-          PostData.image = file;
-        }
+
+        PostData.image = await uploadNewImage(image);
+
         !isEdit && addData(PostData, helper);
         isEdit && editData(PostData, helper);
       };
@@ -414,7 +411,7 @@ const AddEditDailog = (props: any) => {
     if (isEdit) {
       const { image, _id, ...rest } = data;
       const EditData = { ...rest, id: _id };
-      EditData.image = { file: image, prevImage: image, isNew: false };
+      EditData.image = { file: image, prevImage: image?.url, isNew: false };
       setInitialValue(EditData);
     } else {
       setInitialValue(initialFormValue);
@@ -585,7 +582,7 @@ const ViewDailog = (props: any) => {
           </Grid>
           <Grid item md={12} xs={12}>
             {formValue?.image && (
-              <img className={classes.imageView} src={formValue?.image} />
+              <img className={classes.imageView} src={formValue?.image?.url} />
             )}
           </Grid>
         </Grid>

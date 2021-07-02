@@ -15,6 +15,7 @@ import useService from '../../hook/useService';
 import useSnackbar from '../../hook/useSnackbar';
 import useConfModel from '../../hook/useConfModel';
 import { imageUpload } from '../../utils/FirebaseUtils';
+import { uploadNewImage } from '../../utils/CloudinaryUtils';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -245,7 +246,7 @@ const Equipment = () => {
                       </TableCell>
                       <TableCell align='center'>
                         <div className={classes.jCenter}>
-                          <Avatar variant='square' src={data?.image} />
+                          <Avatar variant='square' src={data?.image?.url} />
                         </div>
                       </TableCell>
                       <TableCell align='center'>{data?.name}</TableCell>
@@ -366,13 +367,10 @@ const AddEditDailog = (props: any) => {
       helper.setSubmitting(true);
       const render = async () => {
         const { image, ...rest } = value;
-        const { file, isNew } = image;
         const PostData = rest;
-        if (isNew) {
-          PostData.image = await imageUpload(file);
-        } else {
-          PostData.image = file;
-        }
+
+        PostData.image = await uploadNewImage(image);
+        
         !isEdit && addData(PostData, helper);
         isEdit && editData(PostData, helper);
       };
@@ -584,8 +582,8 @@ const ViewDailog = (props: any) => {
             {formValue?.description}
           </Grid>
           <Grid item md={12} xs={12}>
-            {formValue?.image && (
-              <img className={classes.imageView} src={formValue?.image} />
+            {formValue?.image?.url && (
+              <img className={classes.imageView} src={formValue?.image?.url} />
             )}
           </Grid>
         </Grid>

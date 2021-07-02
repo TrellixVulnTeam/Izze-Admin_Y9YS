@@ -48,7 +48,9 @@ import useSnackbar from '../../hook/useSnackbar';
 import UnitSelect from '../../components/UnitSelect/UnitSelect';
 import UnitDropdown from '../../utils/MetricUnits';
 import { initialFormValues, NutMeal, NutMealTime, validation } from './FormikValues';
-import clsx from 'clsx'
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import clsx from 'clsx';
+import useCalories from '../../hook/useCalories';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -538,13 +540,12 @@ export const AddEditModel = (props: any) => {
   const classes = useStyles();
   const Snackbar = useSnackbar();
   const { Post } = useService();
+  const getCaloriesData = useCalories()
   const [tabValue, setTabValue] = React.useState('none');
   const [ingredientList, setIngredientList] = useState([])
+  const [initialValue, setInitialValue] = React.useState({...initialFormValues});
 
-
-  const [initialValue, setInitialValue] = React.useState({
-    ...initialFormValues,
-  });
+  console.log(getCaloriesData)
 
   const onSubmit = (value: any, helper: any) => {
     helper.setSubmitting(true);
@@ -731,8 +732,8 @@ export const AddEditModel = (props: any) => {
                   </Grid>
                   <Grid item xs={6}>
                     <Autocomplete
-                      options={CaloriesDrop}
-                      value={CaloriesDrop.find((data: any) => data.id == values.calories)}
+                      options={getCaloriesData}
+                      value={getCaloriesData.find((data: any) => data.id == values.calories)}
                       getOptionLabel={(option: any) => option.name}
                       getOptionSelected={(option) => option.id == values.calories}
                       onChange={(event: any, newValue: any) => {
@@ -756,17 +757,17 @@ export const AddEditModel = (props: any) => {
 
                   {[{ label: 'Protein', key: 'protein' }, { label: 'Fat', key: 'fat' }, { label: 'Carbs', key: 'carbs' }].map(({ label, key }) =>
                     <>
-                      <Grid item xs={12}>
-                        <Typography variant='h5' align='center'>
+                      <Grid item xs={2}>
+                        <Typography style={{padding: '20px'}} variant='h5' align='left'>
                           <strong>{label}</strong>
                         </Typography>
                       </Grid>
 
-                      {[{ label: 'Macros', key: 'macros' }, { label: 'Gram', key: 'gram' }, { label: 'Calories', key: 'calories' }].map((subData) => {
+                      {[{ label: 'Macros  ( % )', key: 'macros' }, { label: 'Gram  ( g )', key: 'gram' }, { label: 'Calories  ( Kcal )', key: 'calories' }].map((subData: any, index: any) => {
                         const SubKey = subData.key;
                         const FieldName = `${key}.${SubKey}`;
                         return (
-                          <Grid item xs={4}>
+                          <Grid item xs={3}>
                             <TextField
                               fullWidth
                               label={subData.label}
@@ -805,7 +806,7 @@ export const AddEditModel = (props: any) => {
                           return (
                             <div className={classes.divTab}>
                               <Grid item container xs={12} spacing={1} style={{ margin: 'inherit', ...SelectedStyle }}>
-                                <Grid item xs={nutData.isEdit ? 10 : 8}>
+                                <Grid item xs={nutData.isEdit ? 10 : 6}>
 
                                   {nutData.isEdit && <TextField
                                     fullWidth
@@ -830,7 +831,6 @@ export const AddEditModel = (props: any) => {
                                       }}
                                       variant='contained'
                                       color='secondary'
-                                      onClick={(e) => handleChangeTab(i.toString())}
                                     >
                                       {!Boolean(FieldTouched?.meal_time && FieldErrors?.meal_time) ? nutData?.meal_time : FieldErrors?.meal_time}
                                     </Button>}
@@ -851,6 +851,21 @@ export const AddEditModel = (props: any) => {
                                       <CheckIcon />
                                     </Button>
                                   </Grid>
+                                }
+
+                                {!nutData.isEdit && <Grid item xs={2} >
+                                  <Button
+                                    fullWidth
+                                    classes={{
+                                      fullWidth: classes.tabBtnIcon
+                                    }}
+                                    variant='contained'
+                                    color='primary'
+                                    onClick={(e) => handleChangeTab(i.toString())}
+                                  >
+                                    <ChevronRightIcon />
+                                  </Button>
+                                </Grid>
                                 }
 
                                 {!nutData.isEdit && <Grid item xs={2} >
@@ -904,7 +919,7 @@ export const AddEditModel = (props: any) => {
                                   color='secondary'
                                   onClick={() => addNewTab(values, setFieldValue)}
                                 >
-                                  <AddIcon />
+                                  Add Meal Time<AddIcon />
                                 </Button>
 
                                 <FormHelperText>
@@ -1007,7 +1022,7 @@ export const AddEditModel = (props: any) => {
                                       <TextField
                                         fullWidth
                                         multiline
-                                        label='Protein'
+                                        label='Protein ( g )'
                                         name={`${FieldName}.protein`}
                                         variant='outlined'
                                         error={Boolean(FieldTouched?.protein && FieldErrors?.protein)}
@@ -1022,7 +1037,7 @@ export const AddEditModel = (props: any) => {
                                       <TextField
                                         fullWidth
                                         multiline
-                                        label='Fat'
+                                        label='Fat ( g )'
                                         name={`${FieldName}.fat`}
                                         variant='outlined'
                                         error={Boolean(FieldTouched?.fat && FieldErrors?.fat)}
@@ -1037,7 +1052,7 @@ export const AddEditModel = (props: any) => {
                                       <TextField
                                         fullWidth
                                         multiline
-                                        label='Carbs'
+                                        label='Carbs ( g )'
                                         name={`${FieldName}.carbs`}
                                         variant='outlined'
                                         error={Boolean(FieldTouched?.carbs && FieldErrors?.carbs)}
@@ -1052,7 +1067,7 @@ export const AddEditModel = (props: any) => {
                                       <TextField
                                         fullWidth
                                         multiline
-                                        label='calories'
+                                        label='calories ( kcal )'
                                         name={`${FieldName}.calories`}
                                         variant='outlined'
                                         error={Boolean(FieldTouched?.calories && FieldErrors?.calories)}
@@ -1242,7 +1257,7 @@ const ViewNutritionModel = (props: any) => {
                                         <List className={classes.noPadding}>
                                           <ListItem disableGutters className={classes.noPadding}>
                                             <ListItemAvatar>
-                                              <Avatar className={classes.avatarRoot} src={incData.image} />
+                                              <Avatar className={classes.avatarRoot} src={incData.image?.url} />
                                             </ListItemAvatar>
                                             <ListItemText
                                               classes={{
