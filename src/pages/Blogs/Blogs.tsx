@@ -285,7 +285,7 @@ const Blogs = () => {
       </Grid>
 
       {/* =============Search======== */}
-      <Grid container spacing={3}>
+      {/* <Grid container spacing={3}>
         <Grid item>
           <Paper elevation={0}>
             <TextField
@@ -297,7 +297,7 @@ const Blogs = () => {
             />
           </Paper>
         </Grid>
-      </Grid>
+      </Grid> */}
 
       <Card className={classes.tabCard}>
         <CardContent className={classes.content}>

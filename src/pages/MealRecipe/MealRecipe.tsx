@@ -13,7 +13,7 @@ import { Pagination, TabContext, TabList, TabPanel } from '@material-ui/lab';
 import TipTapEditor from '../../components/TipTapEditor/TipTapEditor/TipTapEditor';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { imageUpload } from '../../utils/FirebaseUtils';
-import { Formik, getIn, useFormikContext } from 'formik';
+import { Formik, getIn, useFormikContext, FieldArray } from 'formik';
 import * as Yup from 'yup';
 import DialogTitle from '../../components/DialogTitlle/DialogTitle';
 import { TableLoader, TableNoData } from '../../components/Loader/Loader';
@@ -268,7 +268,7 @@ function MealRecipe() {
       </Grid>
 
       {/* =============Search======== */}
-      <Grid container spacing={3}>
+      {/* <Grid container spacing={3}>
         <Grid item>
           <Paper elevation={0}>
             <TextField
@@ -280,7 +280,7 @@ function MealRecipe() {
             />
           </Paper>
         </Grid>
-      </Grid>
+      </Grid> */}
 
       <Card className={classes.tabCard}>
         <CardContent className={classes.content}>
@@ -545,16 +545,14 @@ export const AddEditModel = (props: any) => {
       });
   }
 
-  const addMealRecipeTerms = (values: MealPlan, setFieldValue: any) => {
+  const addMealRecipeTerms = (values: MealPlan, push: any) => {
     const { terms } = values
-    terms.push(mealTerms);
-    setFieldValue('terms', terms)
+    push(mealTerms);
   }
 
-  const addIngredients = (values: MealPlan, setFieldValue: any) => {
+  const addIngredients = (values: MealPlan, push: any) => {
     const { ingredients } = values;
-    ingredients.push(ingredientsSelect)
-    setFieldValue('ingredients', ingredients)
+    push(ingredientsSelect)
   }
 
   const removeIngredients = (values: MealPlan, items: any, setFieldValue: any) => {
@@ -574,16 +572,17 @@ export const AddEditModel = (props: any) => {
 
   React.useEffect(() => {
     if (isEdit) {
+      console.log(data)
       const { terms, image, _id, ingredients, ...rest } = data;
       const editData = { ...rest, id: _id };
       const RecipeIds = ingredientsList.map(({ _id }: any) => _id)
-      editData.image = { file: image, prevImage: image, isNew: false };
-      editData.ingredients = ingredients.filter(({ _id }: any) => RecipeIds.includes(_id)).map(({ _id, quantity }: any) => ({ id: _id, quantity }))
+      editData.image = { file: image, prevImage: image?.url, isNew: false };
+      editData.ingredients = ingredients.filter(({ _id }: any) => RecipeIds.includes(_id)).map(({ _id, quantity, quantity_unit }: any) => ({ id: _id, quantity , quantity_unit}))
  
       editData.terms = terms.map((items: any) => {
         return {
           name: items.name,
-          image: { file: items.image, prevImage: items.image, isNew: false },
+          image: { file: items.image, prevImage: items.image.url, isNew: false },
           term: items.term
         }
       })
@@ -636,11 +635,11 @@ export const AddEditModel = (props: any) => {
             ingredients: Yup.array().of(
               Yup.object().shape({
                 id: Yup.string().trim().required('Ingredients is Required'),
-                quantity: Yup.number().typeError('Quantity must be in number').required('Quantity is Required'),
-                quantity_unit: Yup.string().trim().required('Quantity unit is required'),
+                quantity: Yup.string().required('Quantity is Required'),
+                // quantity_unit: Yup.string().trim().required('Quantity unit is required'),
               })),
             preparation_time: Yup.string().trim().required('Preparation time is required'),
-            preparation_description: Yup.string().trim().required('Preparation description is required'),
+            preparation_description: Yup.string().required('Preparation description is required'),
             image: Yup.object({
               file: Yup.mixed().required('A file is required'),
             }),
@@ -648,6 +647,7 @@ export const AddEditModel = (props: any) => {
         >
           {({ values, errors, touched, handleBlur, handleChange, setFieldValue, submitForm, setFieldTouched, isSubmitting, }) => (
             <>
+            {console.log(values)}
               <DialogContent dividers>
                 <Grid container spacing={2}>
                   <Grid item xs={12} md={6}>
@@ -753,119 +753,124 @@ export const AddEditModel = (props: any) => {
                       }
                     />
                   </Grid>
-                  <Grid item md={12} xs={12}>
-                    <Button
-                      fullWidth
-                      className={classes.themeButton}
-                      variant='contained'
-                      color='default'
-                      onClick={() => addMealRecipeTerms(values, setFieldValue)}
-                      endIcon={<ControlPointIcon />}
-                    >
-                      Add Terms
-                    </Button>
-                  </Grid>
+                  <FieldArray name='terms' validateOnChange>
+                    {({push, remove})=>(
+                      <>
+                        <Grid item md={12} xs={12}>
+                          <Button
+                            fullWidth
+                            className={classes.themeButton}
+                            variant='contained'
+                            color='default'
+                            onClick={() => addMealRecipeTerms(values, push)}
+                            endIcon={<ControlPointIcon />}
+                          >
+                            Add Terms
+                          </Button>
+                        </Grid>
 
-                  {values?.terms?.map((items: any, index: any) => <TermsComponent key={index} index={index} />)}
-
-                  <Grid item md={12} xs={12}>
-                    <Button
-                      fullWidth
-                      className={classes.themeButton}
-                      variant='contained'
-                      color='default'
-                      onClick={() => addIngredients(values, setFieldValue)}
-                      endIcon={<ControlPointIcon />}
-                    >
-                      Add Ingredients
-                    </Button>
-                  </Grid>
-
-                  {values?.ingredients?.map((items: any, index: any) => (
-                    <Grid
-                      key={index}
-                      item
-                      container
-                      md={12}
-                      xs={12}
-                      direction='row'
-                      spacing={2}
-                    >
-                      <Grid item md={5} xs={12}>
-                        <Autocomplete
-                          fullWidth
-                          options={ingredientsList}
-                          value={ingredientsList.find(
-                            (data: any) => data._id == items.id
-                          )}
-                          getOptionLabel={(option: any) => option.name}
-                          getOptionSelected={(option) =>
-                            option.id == items.id
-                          }
-                          onChange={(event: any, newValue) => handleOptionChange(event, newValue, index)}
-                          onBlur={handleBlur}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label='Ingredients'
-                              variant='outlined'
-                              error={Boolean(
-                                touched?.ingredients && touched?.ingredients[index]?.id &&
-                                errors?.ingredients && (errors?.ingredients[index] as Ingredients)?.id
-                              )}
-                              helperText={
-                                touched?.ingredients && touched?.ingredients[index]?.id &&
-                                errors?.ingredients && (errors?.ingredients[index] as Ingredients)?.id
-                              }
-                              inputProps={{
-                                ...params.inputProps,
-                              }}
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item md={6} xs={8}>
-                        <TextField
-                          fullWidth
-                          label='Quantity'
-                          name={`ingredients[${index}].quantity`}
-                          variant='outlined'
-                          error={Boolean(touched?.ingredients && touched?.ingredients[index]?.quantity && errors?.ingredients &&
-                            (errors?.ingredients[index] as any)?.quantity
-                          ) || Boolean(touched?.ingredients && touched?.ingredients[index]?.quantity_unit && errors?.ingredients &&
-                            (errors?.ingredients[index] as any)?.quantity_unit
-                          )}
-                          helperText={
-                            touched?.ingredients && touched?.ingredients[index]?.quantity &&
-                            errors?.ingredients && (errors?.ingredients[index] as any)?.quantity
-                            || touched?.ingredients && touched?.ingredients[index]?.quantity_unit &&
-                            errors?.ingredients && (errors?.ingredients[index] as any)?.quantity_unit
-                          }
-                          value={items.quantity}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          InputProps={{
-                            classes: {
-                              adornedEnd: classes.textareaAdornedEnd
-                            },
-                            endAdornment: <UnitSelect id={`ingredients[${index}].quantity_unit`} option={UnitDropdown} name={`ingredients[${index}].quantity_unit`} value={items.quantity_unit} onChange={handleChange} onBlur={handleBlur} />
-                          }}
-                        />
-                      </Grid>
-
-                      <Grid item md={1} xs={4}>
-                        <Button
-                          fullWidth
-                          className={classes.deleteButton}
-                          variant='contained'
-                          color='secondary'
-                          onClick={() => removeIngredients(values, items, setFieldValue)}
-                        >
-                          <DeleteIcon />
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  ))}
+                        {values?.terms?.map((items: any, index: any) => <TermsComponent key={index} index={index} remove={remove} getLength = {values?.terms?.length} />)}
+                      </>
+                    )}
+                  </FieldArray>
+                  <FieldArray name='ingredients'>
+                    {({push,remove})=>(
+                      <>
+                        <Grid item md={12} xs={12}>
+                          <Button
+                            fullWidth
+                            className={classes.themeButton}
+                            variant='contained'
+                            color='default'
+                            onClick={() => addIngredients(values, push)}
+                            endIcon={<ControlPointIcon />}
+                          >
+                            Add Ingredients
+                          </Button>
+                        </Grid>
+                        {values?.ingredients?.map((items: any, index: any) => (
+                          <Grid
+                            key={index}
+                            item
+                            container
+                            md={12}
+                            xs={12}
+                            direction='row'
+                            spacing={2}
+                          >
+                            <Grid item md={5} xs={12}>
+                              <Autocomplete
+                                fullWidth
+                                options={ingredientsList}
+                                value={ingredientsList.find(
+                                  (data: any) => data._id == items.id
+                                )}
+                                getOptionLabel={(option: any) => option.name}
+                                getOptionSelected={(option) =>
+                                  option.id == items.id
+                                }
+                                onChange={(event: any, newValue) => handleOptionChange(event, newValue, index)}
+                                onBlur={handleBlur}
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label='Ingredients'
+                                    variant='outlined'
+                                    error={Boolean(
+                                      touched?.ingredients && touched?.ingredients[index]?.id &&
+                                      errors?.ingredients && (errors?.ingredients[index] as Ingredients)?.id
+                                    )}
+                                    helperText={
+                                      touched?.ingredients && touched?.ingredients[index]?.id &&
+                                      errors?.ingredients && (errors?.ingredients[index] as Ingredients)?.id
+                                    }
+                                    inputProps={{
+                                      ...params.inputProps,
+                                    }}
+                                  />
+                                )}
+                              />
+                            </Grid>
+                            <Grid item md={6} xs={8}>
+                              <TextField
+                                fullWidth
+                                label='Quantity'
+                                name={`ingredients[${index}].quantity`}
+                                variant='outlined'
+                                error={Boolean(touched?.ingredients && touched?.ingredients[index]?.quantity && errors?.ingredients &&
+                                  (errors?.ingredients[index] as any)?.quantity)}
+                                helperText={
+                                  touched?.ingredients && touched?.ingredients[index]?.quantity &&
+                                  errors?.ingredients && (errors?.ingredients[index] as any)?.quantity }
+                                value={items.quantity}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                // InputProps={{
+                                //   classes: {
+                                //     adornedEnd: classes.textareaAdornedEnd
+                                //   },
+                                //   endAdornment: <UnitSelect id={`ingredients[${index}].quantity_unit`} option={UnitDropdown} name={`ingredients[${index}].quantity_unit`} value={items.quantity_unit} onChange={handleChange} onBlur={handleBlur} />
+                                // }}
+                              />
+                            </Grid>
+                            {values?.ingredients?.length > 1 && (
+                              <Grid item md={1} xs={4}>
+                                <Button
+                                  fullWidth
+                                  className={classes.deleteButton}
+                                  variant='contained'
+                                  color='secondary'
+                                  onClick={() => remove(index)}
+                                >
+                                  <DeleteIcon />
+                                </Button>
+                              </Grid>
+                            )}
+                          </Grid>
+                        ))}
+                      </>
+                    )}
+                  </FieldArray>
 
                   <Grid item xs={12} md={12}>
                     <TextField
@@ -976,7 +981,7 @@ export const AddEditModel = (props: any) => {
 const TermsComponent = (props: any) => {
   const FormikContext = useFormikContext()
   const [{ values, errors, touched, setFieldValue, handleBlur, handleChange }, setFormikContext] = useState(FormikContext)
-  const { index } = props
+  const { index } = props;
   const classes = useStyles()
   const imgRef = useRef<any>(null)
   const FieldName = `terms[${index}]`;
@@ -999,11 +1004,11 @@ const TermsComponent = (props: any) => {
     }
   }
 
-  const removeTerm = () => {
-    const OldTerms = getIn(values, 'terms');
-    const Terms = OldTerms.filter((d: any, i: number) => i != index);
-    setFieldValue('terms', Terms);
-  }
+  // const removeTerm = () => {
+  //   const OldTerms = getIn(values, 'terms');
+  //   const Terms = OldTerms.filter((d: any, i: number) => i != index);
+  //   setFieldValue('terms', Terms);
+  // }
 
   useEffect(() => {
     setFormikContext(FormikContext)
@@ -1067,18 +1072,19 @@ const TermsComponent = (props: any) => {
           onBlur={handleBlur}
         />
       </Grid>
-
-      <Grid item md={1} xs={4}>
-        <Button
-          fullWidth
-          className={classes.deleteButton}
-          variant='contained'
-          color='secondary'
-          onClick={() => removeTerm()}
-        >
-          <DeleteIcon />
-        </Button>
-      </Grid>
+      {props.getLength > 1 && (
+        <Grid item md={1} xs={4}>
+          <Button
+            fullWidth
+            className={classes.deleteButton}
+            variant='contained'
+            color='secondary'
+            onClick={() => props.remove(index)}
+          >
+            <DeleteIcon />
+          </Button>
+        </Grid>
+      )}
     </Grid>
 
   )
@@ -1091,8 +1097,6 @@ export const ViewModel = (props: any) => {
   React.useEffect(() => {
     setFormValue(data);
   }, [props]);
-
-  console.log(formValue)
 
   return (
     <Dialog
@@ -1110,7 +1114,7 @@ export const ViewModel = (props: any) => {
       <DialogContent dividers>
         <div>
           <img
-            src={formValue?.image}
+            src={formValue?.image?.url}
             alt={'Workout image'}
             className={classes.imageView}
           />
@@ -1158,7 +1162,7 @@ export const ViewModel = (props: any) => {
                   <Avatar className={classes.avatarRoot} src={items.image?.url} />
                 </ListItemAvatar>
                 <ListItemText primary={items?.name} secondary={items?.description} />
-                <Typography>{items.calories} gm</Typography>
+                <Typography>{items.quantity} {items.quantity_unit}</Typography>
               </ListItem>
             </List>
           )

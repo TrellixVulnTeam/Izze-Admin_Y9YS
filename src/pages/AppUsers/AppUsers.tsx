@@ -1,21 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { makeStyles, Avatar, Card, CardActions, CardContent, Dialog, DialogActions, DialogContent, FormControl, FormHelperText, Grid, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography, TextField, Button, CircularProgress, } from '@material-ui/core';
+import { makeStyles, Avatar, Card, CardActions, CardContent, Dialog, DialogActions, DialogContent, FormControl, FormHelperText, Grid, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography, TextField, Button, CircularProgress, List, ListItem, ListItemAvatar, ListItemText, Tab, } from '@material-ui/core';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import AddIcon from '@material-ui/icons/Add';
-import { Pagination } from '@material-ui/lab';
+import { Pagination, TabContext, TabList, TabPanel } from '@material-ui/lab';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import CenterFocusStrongIcon from '@material-ui/icons/CenterFocusStrong';
 import Page from '../../components/Page/Page';
-import { TableLoader, TableNoData } from '../../components/Loader/Loader';
+import Loader, { TableLoader, TableNoData } from '../../components/Loader/Loader';
 import DialogTitle from '../../components/DialogTitlle/DialogTitle';
 import useService from '../../hook/useService';
 import useSnackbar from '../../hook/useSnackbar';
 import useConfModel from '../../hook/useConfModel';
-import { imageUpload } from '../../utils/FirebaseUtils';
 import { uploadNewImage } from '../../utils/CloudinaryUtils';
+import AppUserDetails from './AppUserDetails';
+import AppUserFeedback from './AppUserFeedback';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -65,14 +66,43 @@ const useStyles = makeStyles((theme: any) => ({
   lColor: {
     color: 'white',
   },
+  avatarRoot: {
+    borderRadius: 10,
+    marginRight: 15,
+    width: theme.spacing(10),
+    height: theme.spacing(10),
+  },
+  textPrimary: {
+    fontWeight: 'bold'
+  },
+  textSecondary: {
+    color: '#f0c100'
+  },
+  tabsRoot: {
+    backgroundColor: 'white'
+  },
+  tabIndicator: {
+    backgroundColor: theme.palette.green.main,
+  },
+  tabPanelRoot: {
+    padding: 0,
+    // paddingBottom: 0,
+    width: '100%'
+  },
+  tabPanelContent: {
+    marginTop: theme.spacing(3)
+  },
+  dialogBackground: {
+    backgroundColor: '#f4f6f8'
+  }
 }));
 
-const Equipment = () => {
+const AppUsers = () => {
   const classes = useStyles();
   const { Post } = useService();
   const Snackbar = useSnackbar();
   const ConfModel = useConfModel();
-  const [stateData, setStateData] = useState({ page_no: 1, page_limit: 10 });
+  const [stateData, setStateData] = useState({ page_no: 1, page_limit: 10, name: '' });
   const [pageCount, setPageCount] = useState(0);
   const [dataList, setDataList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -89,11 +119,11 @@ const Equipment = () => {
     data: {},
   });
 
-  const listEquipments = async () => {
+  const listAppUsers = async () => {
     setLoading(true);
-    Post('app/listEquipment', stateData)
+    Post('app/listAppUser', stateData)
       .then((res: any) => {
-        console.log('listEquipment', res);
+        console.log('listAppUser', res);
         setLoading(false);
         if (!res.error) {
           setDataList(res.data);
@@ -113,6 +143,13 @@ const Equipment = () => {
     setStateData((prevState: any) => ({ ...prevState, page_no: value }));
   };
 
+  const searchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.persist()
+    const Name = event.target.name
+    const Value = event.target.value
+    setStateData((prevState: any) => ({ ...prevState, [Name]: Value }));
+  };
+
   const setElipsis = (text: any) => {
     return text.length >= 25 ? `${text.substring(0, 40)}...` : text;
   };
@@ -122,7 +159,7 @@ const Equipment = () => {
       ...prevState,
       isOpen: true,
       isEdit: false,
-      title: 'Add Equipment',
+      title: 'Add App User',
       okBtnText: 'Save',
     }));
   };
@@ -133,7 +170,7 @@ const Equipment = () => {
       isOpen: true,
       isEdit: true,
       data,
-      title: 'Edit Equipment',
+      title: 'Edit App User',
       okBtnText: 'Edit',
     }));
   };
@@ -143,7 +180,7 @@ const Equipment = () => {
       ...prevState,
       isOpen: true,
       data,
-      title: 'View Equipment',
+      title: 'View App User',
     }));
   };
 
@@ -151,7 +188,7 @@ const Equipment = () => {
     const { openModel, setLoading, closeModel } = ConfModel;
     const submitFunction = () => {
       setLoading(true);
-      Post('app/deleteEquipment', { id: data._id })
+      Post('app/removeAppUserData', { id: data._id })
         .then(async (res: any) => {
           setLoading(false);
           closeModel();
@@ -175,26 +212,26 @@ const Equipment = () => {
   };
 
   const onSuccessAction = () => {
-    listEquipments();
+    listAppUsers();
     closeAddEditDialog();
   };
 
   useEffect(() => {
-    listEquipments();
+    listAppUsers();
   }, [stateData]);
 
   return (
     <div className={classes.root}>
-      <Page title='Equipments' />
+      <Page title='App Users' />
 
       {/* =======Header====== */}
       <Grid alignItems='flex-end' container justify='space-between' spacing={3}>
         <Grid item>
           <Typography component='h1' variant='h3'>
-            Equipments
+            App Users
           </Typography>
         </Grid>
-        <Grid item>
+        {/* <Grid item>
           <Button
             variant='contained'
             onClick={() => openAddDialog()}
@@ -203,11 +240,11 @@ const Equipment = () => {
           >
             Add
           </Button>
-        </Grid>
+        </Grid> */}
       </Grid>
 
       {/* =============Search======== */}
-      {/* <Grid container spacing={3}>
+      <Grid container spacing={3}>
         <Grid item>
           <Paper elevation={0}>
             <TextField
@@ -215,11 +252,13 @@ const Equipment = () => {
               size='small'
               placeholder='Name'
               variant='outlined'
-              name='state'
+              name='name'
+              value={stateData.name}
+              onChange={searchChange}
             />
           </Paper>
         </Grid>
-      </Grid> */}
+      </Grid>
 
       {/* ========Table With Pagination========= */}
       <Card className={classes.tabCard}>
@@ -229,9 +268,8 @@ const Equipment = () => {
               <TableHead>
                 <TableRow>
                   <TableCell align='center'>#</TableCell>
-                  <TableCell align='center'>Image</TableCell>
                   <TableCell align='center'>Name</TableCell>
-                  <TableCell align='center'>Description</TableCell>
+                  <TableCell align='center'>Country</TableCell>
                   <TableCell align='center'>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -244,17 +282,10 @@ const Equipment = () => {
                           index +
                           1}
                       </TableCell>
-                      <TableCell align='center'>
-                        <div className={classes.jCenter}>
-                          <Avatar variant='square' src={data?.image?.url} />
-                        </div>
-                      </TableCell>
-                      <TableCell align='center'>{data?.name}</TableCell>
-                      <TableCell align='center'>
-                        <Tooltip title={data?.description}>
-                          <span>{setElipsis(data?.description)}</span>
-                        </Tooltip>
-                      </TableCell>
+
+                      <TableCell align='center'>{data?.firstName + ' ' + data?.lastName}</TableCell>
+                      <TableCell align='center'>{data?.country}</TableCell>
+
                       <TableCell align='center'>
                         <div className={classes.sEvenly}>
                           <Tooltip title='View' arrow>
@@ -265,22 +296,16 @@ const Equipment = () => {
                               <CenterFocusStrongIcon color='primary' />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title='Edit' arrow>
-                            <IconButton
-                              className={classes.iconPadd}
-                              onClick={() => openEditDialog(data)}
-                            >
-                              <EditIcon color='action' />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title='Delete' arrow>
-                            <IconButton
-                              className={classes.iconPadd}
-                              onClick={() => onDelete(data)}
-                            >
-                              <DeleteIcon color='secondary' />
-                            </IconButton>
-                          </Tooltip>
+                          {data?.is_delete &&
+                            <Tooltip title='Delete' arrow>
+                              <IconButton
+                                className={classes.iconPadd}
+                                onClick={() => onDelete(data)}
+                              >
+                                <DeleteIcon color='secondary' />
+                              </IconButton>
+                            </Tooltip>
+                          }
                         </div>
                       </TableCell>
                     </TableRow>
@@ -311,7 +336,7 @@ const Equipment = () => {
       />
 
       {/* ============View Dialog========== */}
-      <ViewDailog {...viewDialog} onClose={closeViewDialog} />
+      {viewDialog.isOpen && <ViewDailog {...viewDialog} onClose={closeViewDialog} />}
     </div>
   );
 };
@@ -370,7 +395,7 @@ const AddEditDailog = (props: any) => {
         const PostData = rest;
 
         PostData.image = await uploadNewImage(image);
-        
+
         !isEdit && addData(PostData, helper);
         isEdit && editData(PostData, helper);
       };
@@ -382,7 +407,7 @@ const AddEditDailog = (props: any) => {
 
   const addData = (data: any, { setSubmitting, resetForm }: any) => {
     setSubmitting(true);
-    Post('app/addEquipment', data)
+    Post('app/addSkinCareApp User', data)
       .then((res: any) => {
         Snackbar.show(res.message, 'success');
         setSubmitting(false);
@@ -396,7 +421,7 @@ const AddEditDailog = (props: any) => {
 
   const editData = (data: any, { setSubmitting, resetForm }: any) => {
     setSubmitting(true);
-    Post('app/editEquipment', data)
+    Post('app/editSkinCareApp User', data)
       .then((res: any) => {
         Snackbar.show(res.message, 'success');
         setSubmitting(false);
@@ -554,16 +579,51 @@ const AddEditDailog = (props: any) => {
 const ViewDailog = (props: any) => {
   const { isOpen, title, onClose, data } = props;
   const classes = useStyles();
-  const [formValue, setFormValue] = useState(data);
+  const [tabValue, setTabValue] = useState('details');
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState<any>({});
+  const Snackbar = useSnackbar();
+  const { Post } = useService();
+
+  console.log(formData)
+  const getAppUserById = async (userData: any = formData) => {
+    setLoading(true);
+    Post('app/getAppUserById', { id: userData._id })
+      .then((res: any) => {
+        console.log('getAppUserById', res);
+        setLoading(false);
+        if (!res.error) {
+          setFormData(res.data);
+        } else {
+          Snackbar.show(res.message, 'error');
+        }
+      })
+      .catch((err: any) => {
+        console.log('err', err);
+        setLoading(false);
+        Snackbar.show(err.message, 'error');
+      });
+  };
+
+  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: string) => {
+    setTabValue(newValue);
+  };
+
+  const tabs = [
+    { value: 'details', label: 'Details', component: <AppUserDetails data={formData} /> },
+    { value: 'Feedback', label: 'Feedback', component: <AppUserFeedback data={formData} /> },
+
+  ];
 
   useEffect(() => {
-    setFormValue(data);
+    getAppUserById(data)
   }, [props]);
 
   return (
     <Dialog
       disableBackdropClick
       disableEscapeKeyDown
+      fullScreen
       fullWidth
       maxWidth='md'
       aria-labelledby='dialog-view-title'
@@ -573,29 +633,62 @@ const ViewDailog = (props: any) => {
         {title}
       </DialogTitle>
 
-      <DialogContent dividers>
-        <Grid container spacing={3}>
-          <Grid item md={12} xs={12}>
-            {formValue?.name}
-          </Grid>
-          <Grid item md={12} xs={12}>
-            {formValue?.description}
-          </Grid>
-          <Grid item md={12} xs={12}>
-            {formValue?.image?.url && (
-              <img className={classes.imageView} src={formValue?.image?.url} />
-            )}
-          </Grid>
-        </Grid>
+      {loading && <DialogContent dividers><Loader /></DialogContent>}
+
+      {!loading && <DialogContent dividers className={classes.dialogBackground}>
+        <List>
+          <ListItem disableGutters>
+            <ListItemAvatar>
+              <Avatar className={classes.avatarRoot} src={formData?.profilePic} />
+            </ListItemAvatar>
+            <ListItemText
+              classes={{
+                primary: classes.textPrimary,
+                secondary: classes.textSecondary
+              }}
+              primary={formData?.firstName + ' ' + formData?.lastName}
+            />
+          </ListItem>
+        </List>
+
+        <TabContext value={tabValue || ''}>
+          <TabList
+            className={classes.tabsRoot}
+            onChange={handleTabChange}
+            scrollButtons="auto"
+            value={tabValue}
+            variant="scrollable"
+            classes={{
+              indicator: classes.tabIndicator
+            }}
+          >
+            {tabs.map((tab: any) => (
+              <Tab
+                key={tab.value}
+                label={tab.label}
+                value={tab.value}
+              />
+            ))}
+          </TabList>
+
+          {tabs.map((tab: any) => (
+            <TabPanel className={classes.tabPanelRoot} value={tab.value}>
+              <div className={classes.tabPanelContent}>
+                {tab.component}
+              </div>
+            </TabPanel>
+          ))}
+        </TabContext>
       </DialogContent>
+      }
 
       <DialogActions>
         <Button onClick={onClose} variant='outlined' color='secondary'>
           Close
         </Button>
       </DialogActions>
-    </Dialog>
+    </Dialog >
   );
 };
 
-export default Equipment;
+export default AppUsers;

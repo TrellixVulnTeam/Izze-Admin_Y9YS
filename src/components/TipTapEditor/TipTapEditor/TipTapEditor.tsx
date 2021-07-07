@@ -9,13 +9,14 @@ const TipTapEditor = (props: any) => {
       extensions: [
         StarterKit,
       ],
+      content: value,
       onUpdate: ({ editor }): void => onChange(editor.getHTML()),
       onBlur: ({ editor }): void => onBlur(),
     })
   
-    useEffect(() => {
-      editor?.commands?.setContent(value)
-    }, [value,editor])
+    // useEffect(() => {
+    //   editor?.commands?.setContent(value)
+    // }, [value,editor])
   
     return (
       <>

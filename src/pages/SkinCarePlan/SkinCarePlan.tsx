@@ -169,7 +169,7 @@ const SkinIrregularDrop = [
       { id: 'BLACKISH', name: 'Blackish' },
       { id: 'WHITISH', name: 'Whitish' },
       { id: 'PINKISH', name: 'Pinkish' },
-      { id: 'REDISH', name: 'Redish' },
+      { id: 'REDDISH', name: 'Reddish' },
       { id: 'SUNSPOTS', name: 'Sun Spots' },
     ]
   },
@@ -332,7 +332,7 @@ const SkinCarePlan = () => {
       </Grid>
 
       {/* =============Search======== */}
-      <Grid container spacing={3}>
+      {/* <Grid container spacing={3}>
         <Grid item>
           <Paper elevation={0}>
             <TextField
@@ -344,7 +344,7 @@ const SkinCarePlan = () => {
             />
           </Paper>
         </Grid>
-      </Grid>
+      </Grid> */}
 
       {/* ========Table With Pagination========= */}
       <Card className={classes.tabCard}>

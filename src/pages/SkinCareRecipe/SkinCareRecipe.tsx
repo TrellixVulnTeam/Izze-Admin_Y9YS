@@ -286,7 +286,7 @@ const SkinCareRecipe = () => {
       </Grid>
 
       {/* =============Search======== */}
-      <Grid container spacing={3}>
+      {/* <Grid container spacing={3}>
         <Grid item>
           <Paper elevation={0}>
             <TextField
@@ -298,7 +298,7 @@ const SkinCareRecipe = () => {
             />
           </Paper>
         </Grid>
-      </Grid>
+      </Grid> */}
 
       {/* ========Table With Pagination========= */}
       <Card className={classes.tabCard}>
@@ -552,7 +552,7 @@ const AddEditDailog = (props: any) => {
       EditData.ingredients = ingredients.filter(({ _id }: any) => IngredientIds.includes(_id)).map(({ _id, ...rest }: any) => ({ id: _id, ...rest }));
       EditData.recipe_image = {
         file: recipe_image,
-        prevImage: recipe_image,
+        prevImage: recipe_image?.url,
         isNew: false,
       };
       setInitialValue(EditData);
@@ -564,6 +564,11 @@ const AddEditDailog = (props: any) => {
   useEffect(() => {
     listIngredients();
   }, []);
+
+  const handleOnchangeTextEditor = (getData: any, setFieldValue: any) =>{
+    console.log(getData);
+    setFieldValue('preparation_description',getData)
+  }
 
   return (
     <Dialog
@@ -590,7 +595,6 @@ const AddEditDailog = (props: any) => {
             .trim()
             .required('Preparation time is required'),
           preparation_description: Yup.string()
-            .trim()
             .required('Preparation description is required'),
           ingredients: Yup.array().of(
             Yup.object().shape({
@@ -751,18 +755,19 @@ const AddEditDailog = (props: any) => {
                               onBlur={handleBlur}
                             />
                           </Grid>
-
-                          <Grid key={i} item md={1} xs={1}>
-                            <Button
-                              fullWidth
-                              className={classes.deleteButton}
-                              variant='contained'
-                              color='secondary'
-                              onClick={() => remove(i)}
-                            >
-                              <DeleteIcon />
-                            </Button>
-                          </Grid>
+                          {values?.ingredients?.length > 1 && (
+                            <Grid key={i} item md={1} xs={1}>
+                              <Button
+                                fullWidth
+                                className={classes.deleteButton}
+                                variant='contained'
+                                color='secondary'
+                                onClick={() => remove(i)}
+                              >
+                                <DeleteIcon />
+                              </Button>
+                            </Grid>
+                          )}
                         </Grid>
                       ))}
                     </>
@@ -797,6 +802,7 @@ const AddEditDailog = (props: any) => {
                     )}
                   >
                     <TipTapEditor
+                      name = 'preparation_description'
                       value={values.preparation_description}
                       onChange={(value: any) =>
                         setFieldValue('preparation_description', value)

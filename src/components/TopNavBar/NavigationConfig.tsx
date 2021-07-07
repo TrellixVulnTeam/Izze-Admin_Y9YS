@@ -38,7 +38,9 @@ import {
   MealRecipesRoute,
   MealPlanRoute,
 
-  BlogsRoute
+  BlogsRoute,
+
+  AppUsersRoute
   
 } from '../../Routes/RoutesConstants';
 
@@ -126,6 +128,11 @@ export default [
       {
         title: 'Blogs',
         href: BlogsRoute,
+        icon: HomeIcon,
+      },
+      {
+        title: 'App Users',
+        href: AppUsersRoute,
         icon: HomeIcon,
       },
 

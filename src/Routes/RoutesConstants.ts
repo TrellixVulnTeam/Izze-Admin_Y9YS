@@ -29,6 +29,8 @@ export const MealPlanRoute = `${MealRoute}/meal-plan`;
 
 export const BlogsRoute = `${HomeLayout}/blogs`
 
+export const AppUsersRoute = `${HomeLayout}/app-users`
+
 
 const RouteMap = {
   main: {
@@ -44,21 +46,23 @@ const RouteMap = {
     SkinCareIngredientsPage: SkinCareIngredientsRoute.replace(SkinCareRoute, ''),
     SkinCareRecipePage: SkinCareRecipeRoute.replace(SkinCareRoute, ''),
     SkinCarePlanPage: SkinCarePlanRoute.replace(SkinCareRoute, ''),
-    
+
     WorkoutPage: WorkoutRoute.replace(HomeLayout, ''),
     EquipmentsPage: EquipmentsRoute.replace(WorkoutRoute, ''),
     ExercisePage: ExerciseRoute.replace(WorkoutRoute, ''),
     WorkoutPlanPage: WorkoutPlanRoute.replace(WorkoutRoute, ''),
-    
+
     NutritionPage: NutritionRoute.replace(HomeLayout, ''),
     NutritionIngredientPage: NutritionIngredientsRoute.replace(NutritionRoute, ''),
     NutritionPlanPage: NutritionPlanRoute.replace(NutritionRoute, ''),
-    
+
     MealPage: MealRoute.replace(HomeLayout, ''),
     MealRecipesPage: MealRecipesRoute.replace(MealRoute, ''),
     MealPlanPage: MealPlanRoute.replace(MealRoute, ''),
 
-    BlogsPage : BlogsRoute.replace(HomeLayout, ''),
+    BlogsPage: BlogsRoute.replace(HomeLayout, ''),
+
+    AppUsersPage: AppUsersRoute.replace(HomeLayout, ''),
 
 
   }

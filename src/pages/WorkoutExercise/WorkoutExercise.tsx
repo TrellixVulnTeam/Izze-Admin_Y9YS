@@ -34,7 +34,7 @@ import ControlPointIcon from '@material-ui/icons/ControlPoint';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import { Autocomplete, Pagination } from '@material-ui/lab';
-import { Formik, getIn, useFormikContext } from 'formik';
+import { Formik, getIn, useFormikContext, FieldArray } from 'formik';
 import React, { useEffect, useRef, useState } from 'react';
 import * as Yup from 'yup';
 import DialogTitle from '../../components/DialogTitlle/DialogTitle';
@@ -299,7 +299,7 @@ const WorkoutExercise = () => {
       </Grid>
 
       {/* =============Search======== */}
-      <Grid container spacing={3}>
+      {/* <Grid container spacing={3}>
         <Grid item>
           <Paper elevation={0}>
             <TextField
@@ -311,7 +311,7 @@ const WorkoutExercise = () => {
             />
           </Paper>
         </Grid>
-      </Grid>
+      </Grid> */}
 
       {/* ========Table With Pagination========= */}
       <Card className={classes.tabCard}>
@@ -604,10 +604,9 @@ const AddEditDailog = (props: any) => {
     formikRef.current.setFieldValue('required_equipments', sampleDatas);
   };
 
-  const addIngredients = (values: Exercise, setFieldValue: any) => {
+  const addIngredients = (values: Exercise, push: any) => {
     let { workout_terms } = values;
-    workout_terms.push(workoutTerms);
-    setFieldValue('workout_terms', workout_terms);
+    push(workoutTerms);
   };
 
   useEffect(() => {
@@ -626,18 +625,18 @@ const AddEditDailog = (props: any) => {
       editData.workout_terms = workout_terms.map((item: any) => {
         return {
           name: item.name,
-          image: { file: item.image, prevImage: item.image, isNew: false },
+          image: { file: item.image, prevImage: item.image?.url, isNew: false },
           description: item.description,
         };
       });
       editData.workout_thumbnail = {
         file: workout_thumbnail,
-        prevImage: workout_thumbnail,
+        prevImage: workout_thumbnail?.url,
         isNew: false,
       };
       editData.workout_image = {
         file: workout_image,
-        prevImage: workout_image,
+        prevImage: workout_image?.url,
         isNew: false,
       };
       setInitialValue(editData);
@@ -694,7 +693,6 @@ const AddEditDailog = (props: any) => {
                 file: Yup.mixed().required('required'),
               }),
               description: Yup.string()
-                .trim()
                 .max(250, 'Must be 250 characters or less')
                 .required('Workout description is Required'),
             })
@@ -769,21 +767,25 @@ const AddEditDailog = (props: any) => {
                   />
                 </Grid>
 
-                <Grid item md={12} xs={12}>
-                  <Button
-                    fullWidth
-                    className={classes.themeButton}
-                    variant='contained'
-                    color='default'
-                    onClick={() => addIngredients(values, setFieldValue)}
-                    endIcon={<ControlPointIcon />}
-                  >
-                    Add workout terms
-                  </Button>
-                </Grid>
-
-                {values?.workout_terms?.map((workoutValues: any, index: any) => <WorkoutTerms key={index} index={index} />)}
-
+                <FieldArray name='workout_terms' validateOnChange>
+                  {({push, remove})=>(
+                    <>
+                      <Grid item md={12} xs={12}>
+                        <Button
+                          fullWidth
+                          className={classes.themeButton}
+                          variant='contained'
+                          color='default'
+                          onClick={() => addIngredients(values, push)}
+                          endIcon={<ControlPointIcon />}
+                        >
+                          Add workout terms
+                        </Button>
+                      </Grid>
+                    {values?.workout_terms?.map((workoutValues: any, index: any) => <WorkoutTerms key={index} index={index} />)}
+                    </>
+                  )}
+                </FieldArray>
                 <Grid item md={12} xs={12}>
                   <Autocomplete
                     multiple
@@ -1089,7 +1091,7 @@ const ViewDailog = (props: any) => {
       <DialogContent dividers>
         <div>
           <img
-            src={formValue?.workout_image}
+            src={formValue?.workout_image?.url}
             alt={'Workout image'}
             className={classes.imageView}
           />

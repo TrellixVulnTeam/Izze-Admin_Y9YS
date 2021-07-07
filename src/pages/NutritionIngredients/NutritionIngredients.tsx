@@ -206,7 +206,7 @@ function NutritionIngredients() {
       </Grid>
 
       {/* =============Search======== */}
-      <Grid container spacing={3}>
+      {/* <Grid container spacing={3}>
         <Grid item>
           <Paper elevation={0}>
             <TextField
@@ -218,7 +218,7 @@ function NutritionIngredients() {
             />
           </Paper>
         </Grid>
-      </Grid>
+      </Grid> */}
 
       <Card className={classes.tabCard}>
         <CardContent className={classes.content}>
@@ -439,7 +439,7 @@ const AddandEditDialogue = (props: any) => {
       const { name, image, _id, ...rest } = data;
       const editData = { ...rest, id: _id }
       editData.nutrientName = name;
-      editData.image = { file: image, isNew: false, prevImage: image }
+      editData.image = { file: image, isNew: false, prevImage: image?.url }
       setAddBenifits(data.benfits)
       setInitialFormValues(editData);
     } else {

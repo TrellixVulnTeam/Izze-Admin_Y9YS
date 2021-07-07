@@ -266,7 +266,7 @@ const WorkoutPlan = () => {
       </Grid>
 
       {/* =============Search======== */}
-      <Grid container spacing={3}>
+      {/* <Grid container spacing={3}>
         <Grid item>
           <Paper elevation={0}>
             <TextField
@@ -278,7 +278,7 @@ const WorkoutPlan = () => {
             />
           </Paper>
         </Grid>
-      </Grid>
+      </Grid> */}
 
       {/* ========Table With Pagination========= */}
       <Card className={classes.tabCard}>
@@ -644,7 +644,7 @@ const AddEditDialog = (props: any) => {
                             renderInput={(params: any) => (
                               <TextField
                                 {...params}
-                                label='Before Workout'
+                                label='Pre Workout Warmup'
                                 variant='outlined'
                                 inputProps={{
                                   ...params.inputProps,
@@ -667,7 +667,7 @@ const AddEditDialog = (props: any) => {
                             renderInput={(params: any) => (
                               <TextField
                                 {...params}
-                                label='Workout'
+                                label='Core Exercise'
                                 variant='outlined'
                                 inputProps={{
                                   ...params.inputProps,
@@ -691,7 +691,7 @@ const AddEditDialog = (props: any) => {
                             renderInput={(params: any) => (
                               <TextField
                                 {...params}
-                                label='After Workout'
+                                label='Post Workout Cooldown'
                                 variant='outlined'
                                 inputProps={{
                                   ...params.inputProps,
@@ -806,13 +806,13 @@ const ViewWorkoutPlan = (props: any) => {
             {formValue?.workouts.map((item: any) =>
               <TabPanel className={classes.tabPanelRoot} value={item.day.toString()}>
                 <List>
-                  <div>Before Workout</div>
+                  <div>Pre-Workout Warm Up</div>
                   {item?.before_workout.map((data: any) => <WorkoutListItem data={data} />)}
                   {item?.before_workout?.length == 0 && <NoWorkoutListItem />}
-                  <div>Workout</div>
+                  <div>Core Exercises</div>
                   {item?.workout.map((data: any) => <WorkoutListItem data={data} />)}
                   {item?.workout?.length == 0 && <NoWorkoutListItem />}
-                  <div>After Workout</div>
+                  <div>Post-Workout Cool Down</div>
                   {item?.after_workout.map((data: any) => <WorkoutListItem data={data} />)}
                   {item?.after_workout?.length == 0 && <NoWorkoutListItem />}
                 </List>
@@ -840,7 +840,7 @@ const WorkoutListItem = (props: any) => {
   return (
     <ListItem className={classes.listItemRoot}>
       <ListItemAvatar>
-        <Avatar variant='square' src={listData?.workout_image} />
+        <Avatar variant='square' src={listData?.workout_image?.url} />
       </ListItemAvatar>
       <ListItemText
         primary={listData?.workout_name}
