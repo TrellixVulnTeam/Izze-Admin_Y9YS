@@ -109,22 +109,6 @@ const TopBar = (props: any) => {
     openModel(submitFunction, 'Are you sure want to Logout?', 'Logout');
   };
 
-
-  // const handleLogout = () => {
-  //   setIsLoading(true);
-  //   firebase
-  //     .auth()
-  //     .signOut()
-  //     .then(() => {
-  //       setIsLoading(false);
-  //       localStorage.clear();
-  //       navigate('/login');
-  //     })
-  //     .catch((error: any) => {
-  //       throw error;
-  //     });
-  // };
-
   return (
     <AppBar {...rest} className={clsx(classes.root, className)}>
       <Toolbar>

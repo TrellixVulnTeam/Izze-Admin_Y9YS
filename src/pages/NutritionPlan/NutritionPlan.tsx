@@ -544,9 +544,7 @@ export const AddEditModel = (props: any) => {
   const getCaloriesData = useCalories()
   const [tabValue, setTabValue] = React.useState('none');
   const [ingredientList, setIngredientList] = useState([])
-  const [initialValue, setInitialValue] = React.useState({...initialFormValues});
-
-  console.log(getCaloriesData)
+  const [initialValue, setInitialValue] = React.useState({ ...initialFormValues });
 
   const onSubmit = (value: any, helper: any) => {
     helper.setSubmitting(true);
@@ -591,10 +589,8 @@ export const AddEditModel = (props: any) => {
     setTabValue(newValue);
   };
 
-  const addNewTab = (values: any, setFieldValue: any) => {
-    const { nutrition } = values
-    nutrition.push(NutMealTime)
-    setFieldValue('nutrition', nutrition)
+  const addNewTab = (values: any, setFieldValue: any, push: any) => {
+    push(NutMealTime)
   }
 
   const submitMealTime = (i: number, values: any, setFieldValue: any) => {
@@ -760,7 +756,7 @@ export const AddEditModel = (props: any) => {
                   {[{ label: 'Protein', key: 'protein' }, { label: 'Fat', key: 'fat' }, { label: 'Carbs', key: 'carbs' }].map(({ label, key }) =>
                     <>
                       <Grid item xs={2}>
-                        <Typography style={{padding: '20px'}} variant='h5' align='left'>
+                        <Typography style={{ padding: '20px' }} variant='h5' align='left'>
                           <strong>{label}</strong>
                         </Typography>
                       </Grid>
@@ -790,156 +786,168 @@ export const AddEditModel = (props: any) => {
                   {/* <Paper className={classes.paperRoot}> */}
 
                   <TabContext value={tabValue || ''}>
-                    <Grid item xs={4}>
-                      <TabList
-                        classes={{
-                          indicator: classes.tabIndicator
-                        }}
-                        orientation="vertical"
-                        variant="standard"
-                      >
-                        {values?.nutrition.map((nutData: any, i: number) => {
-                          let FieldName: string = `nutrition[${i}]`
-                          let FieldTouched: any = getIn(touched, FieldName)
-                          let FieldErrors: any = getIn(errors, FieldName)
-                          let FieldValues: any = getIn(values, FieldName)
-                          const TabSelected = i == Number(tabValue)
-                          const SelectedStyle = TabSelected ? { borderRight: '2px solid #41a58d' } : { borderRight: '2px solid white' }
-                          return (
+                    <FieldArray name='nutrition' validateOnChange>
+                      {({ push, remove }) => (
+                        <Grid item xs={4}>
+                          <TabList
+                            classes={{
+                              indicator: classes.tabIndicator
+                            }}
+                            orientation="vertical"
+                            variant="standard"
+                          >
+                            {values?.nutrition.map((nutData: any, i: number) => {
+                              let FieldName: string = `nutrition[${i}]`
+                              let FieldTouched: any = getIn(touched, FieldName)
+                              let FieldErrors: any = getIn(errors, FieldName)
+                              let FieldValues: any = getIn(values, FieldName)
+                              const TabSelected = i == Number(tabValue)
+                              const SelectedStyle = TabSelected ? { borderRight: '2px solid #41a58d' } : { borderRight: '2px solid white' }
+                              return (
+                                <div className={classes.divTab}>
+                                  <Grid item container xs={12} spacing={1} style={{ margin: 'inherit', ...SelectedStyle }}>
+                                    <Grid item xs={nutData.isEdit ? 10 : 6}>
+
+                                      {nutData.isEdit && <TextField
+                                        fullWidth
+                                        size='small'
+                                        label='Name'
+                                        name={`${FieldName}.meal_time`}
+                                        variant='outlined'
+                                        error={Boolean(FieldTouched?.meal_time && FieldErrors?.meal_time)}
+                                        helperText={FieldTouched?.meal_time && FieldErrors?.meal_time}
+                                        value={nutData?.meal_time}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                      />
+                                      }
+                                      {console.log(FieldTouched?.meals, FieldTouched?.meal_time)}
+                                      {!nutData.isEdit &&
+                                        <>
+                                          <Button
+                                            fullWidth
+                                            className={!Boolean(FieldTouched?.meal_time && FieldErrors?.meal_time) ? classes.themeButton : ''}
+                                            classes={{
+                                              fullWidth: classes.tabBtnIcon
+                                            }}
+                                            variant='contained'
+                                            color='secondary'
+                                          >
+                                            {!Boolean(FieldTouched?.meal_time && FieldErrors?.meal_time) ? nutData?.meal_time : FieldErrors?.meal_time}
+                                          </Button>
+                                        </>
+                                      }
+                                    </Grid>
+
+                                    {nutData.isEdit &&
+                                      <Grid item xs={2}>
+                                        <Button
+                                          fullWidth
+                                          className={classes.themeButton}
+                                          classes={{
+                                            fullWidth: classes.tabBtnIcon
+                                          }}
+                                          variant='contained'
+                                          color='secondary'
+                                          onClick={() => submitMealTime(i, values, setFieldValue)}
+                                        >
+                                          <CheckIcon />
+                                        </Button>
+                                      </Grid>
+                                    }
+
+                                    {!nutData.isEdit && <Grid item xs={2} >
+                                      <Button
+                                        fullWidth
+                                        classes={{
+                                          fullWidth: classes.tabBtnIcon
+                                        }}
+                                        variant='contained'
+                                        color='primary'
+                                        onClick={(e) => handleChangeTab(i.toString())}
+                                      >
+                                        {tabValue === i.toString() ? <ChevronRightIcon /> : <KeyboardArrowUpIcon />}
+                                      </Button>
+                                    </Grid>
+                                    }
+
+                                    {!nutData.isEdit && <Grid item xs={2} >
+                                      <Button
+                                        fullWidth
+                                        classes={{
+                                          fullWidth: classes.tabBtnIcon
+                                        }}
+                                        variant='contained'
+                                        color='primary'
+                                        onClick={() => editMealTime(i, values, setFieldValue)}
+                                      >
+                                        <EditIcon />
+                                      </Button>
+                                    </Grid>
+                                    }
+
+                                    {!nutData.isEdit &&
+                                      <Grid item xs={2}>
+                                        <Button
+                                          fullWidth
+                                          classes={{
+                                            fullWidth: classes.tabBtnIcon
+                                          }}
+                                          variant='contained'
+                                          color='secondary'
+                                          onClick={() => remove(i)}
+                                        >
+                                          <DeleteIcon />
+                                        </Button>
+                                      </Grid>
+                                    }
+                                  </Grid>
+                                  <FormHelperText>
+                                    <Typography variant='caption' color='error'>{getIn(touched, `${FieldName}.meals`) && getArrayError(getIn(errors, `${FieldName}.meals`))}</Typography>
+                                  </FormHelperText>
+                                </div>
+                              )
+                            }
+                            )}
                             <div className={classes.divTab}>
-                              <Grid item container xs={12} spacing={1} style={{ margin: 'inherit', ...SelectedStyle }}>
-                                <Grid item xs={nutData.isEdit ? 10 : 6}>
-
-                                  {nutData.isEdit && <TextField
-                                    fullWidth
-                                    size='small'
-                                    label='Name'
-                                    name={`${FieldName}.meal_time`}
-                                    variant='outlined'
-                                    error={Boolean(FieldTouched?.meal_time && FieldErrors?.meal_time)}
-                                    helperText={FieldTouched?.meal_time && FieldErrors?.meal_time}
-                                    value={nutData?.meal_time}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                  />
-                                  }
-
-                                  {!nutData.isEdit &&
-                                    <Button
-                                      fullWidth
-                                      className={!Boolean(FieldTouched?.meal_time && FieldErrors?.meal_time) ? classes.themeButton : ''}
-                                      classes={{
-                                        fullWidth: classes.tabBtnIcon
-                                      }}
-                                      variant='contained'
-                                      color='secondary'
-                                    >
-                                      {!Boolean(FieldTouched?.meal_time && FieldErrors?.meal_time) ? nutData?.meal_time : FieldErrors?.meal_time}
-                                    </Button>}
-                                </Grid>
-
-                                {nutData.isEdit &&
-                                  <Grid item xs={2}>
+                              <Grid container xs={12} spacing={1} style={{ margin: 'inherit' }}>
+                                <Grid item xs={12}>
+                                  <FormControl fullWidth
+                                    error={Boolean(getIn(touched, 'nutrition') && getArrayError(getIn(errors, 'nutrition')))}
+                                  >
                                     <Button
                                       fullWidth
                                       className={classes.themeButton}
-                                      classes={{
-                                        fullWidth: classes.tabBtnIcon
-                                      }}
                                       variant='contained'
                                       color='secondary'
-                                      onClick={() => submitMealTime(i, values, setFieldValue)}
+                                      onClick={() => addNewTab(values, setFieldValue, push)}
+                                      endIcon={<AddIcon />}
                                     >
-                                      <CheckIcon />
+                                      Add Meal Time
                                     </Button>
-                                  </Grid>
-                                }
 
-                                {!nutData.isEdit && <Grid item xs={2} >
-                                  <Button
-                                    fullWidth
-                                    classes={{
-                                      fullWidth: classes.tabBtnIcon
-                                    }}
-                                    variant='contained'
-                                    color='primary'
-                                    onClick={(e) => handleChangeTab(i.toString())}
-                                  >
-                                    {tabValue === i.toString() ? <ChevronRightIcon /> : <KeyboardArrowUpIcon />}
-                                  </Button>
+                                    <FormHelperText>
+                                      {getIn(touched, 'nutrition') && getArrayError(getIn(errors, 'nutrition'))}
+                                    </FormHelperText>
+                                  </FormControl>
                                 </Grid>
-                                }
-
-                                {!nutData.isEdit && <Grid item xs={2} >
-                                  <Button
-                                    fullWidth
-                                    classes={{
-                                      fullWidth: classes.tabBtnIcon
-                                    }}
-                                    variant='contained'
-                                    color='primary'
-                                    onClick={() => editMealTime(i, values, setFieldValue)}
-                                  >
-                                    <EditIcon />
-                                  </Button>
-                                </Grid>
-                                }
-
-                                {!nutData.isEdit &&
-                                  <Grid item xs={2}>
-                                    <Button
-                                      fullWidth
-                                      classes={{
-                                        fullWidth: classes.tabBtnIcon
-                                      }}
-                                      variant='contained'
-                                      color='secondary'
-                                      onClick={() => deleteMealTime(i, values, setFieldValue)}
-                                    >
-                                      <DeleteIcon />
-                                    </Button>
-                                  </Grid>
-                                }
                               </Grid>
                             </div>
-                           )
-                         }
-                        )}
-                        <div className={classes.divTab}>
-                          <Grid container xs={12} spacing={1} style={{ margin: 'inherit' }}>
-                            <Grid item xs={12}>
-                              <FormControl fullWidth
-                                error={Boolean(getIn(touched, 'nutrition') && getArrayError(getIn(errors, 'nutrition')))}
-                              >
-                                <Button
-                                  fullWidth
-                                  className={classes.themeButton}
-                                  variant='contained'
-                                  color='secondary'
-                                  onClick={() => addNewTab(values, setFieldValue)}
-                                >
-                                  Add Meal Time<AddIcon />
-                                </Button>
 
-                                <FormHelperText>
-                                  {getIn(touched, 'nutrition') && getArrayError(getIn(errors, 'nutrition'))}
-                                </FormHelperText>
-                              </FormControl>
-                            </Grid>
-                          </Grid>
-                        </div>
+                          </TabList>
+                        </Grid>
+                      )}
+                    </FieldArray>
 
-                      </TabList>
-                    </Grid>
 
                     <Grid item xs={8}>
                       {values?.nutrition.map((nutData: any, i: number) => {
                         let FieldMainName: string = `nutrition[${i}]`
                         return (
                           <FieldArray name={`${FieldMainName}.meals`}>
-                            {({push, remove})=>(
+                            {({ push, remove }) => (
                               <>
-                              <TabPanel key={i} className={classes.tabPanelRoot} value={i.toString()}>
+                                <TabPanel key={i} className={classes.tabPanelRoot} value={i.toString()}>
 
                                   <Grid container spacing={2}>
                                     <Grid item xs={12}>
@@ -948,121 +956,121 @@ export const AddEditModel = (props: any) => {
                                       </Typography>
                                     </Grid>
 
-                                  {nutData?.meals.map((mealData: any, i: number) => {
-                                    let FieldName: string = `${FieldMainName}.meals[${i}]`
-                                    let FieldTouched: any = getIn(touched, FieldName)
-                                    let FieldErrors: any = getIn(errors, FieldName)
-                                    let FieldValues: any = getIn(values, FieldName)
-                                    return (
-                                      <>
-                                        <Grid item xs={11}>
-                                          <Typography variant='h5' align='center' >
-                                            <strong>{`Meal #${i + 1}`}</strong>
-                                          </Typography>
-                                        </Grid>
+                                    {nutData?.meals.map((mealData: any, i: number) => {
+                                      let FieldName: string = `${FieldMainName}.meals[${i}]`
+                                      let FieldTouched: any = getIn(touched, FieldName)
+                                      let FieldErrors: any = getIn(errors, FieldName)
+                                      let FieldValues: any = getIn(values, FieldName)
+                                      return (
+                                        <>
+                                          <Grid item xs={11}>
+                                            <Typography variant='h5' align='center' >
+                                              <strong>{`Ingredient #${i + 1}`}</strong>
+                                            </Typography>
+                                          </Grid>
 
-                                        <Grid item xs={1}>
-                                          <Button
-                                            fullWidth
-                                            classes={{
-                                              fullWidth: classes.tabBtnIcon
-                                            }}
-                                            variant='contained'
-                                            color='secondary'
-                                            onClick={() => removeMeals(i, FieldMainName, values, setFieldValue, remove)}
-                                          >
-                                            <DeleteIcon />
-                                          </Button>
-                                        </Grid>
+                                          <Grid item xs={1}>
+                                            <Button
+                                              fullWidth
+                                              classes={{
+                                                fullWidth: classes.tabBtnIcon
+                                              }}
+                                              variant='contained'
+                                              color='secondary'
+                                              onClick={() => removeMeals(i, FieldMainName, values, setFieldValue, remove)}
+                                            >
+                                              <DeleteIcon />
+                                            </Button>
+                                          </Grid>
 
-                                        <Grid item md={12} xs={12}>
-                                          <Autocomplete
-                                            multiple
-                                            options={ingredientList}
-                                            value={ingredientList.filter((data: any) => mealData?.ingredients?.map(({ id }: any) => id).includes(data._id))}
-                                            getOptionLabel={(option: any) => option.name}
-                                            onChange={(event: any, newValue: any) => {
-                                              let IngIds = newValue.map(({ _id }: any) => ({ id: _id }))
-                                              setFieldValue(`${FieldName}.ingredients`, IngIds || []);
-                                            }}
-                                            onBlur={handleBlur}
-                                            renderInput={(params: any) => (
-                                              <TextField
-                                                {...params}
-                                                label='Ingredient'
-                                                variant='outlined'
-                                                error={Boolean(FieldTouched?.ingredients && FieldErrors?.ingredients)}
-                                                helperText={FieldTouched?.ingredients && FieldErrors?.ingredients}
-                                                inputProps={{
-                                                  ...params.inputProps,
-                                                }}
-                                              />
-                                            )}
-                                          />
-                                        </Grid>
-                                        <Grid item xs={12}>
-                                          <TextField
-                                            fullWidth
-                                            label='Quantity'
-                                            name={`${FieldName}.quantity`}
-                                            variant='outlined'
-                                            error={Boolean(FieldTouched?.quantity && FieldErrors?.quantity) || Boolean(FieldTouched?.quantity_unit && FieldErrors?.quantity_unit)}
-                                            helperText={FieldTouched?.quantity && FieldErrors?.quantity || (FieldTouched?.quantity_unit && FieldErrors?.quantity_unit)}
-                                            value={mealData.quantity}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            InputProps={{
-                                              classes: {
-                                                adornedEnd: classes.textareaAdornedEnd
-                                              },
-                                              endAdornment: <UnitSelect id='quantity_unit' option={UnitDropdown} name={`${FieldName}.quantity_unit`} value={mealData.quantity_unit} onChange={handleChange} onBlur={handleBlur} />
-                                            }}
-                                          />
-                                        </Grid>
+                                          <Grid item md={12} xs={12}>
+                                            <Autocomplete
+                                              multiple
+                                              options={ingredientList}
+                                              value={ingredientList.filter((data: any) => mealData?.ingredients?.map(({ id }: any) => id).includes(data._id))}
+                                              getOptionLabel={(option: any) => option.name}
+                                              onChange={(event: any, newValue: any) => {
+                                                let IngIds = newValue.map(({ _id }: any) => ({ id: _id }))
+                                                setFieldValue(`${FieldName}.ingredients`, IngIds || []);
+                                              }}
+                                              onBlur={handleBlur}
+                                              renderInput={(params: any) => (
+                                                <TextField
+                                                  {...params}
+                                                  label='Ingredient'
+                                                  variant='outlined'
+                                                  error={Boolean(FieldTouched?.ingredients && FieldErrors?.ingredients)}
+                                                  helperText={FieldTouched?.ingredients && FieldErrors?.ingredients}
+                                                  inputProps={{
+                                                    ...params.inputProps,
+                                                  }}
+                                                />
+                                              )}
+                                            />
+                                          </Grid>
+                                          <Grid item xs={12}>
+                                            <TextField
+                                              fullWidth
+                                              label='Quantity'
+                                              name={`${FieldName}.quantity`}
+                                              variant='outlined'
+                                              error={Boolean(FieldTouched?.quantity && FieldErrors?.quantity) || Boolean(FieldTouched?.quantity_unit && FieldErrors?.quantity_unit)}
+                                              helperText={FieldTouched?.quantity && FieldErrors?.quantity || (FieldTouched?.quantity_unit && FieldErrors?.quantity_unit)}
+                                              value={mealData.quantity}
+                                              onChange={handleChange}
+                                              onBlur={handleBlur}
+                                              InputProps={{
+                                                classes: {
+                                                  adornedEnd: classes.textareaAdornedEnd
+                                                },
+                                                endAdornment: <UnitSelect id='quantity_unit' option={UnitDropdown} name={`${FieldName}.quantity_unit`} value={mealData.quantity_unit} onChange={handleChange} onBlur={handleBlur} />
+                                              }}
+                                            />
+                                          </Grid>
 
-                                        <Grid item md={6} xs={6}>
-                                          <TextField
-                                            fullWidth
-                                            multiline
-                                            label='Protein ( g )'
-                                            name={`${FieldName}.protein`}
-                                            variant='outlined'
-                                            error={Boolean(FieldTouched?.protein && FieldErrors?.protein)}
-                                            helperText={FieldTouched?.protein && FieldErrors?.protein}
-                                            value={mealData.protein}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                          />
-                                        </Grid>
+                                          <Grid item md={6} xs={6}>
+                                            <TextField
+                                              fullWidth
+                                              multiline
+                                              label='Protein ( g )'
+                                              name={`${FieldName}.protein`}
+                                              variant='outlined'
+                                              error={Boolean(FieldTouched?.protein && FieldErrors?.protein)}
+                                              helperText={FieldTouched?.protein && FieldErrors?.protein}
+                                              value={mealData.protein}
+                                              onChange={handleChange}
+                                              onBlur={handleBlur}
+                                            />
+                                          </Grid>
 
-                                        <Grid item md={6} xs={6}>
-                                          <TextField
-                                            fullWidth
-                                            multiline
-                                            label='Fat ( g )'
-                                            name={`${FieldName}.fat`}
-                                            variant='outlined'
-                                            error={Boolean(FieldTouched?.fat && FieldErrors?.fat)}
-                                            helperText={FieldTouched?.fat && FieldErrors?.fat}
-                                            value={mealData.fat}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                          />
-                                        </Grid>
+                                          <Grid item md={6} xs={6}>
+                                            <TextField
+                                              fullWidth
+                                              multiline
+                                              label='Fat ( g )'
+                                              name={`${FieldName}.fat`}
+                                              variant='outlined'
+                                              error={Boolean(FieldTouched?.fat && FieldErrors?.fat)}
+                                              helperText={FieldTouched?.fat && FieldErrors?.fat}
+                                              value={mealData.fat}
+                                              onChange={handleChange}
+                                              onBlur={handleBlur}
+                                            />
+                                          </Grid>
 
-                                        <Grid item md={6} xs={6}>
-                                          <TextField
-                                            fullWidth
-                                            multiline
-                                            label='Carbs ( g )'
-                                            name={`${FieldName}.carbs`}
-                                            variant='outlined'
-                                            error={Boolean(FieldTouched?.carbs && FieldErrors?.carbs)}
-                                            helperText={FieldTouched?.carbs && FieldErrors?.carbs}
-                                            value={mealData.carbs}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                          />
+                                          <Grid item md={6} xs={6}>
+                                            <TextField
+                                              fullWidth
+                                              multiline
+                                              label='Carbs ( g )'
+                                              name={`${FieldName}.carbs`}
+                                              variant='outlined'
+                                              error={Boolean(FieldTouched?.carbs && FieldErrors?.carbs)}
+                                              helperText={FieldTouched?.carbs && FieldErrors?.carbs}
+                                              value={mealData.carbs}
+                                              onChange={handleChange}
+                                              onBlur={handleBlur}
+                                            />
                                           </Grid>
 
                                           <Grid item md={6} xs={6}>
@@ -1083,28 +1091,28 @@ export const AddEditModel = (props: any) => {
                                       )
                                     })}
 
-                                  <Grid item md={12} xs={12}>
-                                    <FormControl fullWidth
-                                      error={Boolean(getIn(touched, `${FieldMainName}.meals`) && getArrayError(getIn(errors, `${FieldMainName}.meals`)))}
-                                    >
-                                      <Button
-                                        fullWidth
-                                        className={classes.themeButton}
-                                        variant='contained'
-                                        color='default'
-                                        onClick={() => addMeals(values, i, setFieldValue, push)}
-                                        endIcon={<ControlPointIcon />}
+                                    <Grid item md={12} xs={12}>
+                                      <FormControl fullWidth
+                                        error={Boolean(getIn(touched, `${FieldMainName}.meals`) && getArrayError(getIn(errors, `${FieldMainName}.meals`)))}
                                       >
-                                        Add Meals
-                                      </Button>
+                                        <Button
+                                          fullWidth
+                                          className={classes.themeButton}
+                                          variant='contained'
+                                          color='default'
+                                          onClick={() => addMeals(values, i, setFieldValue, push)}
+                                          endIcon={<ControlPointIcon />}
+                                        >
+                                          Add Ingredients
+                                        </Button>
 
-                                      <FormHelperText>
-                                        {getIn(touched, `${FieldMainName}.meals`) && getArrayError(getIn(errors, `${FieldMainName}.meals`))}
-                                      </FormHelperText>
-                                    </FormControl>
+                                        <FormHelperText>
+                                          {getIn(touched, `${FieldMainName}.meals`) && getArrayError(getIn(errors, `${FieldMainName}.meals`))}
+                                        </FormHelperText>
+                                      </FormControl>
+                                    </Grid>
+
                                   </Grid>
-
-                                </Grid>
 
                                 </TabPanel>
                               </>
@@ -1250,7 +1258,7 @@ const ViewNutritionModel = (props: any) => {
                           <>
                             <Grid item xs={12} className={classes.mealTimeText}>
                               <Typography variant='h5' align='center'>
-                                <strong>{`Meal #${i + 1}`}</strong>
+                                <strong>{`Ingredient #${i + 1}`}</strong>
                               </Typography>
                             </Grid>
                             <Grid item container xs={12} spacing={2}>

@@ -17,6 +17,7 @@ import useConfModel from '../../hook/useConfModel';
 import { uploadNewImage } from '../../utils/CloudinaryUtils';
 import AppUserDetails from './AppUserDetails';
 import AppUserFeedback from './AppUserFeedback';
+import AppUserCCPA from './AppUserCCPA';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -296,7 +297,7 @@ const AppUsers = () => {
                               <CenterFocusStrongIcon color='primary' />
                             </IconButton>
                           </Tooltip>
-                          {data?.is_delete &&
+                          {/* {data?.is_delete &&
                             <Tooltip title='Delete' arrow>
                               <IconButton
                                 className={classes.iconPadd}
@@ -305,7 +306,7 @@ const AppUsers = () => {
                                 <DeleteIcon color='secondary' />
                               </IconButton>
                             </Tooltip>
-                          }
+                          } */}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -611,8 +612,8 @@ const ViewDailog = (props: any) => {
 
   const tabs = [
     { value: 'details', label: 'Details', component: <AppUserDetails data={formData} /> },
-    { value: 'Feedback', label: 'Feedback', component: <AppUserFeedback data={formData} /> },
-
+    { value: 'feedback', label: 'Feedback', component: <AppUserFeedback data={formData} /> },
+    { value: 'ccpa', label: 'CCPA & GDPR', component: <AppUserCCPA data={formData} /> },
   ];
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import Axios from 'axios';
-const BaseUrl = 'http://188.166.228.50:3009/';
+const BaseUrl = process.env.REACT_APP_API_BASE_URL;
 export const PostApi = (url: any, data: any = {}, idToken: any = null) => {
   return Axios({
     method: 'POST',

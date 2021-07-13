@@ -1,9 +1,14 @@
+
+const CLOUD_NAME: string = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME as string;
+const IMAGE_UPLOAD_URL: string = process.env.REACT_APP_CLOUDINARY_IMAGE_URL as string;
+const UPLOAD_PRESENT: string = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESENT as string;
+
 export const uploadImageCloudinary = (file: any) => {
   const data = new FormData()
   data.append("file", file)
-  data.append("upload_preset", "IzzeDev")
-  data.append("cloud_name", "drbfa8358")
-  return fetch("https://api.cloudinary.com/v1_1/drbfa8358/image/upload", {
+  data.append("cloud_name", CLOUD_NAME)
+  data.append("upload_preset", UPLOAD_PRESENT)
+  return fetch(IMAGE_UPLOAD_URL, {
     method: "post",
     body: data
   }).then(resp => resp.json())

@@ -27,9 +27,13 @@ export const MealRoute = `${HomeLayout}/meal`;
 export const MealRecipesRoute = `${MealRoute}/meal-recipes`;
 export const MealPlanRoute = `${MealRoute}/meal-plan`;
 
-export const BlogsRoute = `${HomeLayout}/blogs`
+export const BlogsRoute = `${HomeLayout}/blogs`;
 
-export const AppUsersRoute = `${HomeLayout}/app-users`
+export const AppUsersRoute = `${HomeLayout}/app-users`;
+
+export const AdminUserRoute = `${HomeLayout}/admin-users`;
+
+export const AdminViewProfileRoute = `${HomeLayout}/admin-profile`;
 
 
 const RouteMap = {
@@ -63,6 +67,10 @@ const RouteMap = {
     BlogsPage: BlogsRoute.replace(HomeLayout, ''),
 
     AppUsersPage: AppUsersRoute.replace(HomeLayout, ''),
+
+    AdminUserPage : AdminUserRoute.replace(HomeLayout, ''),
+
+    AdminProfileViewPage : AdminViewProfileRoute.replace(HomeLayout, '')
 
 
   }

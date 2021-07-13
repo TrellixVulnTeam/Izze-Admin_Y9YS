@@ -18,6 +18,7 @@ import Page from '../../components/Page/Page';
 import useConfModel from '../../hook/useConfModel';
 import useService from '../../hook/useService';
 import useSnackbar from '../../hook/useSnackbar';
+import { cloneDeep } from 'lodash';
 
 
 const useStyles = makeStyles((theme: any) => ({
@@ -471,7 +472,7 @@ const AddEditDialog = (props: any) => {
 
   useEffect(() => {
     if (isEdit) {
-      const { workouts, _id, ...rest } = data;
+      const { workouts, _id, ...rest } = cloneDeep(data);
       const editData = { ...rest, id: _id };
       const CurrentWorkoutIds = workoutList.map(({ _id }: any) => _id)
       editData.workouts = workouts.map((data: any) => {

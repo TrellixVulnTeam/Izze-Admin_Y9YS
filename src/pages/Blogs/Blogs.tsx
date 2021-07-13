@@ -10,7 +10,7 @@ import CenterFocusStrongIcon from '@material-ui/icons/CenterFocusStrong';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import { Pagination, TabContext, TabList, TabPanel } from '@material-ui/lab';
-import TipTapEditor from '../../components/TipTapEditor/TipTapEditor/TipTapEditor';
+import TipTapEditor from '../../components/TipTapEditor/TipTapEditor';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { imageUpload } from '../../utils/FirebaseUtils';
 import { Formik, getIn, useFormikContext } from 'formik';
@@ -29,6 +29,9 @@ import CheckIcon from '@material-ui/icons/Check';
 import { promises } from 'stream';
 import { uploadImageCloudinary } from '../../utils/CloudinaryUtils';
 import moment from 'moment'
+import MobxObserver from '../../Mobx/Helpers/MobxObserver';
+import { useStore } from '../../Mobx/Helpers/UseStore';
+import { toJS } from 'mobx';
 
 
 const useStyle = makeStyles((theme: any) => ({
@@ -133,21 +136,21 @@ const useStyle = makeStyles((theme: any) => ({
   justifyCenter: {
     justifyContent: 'center'
   },
-  blogTypeStyle : {
-    backgroundColor : '#F2805E',
-    color : 'white',
-    padding : '5px',
-    borderRadius : '5px',
-    fontSize : '14px',
-    marginLeft : '10px'
+  blogTypeStyle: {
+    backgroundColor: '#F2805E',
+    color: 'white',
+    padding: '5px',
+    borderRadius: '5px',
+    fontSize: '14px',
+    marginLeft: '10px'
   },
-  rejectButtonStyle : { 
-    backgroundColor: 'red', 
-    color: 'white', 
+  rejectButtonStyle: {
+    backgroundColor: 'red',
+    color: 'white',
     marginLeft: '10px',
     '&:hover': {
       backgroundColor: 'red',
-    }, 
+    },
   }
 }));
 
@@ -210,7 +213,7 @@ const Blogs = () => {
       isEdit: true,
       data,
       title: 'Edit Blog Plan',
-      okBtnText: 'Edit',
+      okBtnText: 'Save',
     }));
   };
 
@@ -394,17 +397,44 @@ const initialFormValue = {
   image: { file: null, prevImage: '', isNew: null },
   image_thumbnail: { file: null, prevImage: '', isNew: null },
 }
-const BlogTypeDrop = [
+const BlogTypes = [
   { id: 'NUTRITION', name: 'Nutririon' },
   { id: 'MEAL', name: 'Meal' },
   { id: 'SKINCARE', name: 'Skincare' },
   { id: 'WORKOUT', name: 'Workout' }
 ]
 
-export const AddEditModel = (props: any) => {
+const getBlogDrop = (user_type: string) => {
+  switch (user_type) {
+    case "SKINCARE":
+      return [{ id: 'SKINCARE', name: 'Skincare' }];
+      break;
+    case "WORKOUT":
+      return [{ id: 'WORKOUT', name: 'Workout' }];
+      break;
+    case "NUTRITION":
+      return [{ id: 'NUTRITION', name: 'Nutririon' }, { id: 'MEAL', name: 'Meal' },];
+      break;
+    case "CUSTOMERCARE":
+      return [];
+      break;
+    default:
+      return BlogTypes;
+  }
+}
+
+export const AddEditModel = MobxObserver((props: any) => {
   const classes = useStyle()
+  const { UserStore } = useStore()
+  const { user_type } = toJS(UserStore.UserDetails)
+  const BlogTypeDrop = getBlogDrop(user_type)
+
   const { isEdit, isOpen, okBtnText = 'OK', onClose, data, title, onSuccess } = props;
+
   const [initialValue, setInitialValue] = useState({ ...initialFormValue });
+
+  const DisableUserType = (['ADMIN', 'SUPERADMIN', 'NUTRITION'].includes(user_type)) ? false : true
+
   const formikRef = React.useRef<any>(null);
   const imageRef = React.useRef<any>(null);
   const imageThumbnailRef = React.useRef<any>(null);
@@ -501,6 +531,7 @@ export const AddEditModel = (props: any) => {
       EditData.image_thumbnail = { file: image_thumbnail, prevImage: image_thumbnail.url, isNew: false };
       setInitialValue(EditData);
     } else {
+      initialFormValue.blog_type = DisableUserType ? user_type : ''
       setInitialValue(initialFormValue);
     }
   }, [props]);
@@ -523,7 +554,7 @@ export const AddEditModel = (props: any) => {
         initialValues={initialValue}
         onSubmit={onSubmit}
         validationSchema={Yup.object().shape({
-          description: Yup.string().trim().max(250, 'Must be 250 characters or less').required('Blog Description is required'),
+          description: Yup.string().trim().required('Blog Description is required'),
           blog_type: Yup.string().trim().required('Blog Type is required'),
           title: Yup.string().trim().required('Blog Title is required'),
           image: Yup.object({ file: Yup.mixed().required('A file is required') }),
@@ -553,6 +584,7 @@ export const AddEditModel = (props: any) => {
                     options={BlogTypeDrop}
                     value={BlogTypeDrop.find((data: any) => data.id == values.blog_type)}
                     getOptionLabel={(option: any) => option.name}
+                    disabled={DisableUserType}
                     onChange={(event: any, newValue: any) => {
                       setFieldValue('blog_type', newValue?.id || '');
                     }}
@@ -695,7 +727,7 @@ export const AddEditModel = (props: any) => {
       </Formik>
     </Dialog>
   )
-}
+})
 
 export const ViewModel = (props: any) => {
   const { isOpen, title, onClose, data, onReload } = props;
@@ -804,8 +836,8 @@ export const ViewModel = (props: any) => {
             className={classes.imageView}
           />
         </div>
-        <div style={{marginTop : '20px'}}>
-         <label className={classes.blogTypeStyle}>{formValue?.blog_type}</label>
+        <div style={{ marginTop: '20px' }}>
+          <label className={classes.blogTypeStyle}>{formValue?.blog_type}</label>
         </div>
         <List>
           <ListItem>
@@ -892,3 +924,5 @@ export const ViewModel = (props: any) => {
 }
 
 export default Blogs
+
+

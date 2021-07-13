@@ -10,7 +10,7 @@ import CenterFocusStrongIcon from '@material-ui/icons/CenterFocusStrong';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import { Pagination, TabContext, TabList, TabPanel } from '@material-ui/lab';
-import TipTapEditor from '../../components/TipTapEditor/TipTapEditor/TipTapEditor';
+import TipTapEditor from '../../components/TipTapEditor/TipTapEditor';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { imageUpload } from '../../utils/FirebaseUtils';
 import { Formik, getIn, useFormikContext, FieldArray } from 'formik';
@@ -635,8 +635,8 @@ export const AddEditModel = (props: any) => {
             ingredients: Yup.array().of(
               Yup.object().shape({
                 id: Yup.string().trim().required('Ingredients is Required'),
-                quantity: Yup.string().required('Quantity is Required'),
-                // quantity_unit: Yup.string().trim().required('Quantity unit is required'),
+                quantity: Yup.number().typeError('Quantity must be in number').required('Quantity is Required'),
+                quantity_unit: Yup.string().trim().required('Quantity unit is required'),
               })),
             preparation_time: Yup.string().trim().required('Preparation time is required'),
             preparation_description: Yup.string().required('Preparation description is required'),
@@ -845,12 +845,12 @@ export const AddEditModel = (props: any) => {
                                 value={items.quantity}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                // InputProps={{
-                                //   classes: {
-                                //     adornedEnd: classes.textareaAdornedEnd
-                                //   },
-                                //   endAdornment: <UnitSelect id={`ingredients[${index}].quantity_unit`} option={UnitDropdown} name={`ingredients[${index}].quantity_unit`} value={items.quantity_unit} onChange={handleChange} onBlur={handleBlur} />
-                                // }}
+                                InputProps={{
+                                  classes: {
+                                    adornedEnd: classes.textareaAdornedEnd
+                                  },
+                                  endAdornment: <UnitSelect id={`ingredients[${index}].quantity_unit`} option={UnitDropdown} name={`ingredients[${index}].quantity_unit`} value={items.quantity_unit} onChange={handleChange} onBlur={handleBlur} />
+                                }}
                               />
                             </Grid>
                             {values?.ingredients?.length > 1 && (

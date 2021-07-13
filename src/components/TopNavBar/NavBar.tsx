@@ -13,7 +13,11 @@ import {
 } from '@material-ui/core';
 import { Hidden } from '@material-ui/core';
 import Navigation from './Navigation';
-import NavigationConfig from './NavigationConfig';
+import EditIcon from '@material-ui/icons/Edit';
+
+import MobxObserver from '../../Mobx/Helpers/MobxObserver';
+import { useStore } from '../../Mobx/Helpers/UseStore';
+import { toJS } from 'mobx';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -57,6 +61,9 @@ const useStyles = makeStyles((theme: any) => ({
 
 const NavBar = (props: any) => {
   const { openMobile, onMobileClose, className, ...rest } = props;
+  const { UserStore } = useStore();
+  const { UserDetails, MenuConfig } = toJS(UserStore)
+
 
   const classes = useStyles();
   const location = useLocation();
@@ -72,20 +79,19 @@ const NavBar = (props: any) => {
     <div className={classes.content}>
       <div className={classes.profile}>
         <Avatar
-          alt='A'
+          alt={UserDetails?.name}
           className={classes.avatar}
-          // component={RouterLink}
-          // src={'/profile/1/timeline'}
-          // to='/profile/1/timeline'
+          src={UserDetails?.image?.url}
         />
         <Typography className={classes.name} variant='h4'>
-          Admin
+          {UserDetails?.name}
         </Typography>
-        <Typography variant='body2'>This is Admin</Typography>
+        <Typography variant='body2'>{UserDetails?.user_type}</Typography>
+        <Typography variant= 'subtitle2'><RouterLink to = '/home/admin-profile'>View Profile</RouterLink><EditIcon style={{fontSize : '15px', marginLeft : '10px'}}/></Typography>
       </div>
       <Divider className={classes.divider} />
       <nav className={classes.navigation}>
-        {NavigationConfig.map((list) => (
+        {MenuConfig.map((list: any) => (
           <Navigation
             component='div'
             key={list.title}
@@ -128,10 +134,4 @@ const NavBar = (props: any) => {
   );
 };
 
-NavBar.propTypes = {
-  className: PropTypes.string,
-  onMobileClose: PropTypes.func,
-  openMobile: PropTypes.bool,
-};
-
-export default NavBar;
+export default MobxObserver(NavBar);

@@ -40,7 +40,7 @@ import * as Yup from 'yup';
 import DialogTitle from '../../components/DialogTitlle/DialogTitle';
 import { TableLoader, TableNoData } from '../../components/Loader/Loader';
 import Page from '../../components/Page/Page';
-import TipTapEditor from '../../components/TipTapEditor/TipTapEditor/TipTapEditor';
+import TipTapEditor from '../../components/TipTapEditor/TipTapEditor';
 import useConfModel from '../../hook/useConfModel';
 import useService from '../../hook/useService';
 import useSnackbar from '../../hook/useSnackbar';

@@ -16,9 +16,12 @@
     "@types/node": "^15.6.1",
     "@types/react-dom": "^17.0.5",
     "axios": "^0.21.1",
+    "cloudinary-core": "^2.11.3",
+    "env-cmd": "^10.1.0",
     "firebase": "^8.6.2",
     "formik": "^2.2.8",
     "history": "^5.0.0",
+    "lodash": "^4.17.21",
     "mobx": "^5.15.7",
     "mobx-persist": "^0.4.1",
     "mobx-react": "^6.3.1",
@@ -36,16 +39,47 @@
     "yup": "^0.32.9"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "env-cmd -f .env.loc react-scripts start",
+    "start:dev": "env-cmd -f .env.dev react-scripts start",
+    "start:prod": "env-cmd -f .env.prod react-scripts start",
+    "build": "env-cmd -f .env.loc react-scripts build",
+    "build:dev": "env-cmd -f .env.dev react-scripts build",
+    "build:prod": "env-cmd -f .env.prod react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "root": true,
+    "env": {
+      "node": true,
+      "es6": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "ecmaVersion": 2017,
+      "sourceType": "module",
+      "allowImportExportEverywhere": true,
+      "moduleFileExtensions": [
+        "js",
+        "ts",
+        "tsx"
+      ],
+      "ecmaFeatures": {
+        "jsx": true,
+        "tsx": true,
+        "modules": true,
+        "experimentalObjectRestSpread": true
+      }
+    },
+    "plugins": [
+      "react",
+      "react-hooks",
+      "@typescript-eslint"
+    ],
+    "rules": {
+      "no-unused-vars": "off",
+      "no-reserved-keys": "off"
+    }
   },
   "browserslist": {
     "production": [

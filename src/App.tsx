@@ -15,7 +15,7 @@ import './TipTap.scss';
 
 FirebaseApp.InitializeApp();
 
-function App() {
+const App = () => {
   return (
     <MobxProvider stores={Stores}>
       <ErrorBoundary>

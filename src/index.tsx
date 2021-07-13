@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 
+if (process.env.REACT_APP_SECRET_NAME == 'prod') {
+  console.log = () => { }
+}
+
 ReactDOM.render(
   <React.StrictMode>
     <App />

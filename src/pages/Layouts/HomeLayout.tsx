@@ -9,7 +9,7 @@ import { useStore } from '../../Mobx/Helpers/UseStore';
 import { SigninRoute } from '../../Routes/RoutesConstants';
 import { AuthStateChange, onIdTokenChanged } from '../../utils/FirebaseUtils';
 
-const HomeLayout = () => {
+const HomeLayout = (props: any) => {
   const { Post, Logout } = useService()
   const { UserStore } = useStore()
   const Snackbar = useSnackbar()
@@ -19,10 +19,11 @@ const HomeLayout = () => {
   const authStateChanged = (user: any) => {
     setLoading(true)
     if (user) {
-      localStorage.setItem('uid', user.uid);
       UserStore.setIdToken(user.uid);
       Post('app/login').then((res: any) => {
         console.log('login Res', res)
+        UserStore.setUserDetails(res.data);
+        // props.onRefresh()
         setLoading(false)
       }).catch((err: any) => {
         console.log('login err', err.statusCode)
@@ -41,7 +42,7 @@ const HomeLayout = () => {
 
   useEffect(() => {
     const unsubscribe = firebase.auth().onIdTokenChanged(async (user: any) => {
-      const idToken = await user.getIdToken()
+      const idToken = await user?.getIdToken()
     });
     return () => unsubscribe();
   }, []);
