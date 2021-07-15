@@ -1,7 +1,7 @@
 const main = '/';
 export const MainLayoutRoute = main;
 export const SigninRoute = `${main}login`;
-export const SignupRoute = `${main}signup`;
+export const ForgotPasswordRoute = `${main}forgot-password`;
 
 const HomeLayout = `/home`;
 
@@ -40,7 +40,7 @@ const RouteMap = {
   main: {
     default: main,
     SigninPage: SigninRoute.replace(main, ''),
-    signupPage: SignupRoute.replace(main, ''),
+    ForgotPasswordPage: ForgotPasswordRoute.replace(main, ''),
   },
   HomeLayout: {
     default: HomeDefaultLayout,
@@ -68,9 +68,9 @@ const RouteMap = {
 
     AppUsersPage: AppUsersRoute.replace(HomeLayout, ''),
 
-    AdminUserPage : AdminUserRoute.replace(HomeLayout, ''),
+    AdminUserPage: AdminUserRoute.replace(HomeLayout, ''),
 
-    AdminProfileViewPage : AdminViewProfileRoute.replace(HomeLayout, '')
+    AdminProfileViewPage: AdminViewProfileRoute.replace(HomeLayout, '')
 
 
   }

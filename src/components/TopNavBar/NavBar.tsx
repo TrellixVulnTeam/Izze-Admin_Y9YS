@@ -1,23 +1,15 @@
 import React, { Fragment, useEffect } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import clsx from 'clsx';
-import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
-import {
-  Drawer,
-  Divider,
-  Paper,
-  Avatar,
-  Typography,
-  Toolbar,
-} from '@material-ui/core';
+import { Drawer, Divider, Paper, Avatar, Typography, Toolbar, Button, } from '@material-ui/core';
 import { Hidden } from '@material-ui/core';
 import Navigation from './Navigation';
-import EditIcon from '@material-ui/icons/Edit';
 
 import MobxObserver from '../../Mobx/Helpers/MobxObserver';
 import { useStore } from '../../Mobx/Helpers/UseStore';
 import { toJS } from 'mobx';
+import { AdminViewProfileRoute } from '../../Routes/RoutesConstants';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -57,6 +49,15 @@ const useStyles = makeStyles((theme: any) => ({
   drawerContainer: {
     overflow: 'auto',
   },
+  themeButton: {
+    textTransform: 'none',
+    color: theme.palette.white,
+    backgroundColor: theme.palette.green.main,
+    '&:hover': {
+      backgroundColor: theme.palette.green.dark,
+    },
+  },
+
 }));
 
 const NavBar = (props: any) => {
@@ -72,7 +73,6 @@ const NavBar = (props: any) => {
     if (openMobile) {
       onMobileClose && onMobileClose();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
   const navbarContent = (
@@ -81,13 +81,16 @@ const NavBar = (props: any) => {
         <Avatar
           alt={UserDetails?.name}
           className={classes.avatar}
+          component={RouterLink}
           src={UserDetails?.image?.url}
+          to={AdminViewProfileRoute}
         />
         <Typography className={classes.name} variant='h4'>
           {UserDetails?.name}
         </Typography>
         <Typography variant='body2'>{UserDetails?.user_type}</Typography>
-        <Typography variant= 'subtitle2'><RouterLink to = '/home/admin-profile'>View Profile</RouterLink><EditIcon style={{fontSize : '15px', marginLeft : '10px'}}/></Typography>
+
+        <Button size='small' className={classes.themeButton} component={RouterLink} to={AdminViewProfileRoute}>View Profile</Button>
       </div>
       <Divider className={classes.divider} />
       <nav className={classes.navigation}>

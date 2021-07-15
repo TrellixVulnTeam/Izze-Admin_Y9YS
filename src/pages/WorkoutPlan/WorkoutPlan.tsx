@@ -19,6 +19,7 @@ import useConfModel from '../../hook/useConfModel';
 import useService from '../../hook/useService';
 import useSnackbar from '../../hook/useSnackbar';
 import { cloneDeep } from 'lodash';
+import getDropValues, { ExperienceDrop, InterestsDrop, PreferredDrop } from '../../utils/PlanDropdowns';
 
 
 const useStyles = makeStyles((theme: any) => ({
@@ -109,22 +110,6 @@ const useStyles = makeStyles((theme: any) => ({
     display: 'flex'
   },
 }));
-
-const ExperienceDrop = [
-  { id: 'BEGINNER', name: 'Beginner' },
-  { id: 'INTERMEDIATE', name: 'Intermediate' },
-  { id: 'PROFESSIONAL', name: 'Professional' },
-];
-
-const PreferredDrop = [
-  { id: 'STRENGTH', name: 'Strength Training' },
-  { id: 'HIIT', name: 'HIIT' },
-];
-
-const InterestsDrop = [
-  { id: 'HOME', name: 'Home Workout' },
-  { id: 'GYM', name: 'Gym Workout' },
-];
 
 const WorkoutPlan = () => {
   const classes = useStyles();
@@ -233,10 +218,6 @@ const WorkoutPlan = () => {
 
   const onPageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setStateData((prevState: any) => ({ ...prevState, page_no: value }));
-  };
-
-  const getDropValues = (dropValues: any, value: string) => {
-    return dropValues.find(({ id }: any) => id == value)?.name || ''
   };
 
   useEffect(() => {
@@ -744,10 +725,6 @@ const ViewWorkoutPlan = (props: any) => {
     setValue(newValue);
   };
 
-  const getDropValues = (dropValues: any, value: string) => {
-    return dropValues.find(({ id }: any) => id == value)?.name || ''
-  };
-
   useEffect(() => {
     console.log('view data', data)
     setFormValue(data);
@@ -862,3 +839,7 @@ const NoWorkoutListItem = (props: any) => {
 }
 
 export default WorkoutPlan;
+function openEditDialog(data: any): void {
+  throw new Error('Function not implemented.');
+}
+

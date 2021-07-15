@@ -8,9 +8,10 @@ import useSnackbar from '../../hook/useSnackbar';
 import { useStore } from '../../Mobx/Helpers/UseStore';
 import { AuthStateChange, signInWithCredenrials } from '../../utils/FirebaseUtils';
 import Loader from '../../components/Loader/Loader';
-import { DashboardRoute } from '../../Routes/RoutesConstants';
+import { DashboardRoute, ForgotPasswordRoute } from '../../Routes/RoutesConstants';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import MobxObserver from '../../Mobx/Helpers/MobxObserver';
 
 // const useStyles1 = makeStyles((theme: any) =>{console.log(theme)})
 const useStyles = makeStyles((theme: any) => ({
@@ -90,7 +91,6 @@ const Signin = () => {
     signInWithCredenrials(value.email, value.password)
       .then((response: any) => {
         setSubmitting(false);
-        localStorage.setItem('uid', response.user.uid);
         UserStore.setIdToken(response.user.uid);
       })
       .catch((error: any) => {
@@ -127,7 +127,7 @@ const Signin = () => {
                 variant="h3"
               >
                 Login
-               </Typography>
+              </Typography>
               <Formik
                 enableReinitialize
                 initialValues={{ email: '', password: '' }}
@@ -193,12 +193,12 @@ const Signin = () => {
                 align="center"
                 color="textPrimary"
                 component={RouterLink}
-                to="/auth/forget-password"
+                to={ForgotPasswordRoute}
                 underline="always"
                 variant="subtitle2"
               >
-                Forget Password?
-          </Link>
+                Forgot Password?
+              </Link>
             </CardContent>
           </Card>
         </div>
@@ -217,6 +217,6 @@ const AuthLoader = ({ loading, children }: any) => {
   return <>{aLoading ? <Loader /> : children}</>;
 };
 
-export default Signin;
+export default MobxObserver(Signin);
 
 

@@ -29,6 +29,7 @@ import { useStore } from '../Mobx/Helpers/UseStore';
 import { toJS } from 'mobx';
 import { useEffect } from 'react';
 import { useState } from 'react';
+import ForgotPassword from '../pages/ForgotPassword/ForgotPassword';
 
 const SignIn = React.lazy(() => import('../pages/SignIn/SignIn'));
 const SkinCareIngredients = React.lazy(() => import('../pages/SkinCareIngredients/SkinCareIngredients'));
@@ -267,6 +268,7 @@ const AppRoutes = () => {
       children: [
         { path: RouteMap.main.default, element: <Navigate to={RouteMap.main.SigninPage} />, },
         { path: RouteMap.main.SigninPage, element: <SignIn /> },
+        { path: RouteMap.main.ForgotPasswordPage, element: <ForgotPassword /> },
       ],
     },
     { path: RouteMap.HomeLayout.default, element: <Navigate to={DashboardRoute} />, },

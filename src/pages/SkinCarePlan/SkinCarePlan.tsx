@@ -43,6 +43,7 @@ import useSnackbar from '../../hook/useSnackbar';
 import useService from '../../hook/useService';
 import useConfModel from '../../hook/useConfModel';
 import { SkinCareRecipeViewContent } from '../SkinCareRecipe/SkinCareRecipe';
+import getDropValues, { SkinTypeDrop, CurrentClimateDrop, SkinIrregularDrop,SkinTextureDrop, getSubSkinIrregular } from '../../utils/PlanDropdowns';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -132,64 +133,6 @@ const useStyles = makeStyles((theme: any) => ({
     display: 'flex'
   },
 }));
-
-const SkinTypeDrop = [
-  { id: 'DRY', name: 'Dry' },
-  { id: 'OILY', name: 'Oily' },
-  { id: 'COMBINATION', name: 'Combination' },
-  { id: 'NORMAL', name: 'Normal' },
-];
-
-const CurrentClimateDrop = [
-  { id: 'HOT', name: 'Hot' },
-  { id: 'COLD', name: 'Cold' },
-  { id: 'HUMID', name: 'Humid' },
-  { id: 'DRY', name: 'Dry' },
-];
-
-const SkinIrregularDrop = [
-  {
-    id: 'ACNE', name: 'Acne', SubDrop: [
-      { id: 'PIMPLES', name: 'Pimples' },
-      { id: 'BLACKHEADS', name: 'Black Heads' },
-      { id: 'WHITEHEADS', name: 'White Heads' },
-    ]
-  },
-  {
-    id: 'RASHES', name: 'Rashes', SubDrop: [
-      { id: 'SCALY', name: 'Scaly' },
-      { id: 'ITCHY', name: 'Itchy' },
-      { id: 'BUMPY', name: 'Bumpy' },
-      { id: 'BOILS', name: 'Boils' },
-      { id: 'BLISTERS', name: 'Blisters' },
-    ]
-  },
-  {
-    id: 'DISCOLORATION', name: 'Discoloration', SubDrop: [
-      { id: 'BLACKISH', name: 'Blackish' },
-      { id: 'WHITISH', name: 'Whitish' },
-      { id: 'PINKISH', name: 'Pinkish' },
-      { id: 'REDDISH', name: 'Reddish' },
-      { id: 'SUNSPOTS', name: 'Sun Spots' },
-    ]
-  },
-];
-
-const SkinTextureDrop = [
-  { id: 'SAGGY', name: 'Saggy', },
-  { id: 'FINELINES', name: ' Fine Lines' },
-  { id: 'WRINKLES', name: 'Wrinkles' },
-  { id: 'NONE', name: 'None' },
-];
-
-const SkinIssueDrop = [
-  { id: 'ACNE', name: 'Acne', },
-  { id: 'DRYSKIN', name: 'Dry Skin' },
-];
-
-const getSubSkinIrregular = (SkinIrregularValue: any) => {
-  return SkinIrregularDrop?.find(({ id }: any) => id == SkinIrregularValue)?.SubDrop || []
-}
 
 const SkinCarePlan = () => {
   const classes = useStyles();
@@ -298,10 +241,6 @@ const SkinCarePlan = () => {
 
   const onPageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setStateData((prevState: any) => ({ ...prevState, page_no: value }));
-  };
-
-  const getDropValues = (dropValues: any, value: string) => {
-    return dropValues.find(({ id }: any) => id == value)?.name || ''
   };
 
   useEffect(() => {
@@ -813,10 +752,6 @@ const ViewSkincarePlan = (props: any) => {
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: string) => {
     setValue(newValue);
-  };
-
-  const getDropValues = (dropValues: any, value: string) => {
-    return dropValues.find(({ id }: any) => id == value)?.name || ''
   };
 
   useEffect(() => {

@@ -1,19 +1,13 @@
-import React, { useRef, useState } from 'react'
-import { Avatar, Button, Card, CardActions, CardContent, CircularProgress, Dialog, DialogActions, DialogContent, Grid, IconButton, makeStyles, Paper, Tab, Table, TableBody, FormControl, FormHelperText, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Divider, Typography, Tabs, ListItemSecondaryAction } from '@material-ui/core';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
+import { Avatar, Button, Card, CardActions, CardContent, CircularProgress, Dialog, DialogActions, DialogContent, FormControl, FormHelperText, Grid, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CenterFocusStrongIcon from '@material-ui/icons/CenterFocusStrong';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
-import { Pagination, TabContext, TabList, TabPanel } from '@material-ui/lab';
-import TipTapEditor from '../../components/TipTapEditor/TipTapEditor';
+import { Pagination } from '@material-ui/lab';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { imageUpload } from '../../utils/FirebaseUtils';
-import { Formik, getIn, useFormikContext } from 'formik';
+import { Formik } from 'formik';
+import React, { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import DialogTitle from '../../components/DialogTitlle/DialogTitle';
 import { TableLoader, TableNoData } from '../../components/Loader/Loader';
@@ -21,14 +15,8 @@ import Page from '../../components/Page/Page';
 import useConfModel from '../../hook/useConfModel';
 import useService from '../../hook/useService';
 import useSnackbar from '../../hook/useSnackbar';
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
-import { useEffect } from 'react';
-import LikeImage from '../../assets/Images/like.png'
-import CommentImage from '../../assets/Images/comment.png';
-import CheckIcon from '@material-ui/icons/Check';
-import { promises } from 'stream';
 import { uploadImageCloudinary } from '../../utils/CloudinaryUtils';
-import moment from 'moment'
+import RefreshIcon from '@material-ui/icons/Refresh';
 
 
 const useStyle = makeStyles((theme: any) => ({
@@ -133,21 +121,21 @@ const useStyle = makeStyles((theme: any) => ({
   justifyCenter: {
     justifyContent: 'center'
   },
-  blogTypeStyle : {
-    backgroundColor : '#F2805E',
-    color : 'white',
-    padding : '5px',
-    borderRadius : '5px',
-    fontSize : '14px',
-    marginLeft : '10px'
+  blogTypeStyle: {
+    backgroundColor: '#F2805E',
+    color: 'white',
+    padding: '5px',
+    borderRadius: '5px',
+    fontSize: '14px',
+    marginLeft: '10px'
   },
-  rejectButtonStyle : { 
-    backgroundColor: 'red', 
-    color: 'white', 
+  rejectButtonStyle: {
+    backgroundColor: 'red',
+    color: 'white',
     marginLeft: '10px',
     '&:hover': {
       backgroundColor: 'red',
-    }, 
+    },
   }
 }));
 
@@ -156,7 +144,7 @@ const AdminUser = () => {
   const { Post } = useService();
   const Snackbar = useSnackbar();
   const ConfModel = useConfModel();
-  const [stateData, setStateData] = useState({ page_no: 1, page_limit: 10, name:'' });
+  const [stateData, setStateData] = useState({ page_no: 1, page_limit: 10, name: '' });
   const [pageCount, setPageCount] = useState(0);
   const [dataList, setDataList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -173,7 +161,7 @@ const AdminUser = () => {
     data: {},
   });
 
-  const listBlog = async () => {
+  const listAdminUser = async () => {
     setLoading(true);
     Post('app/listAdminUser', stateData)
       .then((res: any) => {
@@ -191,6 +179,27 @@ const AdminUser = () => {
         setLoading(false);
         Snackbar.show(err.message, 'error');
       });
+  };
+
+  const onDelete = (data: any) => {
+    const { openModel, setLoading, closeModel } = ConfModel;
+    const submitFunction = () => {
+      setLoading(true);
+      Post('app/disableAdmin', { id: data._id })
+        .then(async (res: any) => {
+          setLoading(false);
+          closeModel();
+          onSuccessAction();
+          Snackbar.show(res.message, 'success');
+        })
+        .catch((err: any) => {
+          setLoading(false);
+          Snackbar.show('Internal Server Error', 'error');
+        });
+    };
+    const AlertText = `Are you sure want to ${data.is_disabled ? 'Enable' : 'Disable'} this user`
+    const BtnText = data.is_disabled ? 'Enable' : 'Disable'
+    openModel(submitFunction, AlertText, BtnText);
   };
 
   const searchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -219,6 +228,17 @@ const AdminUser = () => {
     }));
   };
 
+  const openEditDialog = (data: any) => {
+    setAddEditDialog((prevState: any) => ({
+      ...prevState,
+      isOpen: true,
+      isEdit: true,
+      data,
+      title: 'Edit Admin User',
+      okBtnText: 'Edit',
+    }));
+  };
+
   const closeAddEditDialog = () => {
     setAddEditDialog((prevState: any) => ({ ...prevState, isOpen: false }));
   };
@@ -228,7 +248,7 @@ const AdminUser = () => {
   };
 
   const onSuccessAction = () => {
-    listBlog();
+    listAdminUser();
     closeAddEditDialog();
   };
 
@@ -237,7 +257,7 @@ const AdminUser = () => {
   };
 
   useEffect(() => {
-    listBlog();
+    listAdminUser();
   }, [stateData]);
 
   return (
@@ -269,8 +289,8 @@ const AdminUser = () => {
               fullWidth
               size='small'
               placeholder='Name'
-              name = 'name'
-              value = {stateData?.name}
+              name='name'
+              value={stateData?.name}
               variant='outlined'
               onChange={searchChange}
             />
@@ -319,7 +339,7 @@ const AdminUser = () => {
                               <CenterFocusStrongIcon color='primary' />
                             </IconButton>
                           </Tooltip>
-                          {/* <Tooltip title='Edit' arrow>
+                          {!data.is_disabled && <Tooltip title='Edit' arrow>
                             <IconButton
                               className={classes.iconPadd}
                               onClick={() => openEditDialog(data)}
@@ -327,14 +347,16 @@ const AdminUser = () => {
                               <EditIcon color='action' />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title='Delete' arrow>
+                          }
+                          <Tooltip title='Status' arrow>
                             <IconButton
                               className={classes.iconPadd}
                               onClick={() => onDelete(data)}
                             >
-                              <DeleteIcon color='secondary' />
+                              {!data.is_disabled && <DeleteIcon color='secondary' />}
+                              {data.is_disabled && <RefreshIcon color='secondary' />}
                             </IconButton>
-                          </Tooltip> */}
+                          </Tooltip>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -358,7 +380,7 @@ const AdminUser = () => {
       </Card>
 
       {addEditDialog.isOpen && <AddEditModel {...addEditDialog} onClose={closeAddEditDialog} onSuccess={onSuccessAction} />}
-      {viewDialog.isOpen && <ViewModel {...viewDialog} onClose={closeViewDialog} onReload={() => listBlog()} />}
+      {viewDialog.isOpen && <ViewModel {...viewDialog} onClose={closeViewDialog} onReload={() => listAdminUser()} />}
 
     </div>
   )
@@ -369,14 +391,14 @@ const initialFormValue = {
   password: '',
   name: '',
   image: { file: null, prevImage: '', isNew: null },
-  user_type : ''
+  user_type: ''
 }
 const AdminRoles = [
- {id : 'ADMIN', name : 'Admin'},
- {id : 'NUTRITION', name : 'Nutrition'},
- {id : 'SKINCARE', name : 'Skincare'},
- {id : 'WORKOUT', name : 'Workout'},
- {id : 'CUSTOMERCARE', name : 'Costomer Care'}
+  { id: 'ADMIN', name: 'Admin' },
+  { id: 'NUTRITION', name: 'Nutrition' },
+  { id: 'SKINCARE', name: 'Skincare' },
+  { id: 'WORKOUT', name: 'Workout' },
+  { id: 'CUSTOMERCARE', name: 'Costomer Care' }
 ]
 
 export const AddEditModel = (props: any) => {
@@ -500,11 +522,11 @@ export const AddEditModel = (props: any) => {
         initialValues={initialValue}
         onSubmit={onSubmit}
         validationSchema={Yup.object().shape({
-            email: Yup.string().trim().required('Email is required').email(),
-            password: Yup.string().trim().required('Password is required'),
-            name: Yup.string().trim().required('Name is required'),
-            image: Yup.object({ file: Yup.mixed().required('A file is required') }),
-            user_type: Yup.string().trim().required('User type is required'),
+          email: Yup.string().trim().required('Email is required').email(),
+          password: Yup.string().trim().required('Password is required'),
+          name: Yup.string().trim().required('Name is required'),
+          image: Yup.object({ file: Yup.mixed().required('A file is required') }),
+          user_type: Yup.string().trim().required('User type is required'),
         })}
       >
         {({ values, errors, touched, handleBlur, handleChange, setFieldValue, submitForm, setFieldTouched, isSubmitting, }) => (
@@ -531,7 +553,7 @@ export const AddEditModel = (props: any) => {
                     label='Password'
                     name='password'
                     variant='outlined'
-                    type = 'password'
+                    type='password'
                     value={values.password}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -568,7 +590,7 @@ export const AddEditModel = (props: any) => {
                       <TextField
                         {...params}
                         label='User Type'
-                        name = 'user_type'
+                        name='user_type'
                         variant='outlined'
                         error={Boolean(touched.user_type && errors.user_type)}
                         helperText={touched.user_type && errors.user_type}

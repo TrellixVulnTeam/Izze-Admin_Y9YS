@@ -1,7 +1,7 @@
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
-import 'firebase/storage'; 
+import 'firebase/storage';
 
 export const AuthStateChange = (callback: any) => {
   const subscriber = firebase.auth().onAuthStateChanged(callback);
@@ -21,7 +21,7 @@ export const signInWithCredenrials = async (email: string, password: string) => 
 };
 
 export const imageUpload = async (file: any) => {
-    return firebase.storage()
+  return firebase.storage()
     .ref(`images/${file.name}-${new Date().getTime()}`)
     .put(file)
     .then(async (imageResult) => {
@@ -30,6 +30,13 @@ export const imageUpload = async (file: any) => {
     })
 }
 
+export const sendPasswordResetEmail = (email: string) => {
+  return firebase
+    .auth()
+    .sendPasswordResetEmail(email)
+
+};
+
 export const LogoutUser = async () => {
-  return firebase.auth().signOut().then(() => localStorage.clear());
+  return firebase.auth().signOut();
 };

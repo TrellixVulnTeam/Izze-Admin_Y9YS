@@ -1,9 +1,12 @@
 import {
   Card, Table, TableBody, TableCell,
-  TableRow
+  TableRow,
+  TextField
 } from '@material-ui/core';
+import { Autocomplete } from '@material-ui/lab';
 import { makeStyles } from '@material-ui/styles';
 import React, { useEffect, useState } from 'react';
+import { FitnessGoalDrop } from '../../utils/PlanDropdowns';
 
 const useStyles = makeStyles((theme: any) => ({
 
@@ -11,12 +14,11 @@ const useStyles = makeStyles((theme: any) => ({
 
 const AppUserDetails = (props: any) => {
   const classes = useStyles();
-
   const { data } = props;
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<any>(data);
   useEffect(() => {
-    setFormData(data)
-  }, [props]);
+    setFormData(props.data)
+  }, [props.data]);
 
   return (
     <Card>
@@ -49,10 +51,6 @@ const AppUserDetails = (props: any) => {
           <TableRow >
             <TableCell>State</TableCell>
             <TableCell>{formData?.state}</TableCell>
-          </TableRow>
-          <TableRow >
-            <TableCell>Experience Level </TableCell>
-            <TableCell>{formData?.experience_level}</TableCell>
           </TableRow>
         </TableBody>
       </Table>

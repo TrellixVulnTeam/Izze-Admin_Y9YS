@@ -30,15 +30,15 @@ const AppUserCCPA = (props: any) => {
           <TableBody>
             <TableRow >
               <TableCell>Share your personal data</TableCell>
-              <TableCell>{formData?.isSharePersonalData ? 'Yes' : 'No'}</TableCell>
+              <TableCell>{formData?.isSharePersonalData == '0' ? 'No' : 'Yes'}</TableCell>
             </TableRow>
             <TableRow >
               <TableCell>Protect your data</TableCell>
-              <TableCell>{formData?.isProtectYourData ? 'Yes' : 'No'}</TableCell>
+              <TableCell>{formData?.isProtectYourData == '0' ? 'No' : 'Yes'}</TableCell>
             </TableRow>
             <TableRow >
               <TableCell>Personal Information</TableCell>
-              <TableCell>{formData?.isPersonalInformation ? 'Yes' : 'No'}</TableCell>
+              <TableCell>{formData?.isPersonalInformation == '0' ? 'No' : 'Yes'}</TableCell>
             </TableRow>
           </TableBody>
         </Table>

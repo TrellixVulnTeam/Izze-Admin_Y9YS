@@ -3,7 +3,7 @@ import { makeStyles, Avatar, Card, CardActions, CardContent, Dialog, DialogActio
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import AddIcon from '@material-ui/icons/Add';
-import { Pagination, TabContext, TabList, TabPanel } from '@material-ui/lab';
+import { Autocomplete, Pagination, TabContext, TabList, TabPanel } from '@material-ui/lab';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
@@ -18,6 +18,11 @@ import { uploadNewImage } from '../../utils/CloudinaryUtils';
 import AppUserDetails from './AppUserDetails';
 import AppUserFeedback from './AppUserFeedback';
 import AppUserCCPA from './AppUserCCPA';
+import AppNutrition from './AppNutrition';
+import SnackbarProvider from '../../hook/SnackbarProvider';
+import { FitnessGoalDrop } from '../../utils/PlanDropdowns';
+import AppSkinCare from './AppSkinCare';
+import AppWorkout from './AppWorkout';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -582,11 +587,10 @@ const ViewDailog = (props: any) => {
   const classes = useStyles();
   const [tabValue, setTabValue] = useState('details');
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<any>(data);
   const Snackbar = useSnackbar();
   const { Post } = useService();
 
-  console.log(formData)
   const getAppUserById = async (userData: any = formData) => {
     setLoading(true);
     Post('app/getAppUserById', { id: userData._id })
@@ -594,7 +598,7 @@ const ViewDailog = (props: any) => {
         console.log('getAppUserById', res);
         setLoading(false);
         if (!res.error) {
-          setFormData(res.data);
+          setFormData((prevState:any) => ({ ...prevState, ...res.data }));
         } else {
           Snackbar.show(res.message, 'error');
         }
@@ -614,11 +618,14 @@ const ViewDailog = (props: any) => {
     { value: 'details', label: 'Details', component: <AppUserDetails data={formData} /> },
     { value: 'feedback', label: 'Feedback', component: <AppUserFeedback data={formData} /> },
     { value: 'ccpa', label: 'CCPA & GDPR', component: <AppUserCCPA data={formData} /> },
+    { value: 'nutrition', label: 'Nutrition', component: <AppNutrition data={formData} onRefresh={() => getAppUserById()} /> },
+    { value: 'skincare', label: 'Skincare', component: <AppSkinCare data={formData} onRefresh={() => getAppUserById()} /> },
+    { value: 'workout', label: 'Workout', component: <AppWorkout data={formData} onRefresh={() => getAppUserById()} /> },
   ];
 
   useEffect(() => {
-    getAppUserById(data)
-  }, [props]);
+    getAppUserById(props.data)
+  }, [props.data]);
 
   return (
     <Dialog
@@ -633,6 +640,8 @@ const ViewDailog = (props: any) => {
       <DialogTitle id='dialog-view-title' onClose={onClose}>
         {title}
       </DialogTitle>
+
+
 
       {loading && <DialogContent dividers><Loader /></DialogContent>}
 
@@ -672,13 +681,16 @@ const ViewDailog = (props: any) => {
             ))}
           </TabList>
 
-          {tabs.map((tab: any) => (
-            <TabPanel className={classes.tabPanelRoot} value={tab.value}>
-              <div className={classes.tabPanelContent}>
-                {tab.component}
-              </div>
-            </TabPanel>
-          ))}
+          <SnackbarProvider>
+            {tabs.map((tab: any) => (
+              <TabPanel className={classes.tabPanelRoot} value={tab.value}>
+                <div className={classes.tabPanelContent}>
+                  {tab.component}
+                </div>
+              </TabPanel>
+            ))}
+          </SnackbarProvider>
+
         </TabContext>
       </DialogContent>
       }
