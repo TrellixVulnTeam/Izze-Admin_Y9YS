@@ -398,7 +398,7 @@ const AdminRoles = [
   { id: 'NUTRITION', name: 'Nutrition' },
   { id: 'SKINCARE', name: 'Skincare' },
   { id: 'WORKOUT', name: 'Workout' },
-  { id: 'CUSTOMERCARE', name: 'Costomer Care' }
+  { id: 'CUSTOMERCARE', name: 'Customer Care' }
 ]
 
 export const AddEditModel = (props: any) => {
@@ -431,7 +431,7 @@ export const AddEditModel = (props: any) => {
         PostData.image = ImgRes
 
         !isEdit && addData(PostData, helper);
-        // isEdit && editData(PostData, helper);
+        isEdit && editData(PostData, helper);
       };
       render();
     } catch (err) {
@@ -454,19 +454,21 @@ export const AddEditModel = (props: any) => {
       });
   };
 
-  // const editData = (data: any, { setSubmitting, resetForm }: any) => {
-  //   setSubmitting(true);
-  //   Post('app/editBlog', data)
-  //     .then((res: any) => {
-  //       Snackbar.show(res.message, 'success');
-  //       setSubmitting(false);
-  //       resetForm();
-  //       onSuccess();
-  //     })
-  //     .catch((err: any) => {
-  //       Snackbar.show(err.message, 'error');
-  //     });
-  // };
+  const editData = (data: any, { setSubmitting, resetForm }: any) => {
+    const {id, name, user_type, image} = data;
+    const editDatas = {id, name, user_type, image};
+    setSubmitting(true);
+    Post('app/updateAdmin', editDatas)
+      .then((res: any) => {
+        Snackbar.show(res.message, 'success');
+        setSubmitting(false);
+        resetForm();
+        onSuccess();
+      })
+      .catch((err: any) => {
+        Snackbar.show(err.message, 'error');
+      });
+  };
 
   const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     event.persist();
@@ -496,8 +498,8 @@ export const AddEditModel = (props: any) => {
     if (isEdit) {
       const { image, image_thumbnail, _id, ...rest } = data;
       const EditData = { ...rest, id: _id };
-      EditData.image = { file: image, prevImage: image.url, isNew: false };
-      EditData.image_thumbnail = { file: image_thumbnail, prevImage: image_thumbnail.url, isNew: false };
+      EditData.image = { file: image, prevImage: image?.url, isNew: false };
+      EditData.image_thumbnail = { file: image_thumbnail, prevImage: image_thumbnail?.url, isNew: false };
       setInitialValue(EditData);
     } else {
       setInitialValue(initialFormValue);
@@ -522,8 +524,8 @@ export const AddEditModel = (props: any) => {
         initialValues={initialValue}
         onSubmit={onSubmit}
         validationSchema={Yup.object().shape({
-          email: Yup.string().trim().required('Email is required').email(),
-          password: Yup.string().trim().required('Password is required'),
+         ...(!isEdit && {email: Yup.string().trim().required('Email is required').email()}),
+         ...(!isEdit && {password: Yup.string().trim().required('Password is required')}),
           name: Yup.string().trim().required('Name is required'),
           image: Yup.object({ file: Yup.mixed().required('A file is required') }),
           user_type: Yup.string().trim().required('User type is required'),
@@ -531,36 +533,41 @@ export const AddEditModel = (props: any) => {
       >
         {({ values, errors, touched, handleBlur, handleChange, setFieldValue, submitForm, setFieldTouched, isSubmitting, }) => (
           <>
+          {console.log(errors)}
             <DialogContent dividers>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label='Email'
-                    name='email'
-                    variant='outlined'
-                    value={values.email}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={Boolean(touched.email && errors.email)}
-                    helperText={touched.email && errors.email}
-                  />
+                {!isEdit && (
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label='Email'
+                      name='email'
+                      variant='outlined'
+                      value={values.email}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={Boolean(touched.email && errors.email)}
+                      helperText={touched.email && errors.email}
+                    />
                 </Grid>
+                )}
 
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label='Password'
-                    name='password'
-                    variant='outlined'
-                    type='password'
-                    value={values.password}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={Boolean(touched.password && errors.password)}
-                    helperText={touched.password && errors.password}
-                  />
-                </Grid>
+                {!isEdit && (
+                   <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label='Password'
+                      name='password'
+                      variant='outlined'
+                      type='password'
+                      value={values.password}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={Boolean(touched.password && errors.password)}
+                      helperText={touched.password && errors.password}
+                    />
+                 </Grid>
+                )}
 
                 <Grid item xs={12}>
                   <TextField

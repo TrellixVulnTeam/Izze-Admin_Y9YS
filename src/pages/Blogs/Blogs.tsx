@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { Avatar, Button, Card, CardActions, CardContent, CircularProgress, Dialog, DialogActions, DialogContent, Grid, IconButton, makeStyles, Paper, Tab, Table, TableBody, FormControl, FormHelperText, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Divider, Typography, Tabs, ListItemSecondaryAction } from '@material-ui/core';
+import { Avatar, Button, Card, CardActions, CardContent, CircularProgress, Dialog, DialogActions, DialogContent, Grid, IconButton, makeStyles, Paper, Tab, Table, TableBody, FormControl, FormHelperText, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Divider, Typography, Tabs, ListItemSecondaryAction, Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
@@ -32,6 +32,9 @@ import moment from 'moment'
 import MobxObserver from '../../Mobx/Helpers/MobxObserver';
 import { useStore } from '../../Mobx/Helpers/UseStore';
 import { toJS } from 'mobx';
+import SendIcon from '@material-ui/icons/Send';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
 
 
 const useStyle = makeStyles((theme: any) => ({
@@ -142,7 +145,8 @@ const useStyle = makeStyles((theme: any) => ({
     padding: '5px',
     borderRadius: '5px',
     fontSize: '14px',
-    marginLeft: '10px'
+    marginLeft: '10px',
+    boxShadow : 'none'
   },
   rejectButtonStyle: {
     backgroundColor: 'red',
@@ -151,6 +155,10 @@ const useStyle = makeStyles((theme: any) => ({
     '&:hover': {
       backgroundColor: 'red',
     },
+  },
+  accordionStyles : {
+    paddingLeft : '20px',
+    boxShadow : 'none',
   }
 }));
 
@@ -733,6 +741,7 @@ export const ViewModel = (props: any) => {
   const { isOpen, title, onClose, data, onReload } = props;
   const classes = useStyle();
   const [formValue, setFormValue] = useState(data);
+  const [openReplyField, setOpenReplyField] = React.useState(false);
 
   const { Post } = useService();
   const Snackbar = useSnackbar();
@@ -874,7 +883,8 @@ export const ViewModel = (props: any) => {
           </ListItem>
           {!loading &&
             dataList.map((data: any, index: number) => (
-              <ListItem key={index}>
+              <>
+                <ListItem key={index}>
                 <ListItemAvatar>
                   <Avatar src={data?.comment_by_image} />
                 </ListItemAvatar>
@@ -892,10 +902,38 @@ export const ViewModel = (props: any) => {
                       <DeleteIcon />
                     </IconButton>
                   </>
-                }
-
-
+                }            
               </ListItem>
+              {data?.reply?.length >=1 && (
+                <Accordion className={classes.accordionStyles}>
+                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">{<Typography variant='subtitle2'><strong>Replies {data?.reply?.length}</strong></Typography>}</AccordionSummary>
+                  <AccordionDetails>
+                    <div>
+                      {data?.reply?.map((getreplayData: any, index: any)=>(
+                        <>
+                          {getreplayData?.comment_id === data?._id && (
+                            <>
+                              <ListItem key={index}>
+                                <ListItemAvatar>
+                                  <Avatar src={getreplayData?.reply_by_image?.url} />
+                                </ListItemAvatar>
+                              <ListItemText
+                                primary={<Typography variant='subtitle2'>{`${getreplayData?.reply_by_name} . ${moment(getreplayData?.created_at).format('MMM DD, YYYY')}`}</Typography>}
+                                secondary={<Typography variant='subtitle2'>{getreplayData?.reply}</Typography>}
+                              />
+                              </ListItem>
+                            </>
+                          )}
+                        </>
+                      ))}
+                    </div>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+                {data?.status === 1 &&
+                    <ReplyComments commentsData = {data} onRefresh={listBlogComments}/>
+                }
+              </>
             ))}
           {loading && <ListItem><ListItemText classes={{ primary: classes.noCommentsText }} primary={<CircularProgress className={classes.greenColor} />} /></ListItem>}
           {!loading && dataList.length == 0 && (
@@ -920,6 +958,48 @@ export const ViewModel = (props: any) => {
       </DialogActions>
 
     </Dialog>
+  )
+}
+
+export const ReplyComments = (props: any) =>{
+  const { commentsData, onRefresh } = props;
+  const { blog_id, _id : id} = commentsData;
+  const { Post } = useService();
+  const Snackbar = useSnackbar();
+  const ConfModel = useConfModel();
+  const [replyComments, setReplyComments]  = React.useState('');
+
+
+  const handleReplyChange = (event: React.ChangeEvent<HTMLInputElement>) =>{
+    setReplyComments(event.target.value);
+  }
+
+  const sendReplyMessage = () =>{
+    const sentReplyData = {
+      blog_id,
+      comment_id : id,
+      reply : replyComments
+    }
+    Post('app/addCommentReply',sentReplyData)
+    .then((res: any)=>{
+      onRefresh()
+    })
+    .catch((err: any)=>{
+      console.log(err)
+    })
+  }
+
+  return(
+    <>
+      <List style={{width : '100%'}} >
+        <ListItem>
+        <TextField multiline fullWidth placeholder='Reply...' size='small' variant='outlined' value={replyComments} onChange={handleReplyChange}  />
+        <IconButton color='primary' onClick={sendReplyMessage}>
+          <SendIcon />
+        </IconButton>
+        </ListItem>
+      </List> 
+    </>
   )
 }
 
