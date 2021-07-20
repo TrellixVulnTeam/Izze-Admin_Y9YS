@@ -525,7 +525,7 @@ export const AddEditModel = (props: any) => {
         onSubmit={onSubmit}
         validationSchema={Yup.object().shape({
          ...(!isEdit && {email: Yup.string().trim().required('Email is required').email()}),
-         ...(!isEdit && {password: Yup.string().trim().required('Password is required')}),
+         ...(!isEdit && {password: Yup.string().trim().min(6, 'Password must be at least 6 characters').required('Password is required')}),
           name: Yup.string().trim().required('Name is required'),
           image: Yup.object({ file: Yup.mixed().required('A file is required') }),
           user_type: Yup.string().trim().required('User type is required'),

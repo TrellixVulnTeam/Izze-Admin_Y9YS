@@ -10,7 +10,7 @@ import { makeStyles } from '@material-ui/styles';
 import { Formik } from 'formik';
 import clsx from 'clsx';
 import * as Yup from 'yup';
-import getDropValues, { DietTypeDrop, FitnessGoalDrop, LifeStyleDrop, NoOption } from '../../utils/PlanDropdowns';
+import getDropValues, { DietTypeDrop, FitnessGoalDrop, FitnessGoalWomenDrop, LifeStyleDrop, NoOption } from '../../utils/PlanDropdowns';
 import useSnackbar from '../../hook/useSnackbar';
 import useService from '../../hook/useService';
 
@@ -83,6 +83,8 @@ const EditCard = (props: any) => {
     heightUnit: "cm"
   }
 
+  console.log(props.data)
+
   const [initialValue, setInitialValue] = useState<any>(formInitialValue);
 
   const onSubmit = (value: any, { setSubmitting, resetForm }: any) => {
@@ -106,6 +108,7 @@ const EditCard = (props: any) => {
     const { _id, fitnessGoal, lifestyle, diet_type, weight, height } = props.data
     setInitialValue((prevState: any) => ({ ...prevState, id: _id, fitnessGoal, lifestyle, diet_type, weight, height }))
   }, [props.data]);
+
 
   return (
     <Card className={classes.editCardRoot}>
@@ -131,7 +134,7 @@ const EditCard = (props: any) => {
             <Grid container spacing={2}>
               <Grid item xs={4}>
                 <Autocomplete
-                  options={FitnessGoalDrop}
+                  options={props.data?.gender !== 'She/Her/Hers' ? FitnessGoalDrop : FitnessGoalWomenDrop}
                   value={FitnessGoalDrop.find((data: any) => data.id == values.fitnessGoal) || NoOption}
                   getOptionLabel={(option: any) => option.name}
                   getOptionSelected={(option) => option.id == values.fitnessGoal}
@@ -288,11 +291,13 @@ const ViewCard = (props: any) => {
           </TableRow>
           <TableRow >
             <TableCell>Height</TableCell>
-            <TableCell>{formData?.height + ' ' + formData?.heightUnit}</TableCell>
+            <TableCell>{formData?.height !== null ? formData?.height : '' + ' ' + formData?.heightUnit !== null ? formData?.heightUnit : ''}</TableCell>
+            {/* <TableCell>{formData?.height + ' ' + formData?.heightUnit}</TableCell> */}
           </TableRow>
           <TableRow >
             <TableCell>Weight</TableCell>
-            <TableCell>{formData?.weight + ' ' + formData?.weightUnit}</TableCell>
+            <TableCell>{formData?.weight !== null ? formData?.weight : '' + ' ' + formData?.weightUnit !== null ? formData?.weightUnit : ''}</TableCell>
+            {/* <TableCell>{formData?.weight + ' ' + formData?.weightUnit}</TableCell> */}
           </TableRow>
         </TableBody>
       </Table>

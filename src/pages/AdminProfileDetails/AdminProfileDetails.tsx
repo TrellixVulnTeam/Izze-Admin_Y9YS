@@ -67,7 +67,6 @@ const AdminProfileDetails = () => {
         }
       })
       .catch((err: any) => {
-        console.log('err', err);
         setIsLoading(false);
         Snackbar.show(err.message, 'error');
       });
@@ -322,13 +321,20 @@ export const ChangePassword = (props: any) => {
   const changePasswordData = (data: any, { setSubmitting, resetForm }: any) => {
     Post('app/updateAdminPassword', data)
       .then((res: any) => {
-        Snackbar.show(res.message, 'success');
-        setSubmitting(false);
-        resetForm();
-        onClose();
-        onRefresh()
+        if(res.error){
+          Snackbar.show(res.message, 'success');
+          setSubmitting(false);
+        }
+        else {
+          Snackbar.show(res.message, 'success');
+          setSubmitting(false);
+          resetForm();
+          onClose();
+          onRefresh()
+        }
       })
       .catch((err: any) => {
+        setSubmitting(false);
         Snackbar.show(err.message, 'error');
       });
   }
@@ -352,7 +358,7 @@ export const ChangePassword = (props: any) => {
           enableReinitialize
           initialValues={initialFormValues}
           validationSchema={Yup.object().shape({
-            password: Yup.string().required('Password is required'),
+            password: Yup.string().required('Password is required').min(6, 'Password must be at least 6 characters'),
             confirmPassword: Yup.string().oneOf([Yup.ref('password'), null], 'Password must be same').required('Confirm password is required')
           })}
           onSubmit={onSubmit}

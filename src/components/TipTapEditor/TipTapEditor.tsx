@@ -1,6 +1,7 @@
 import React, { useEffect } from "react"
 import { EditorContent, useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
+import Link from '@tiptap/extension-link'
 import EditorButton from "./EditorButtons"
 
 const TipTapEditor = (props: any) => {
@@ -8,6 +9,7 @@ const TipTapEditor = (props: any) => {
     const editor = useEditor({
       extensions: [
         StarterKit,
+        Link,
       ],
       content: value,
       onUpdate: ({ editor }): void => onChange(editor.getHTML()),

@@ -146,7 +146,7 @@ const useStyle = makeStyles((theme: any) => ({
     borderRadius: '5px',
     fontSize: '14px',
     marginLeft: '10px',
-    boxShadow : 'none'
+    boxShadow: 'none'
   },
   rejectButtonStyle: {
     backgroundColor: 'red',
@@ -156,10 +156,30 @@ const useStyle = makeStyles((theme: any) => ({
       backgroundColor: 'red',
     },
   },
-  accordionStyles : {
-    paddingLeft : '20px',
-    boxShadow : 'none',
-  }
+  accordionRoot: {
+    paddingLeft: theme.spacing(7),
+    '&:before': {
+      height: 0
+    }
+  },
+  accordionExpanded: {
+    marginTop: '0 !important',
+  },
+  accordionDetailsRoot: {
+    display: 'unset',
+    padding: 0
+  },
+  accordionSummaryRoot: {
+    display: 'none',
+  },
+  width100: {
+    width: '100%'
+  },
+  replyButtons: {
+    padding: 0,
+    fontSize: "0.7rem",
+    borderRadius: 'unset'
+  },
 }));
 
 const Blogs = () => {
@@ -741,7 +761,6 @@ export const ViewModel = (props: any) => {
   const { isOpen, title, onClose, data, onReload } = props;
   const classes = useStyle();
   const [formValue, setFormValue] = useState(data);
-  const [openReplyField, setOpenReplyField] = React.useState(false);
 
   const { Post } = useService();
   const Snackbar = useSnackbar();
@@ -882,59 +901,8 @@ export const ViewModel = (props: any) => {
             />
           </ListItem>
           {!loading &&
-            dataList.map((data: any, index: number) => (
-              <>
-                <ListItem key={index}>
-                <ListItemAvatar>
-                  <Avatar src={data?.comment_by_image} />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={<Typography variant='subtitle2'>{`${data?.comment_by_name} . ${moment(data?.created_at).format('MMM DD, YYYY')}`}</Typography>}
-                  secondary={<Typography variant='subtitle2'>{data?.comment}</Typography>}
-                />
+            dataList.map((data: any, index: number) => <CommentItem key={index} data={data} onApprove={onApprove} onReject={onReject} />)}
 
-                {data?.status == 0 &&
-                  <>
-                    <IconButton className={classes.themeButton} onClick={() => onApprove(data)}>
-                      <CheckIcon />
-                    </IconButton>
-                    <IconButton className={classes.rejectButtonStyle} onClick={() => onReject(data)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </>
-                }            
-              </ListItem>
-              {data?.reply?.length >=1 && (
-                <Accordion className={classes.accordionStyles}>
-                  <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">{<Typography variant='subtitle2'><strong>Replies {data?.reply?.length}</strong></Typography>}</AccordionSummary>
-                  <AccordionDetails>
-                    <div>
-                      {data?.reply?.map((getreplayData: any, index: any)=>(
-                        <>
-                          {getreplayData?.comment_id === data?._id && (
-                            <>
-                              <ListItem key={index}>
-                                <ListItemAvatar>
-                                  <Avatar src={getreplayData?.reply_by_image?.url} />
-                                </ListItemAvatar>
-                              <ListItemText
-                                primary={<Typography variant='subtitle2'>{`${getreplayData?.reply_by_name} . ${moment(getreplayData?.created_at).format('MMM DD, YYYY')}`}</Typography>}
-                                secondary={<Typography variant='subtitle2'>{getreplayData?.reply}</Typography>}
-                              />
-                              </ListItem>
-                            </>
-                          )}
-                        </>
-                      ))}
-                    </div>
-                  </AccordionDetails>
-                </Accordion>
-              )}
-                {data?.status === 1 &&
-                    <ReplyComments commentsData = {data} onRefresh={listBlogComments}/>
-                }
-              </>
-            ))}
           {loading && <ListItem><ListItemText classes={{ primary: classes.noCommentsText }} primary={<CircularProgress className={classes.greenColor} />} /></ListItem>}
           {!loading && dataList.length == 0 && (
             <ListItem><ListItemText classes={{ primary: classes.noCommentsText }} primary='No Comments' /> </ListItem>
@@ -957,49 +925,136 @@ export const ViewModel = (props: any) => {
         </Button>
       </DialogActions>
 
-    </Dialog>
+    </Dialog >
   )
 }
 
-export const ReplyComments = (props: any) =>{
-  const { commentsData, onRefresh } = props;
-  const { blog_id, _id : id} = commentsData;
+const CommentItem = (props: any) => {
+  const classes = useStyle()
+  const { data, onApprove, onReject } = props
+  const [commentData, setCommentData] = useState(data)
+  const [expand, setExpand] = useState(false)
+
+  const pushReplyData = (replyData: any) => {
+    let reply = commentData.reply
+    reply.push(replyData)
+    setCommentData((prevState: any) => ({ ...prevState, reply }))
+  }
+  useEffect(() => {
+    setCommentData(props.data)
+  }, [props.data])
+  return (
+    <>
+      <ListItem>
+        <ListItemAvatar>
+          <Avatar src={commentData?.comment_by_image} />
+        </ListItemAvatar>
+
+        <ListItemText
+          primary={<Typography variant='subtitle2'>{`${commentData?.comment_by_name} . ${moment(commentData?.created_at).format('MMM DD, YYYY')}`}</Typography>}
+          secondary={
+            <>
+              <Typography variant='subtitle2'>{commentData?.comment}</Typography>
+              <Grid container direction="row" justify="flex-start" alignItems="center" >
+
+                {commentData?.status == 1 && <IconButton
+                  color="inherit"
+                  aria-label="like"
+                  className={classes.replyButtons}
+                  onClick={() => setExpand((prevState: Boolean) => !prevState)}
+                >
+                  {commentData?.reply_count ? `${commentData?.reply_count} Replies` : 'Reply'}
+                </IconButton>
+                }
+              </Grid>
+            </>
+          }
+        />
+
+        {commentData?.status == 0 &&
+          <>
+            <IconButton className={classes.themeButton} onClick={() => onApprove(commentData)}>
+              <CheckIcon />
+            </IconButton>
+            <IconButton className={classes.rejectButtonStyle} onClick={() => onReject(commentData)}>
+              <DeleteIcon />
+            </IconButton>
+          </>
+        }
+      </ListItem>
+
+      <Accordion elevation={0} classes={{ root: classes.accordionRoot, expanded: classes.accordionExpanded }} expanded={expand}>
+        <AccordionSummary className={classes.accordionSummaryRoot} />
+        <AccordionDetails className={classes.accordionDetailsRoot} >
+          {commentData?.reply?.map((replayData: any, index: any) => <ReplyItem key={index} data={replayData} />)}
+          <ReplyComments commentsData={commentData} onSuccess={pushReplyData} />
+        </AccordionDetails>
+      </Accordion>
+    </>
+  )
+}
+
+const ReplyItem = (props: any) => {
+  const { data } = props
+  const [replayData, setReplyData] = useState(data)
+  useEffect(() => {
+    setReplyData(props.data)
+  }, [props.data])
+  return (
+    <ListItem >
+      <ListItemAvatar>
+        <Avatar src={replayData?.reply_by_image?.url} />
+      </ListItemAvatar>
+      <ListItemText
+        primary={<Typography variant='subtitle2'>{`${replayData?.reply_by_name} . ${moment(replayData?.created_at).format('MMM DD, YYYY')}`}</Typography>}
+        secondary={<Typography variant='subtitle2'>{replayData?.reply}</Typography>}
+      />
+    </ListItem>
+  )
+}
+
+const ReplyComments = (props: any) => {
+  const { commentsData, onSuccess } = props;
+  const { blog_id, _id: id } = commentsData;
   const { Post } = useService();
   const Snackbar = useSnackbar();
-  const ConfModel = useConfModel();
-  const [replyComments, setReplyComments]  = React.useState('');
+  const [reply, setReply] = React.useState('');
 
 
-  const handleReplyChange = (event: React.ChangeEvent<HTMLInputElement>) =>{
-    setReplyComments(event.target.value);
+  const handleReplyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setReply(event.target.value);
   }
 
-  const sendReplyMessage = () =>{
+  const sendReplyMessage = () => {
+    if (reply.trim() == '') {
+      Snackbar.show('Replay is Required', 'error');
+      return
+    }
+
     const sentReplyData = {
       blog_id,
-      comment_id : id,
-      reply : replyComments
+      comment_id: id,
+      reply: reply
     }
-    Post('app/addCommentReply',sentReplyData)
-    .then((res: any)=>{
-      onRefresh()
-    })
-    .catch((err: any)=>{
-      console.log(err)
-    })
+    Post('app/addCommentReply', sentReplyData)
+      .then((res: any) => {
+        Snackbar.show(res.message, 'success');
+        setReply('')
+        onSuccess(res.data)
+      })
+      .catch((err: any) => {
+        Snackbar.show(err.message, 'error');
+        console.log(err)
+      })
   }
 
-  return(
-    <>
-      <List style={{width : '100%'}} >
-        <ListItem>
-        <TextField multiline fullWidth placeholder='Reply...' size='small' variant='outlined' value={replyComments} onChange={handleReplyChange}  />
-        <IconButton color='primary' onClick={sendReplyMessage}>
-          <SendIcon />
-        </IconButton>
-        </ListItem>
-      </List> 
-    </>
+  return (
+    <ListItem>
+      <TextField multiline fullWidth placeholder='Reply...' size='small' variant='outlined' value={reply} onChange={handleReplyChange} />
+      <IconButton color='primary' onClick={sendReplyMessage}>
+        <SendIcon />
+      </IconButton>
+    </ListItem>
   )
 }
 

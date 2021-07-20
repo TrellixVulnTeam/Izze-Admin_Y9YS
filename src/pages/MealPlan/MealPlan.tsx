@@ -877,7 +877,7 @@ const MealTab = ({ meals, recipeList, index }: any) => {
   return (
     <TabContext value={tabValue || ''}>
       <FieldArray name='meal_days' validateOnChange>
-        {({ }) => (
+        {({push,remove}) => (
           <Grid item container xs={12} spacing={2}>
             <Grid item xs={4}>
               <TabList
@@ -912,7 +912,6 @@ const MealTab = ({ meals, recipeList, index }: any) => {
                               onBlur={handleBlur}
                             />
                           }
-
                           {!mealData.isEdit &&
                             <Button
                               fullWidth
@@ -926,7 +925,6 @@ const MealTab = ({ meals, recipeList, index }: any) => {
                               {!Boolean(FieldTouched?.meal_time && FieldErrors?.meal_time) ? mealData?.meal_time : FieldErrors?.meal_time}
                             </Button>}
                         </Grid>
-
                         {mealData.isEdit &&
                           <Grid item xs={2}>
                             <Button
@@ -943,7 +941,6 @@ const MealTab = ({ meals, recipeList, index }: any) => {
                             </Button>
                           </Grid>
                         }
-
                         {!mealData.isEdit && <Grid item xs={2} >
                           <Button
                             fullWidth
@@ -958,7 +955,6 @@ const MealTab = ({ meals, recipeList, index }: any) => {
                           </Button>
                         </Grid>
                         }
-
                         {!mealData.isEdit && <Grid item xs={2} >
                           <Button
                             fullWidth
@@ -973,7 +969,6 @@ const MealTab = ({ meals, recipeList, index }: any) => {
                           </Button>
                         </Grid>
                         }
-
                         {!mealData.isEdit &&
                           <Grid item xs={2}>
                             <Button
@@ -994,7 +989,6 @@ const MealTab = ({ meals, recipeList, index }: any) => {
                   )
                 }
                 )}
-
                 <div className={classes.divTab}>
                   <Grid container xs={12} spacing={1} style={{ margin: 'inherit' }}>
                     <Grid item xs={12}>
@@ -1020,7 +1014,6 @@ const MealTab = ({ meals, recipeList, index }: any) => {
                 </div>
               </TabList>
             </Grid>
-
             <Grid item xs={8}>
               {meals.map((mealData: any, i: number) => {
                 let FieldNameSub: any = `${FieldName}.meals[${i}]`
@@ -1028,7 +1021,6 @@ const MealTab = ({ meals, recipeList, index }: any) => {
                 let FieldErrors: any = getIn(errors, FieldNameSub)
                 return (
                   <TabPanel key={i} className={classes.tabPanelRoot} value={i.toString()}>
-
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
                         <Typography variant='h5' align='center'>
@@ -1066,9 +1058,7 @@ const MealTab = ({ meals, recipeList, index }: any) => {
                 )
               }
               )}
-
             </Grid>
-
           </Grid>
         )}
       </FieldArray>

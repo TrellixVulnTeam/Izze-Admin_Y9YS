@@ -43,7 +43,7 @@ import useSnackbar from '../../hook/useSnackbar';
 import useService from '../../hook/useService';
 import useConfModel from '../../hook/useConfModel';
 import { SkinCareRecipeViewContent } from '../SkinCareRecipe/SkinCareRecipe';
-import getDropValues, { SkinTypeDrop, CurrentClimateDrop, SkinIrregularDrop,SkinTextureDrop, getSubSkinIrregular } from '../../utils/PlanDropdowns';
+import getDropValues, { SkinTypeDrop, CurrentClimateDrop, SkinIrregularDrop,SkinTextureDrop, getSubSkinIrregular, NoOption } from '../../utils/PlanDropdowns';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -635,7 +635,7 @@ const AddEditDialog = (props: any) => {
                   <Grid item xs={6}>
                     <Autocomplete
                       options={getSubSkinIrregular(values.skin_irregular)}
-                      value={getSubSkinIrregular(values.skin_irregular).find((data: any) => data.id == values.skin_irregular_sub)}
+                      value={getSubSkinIrregular(values.skin_irregular).find((data: any) => data.id == values.skin_irregular_sub) || NoOption}
                       getOptionLabel={(option: any) => option.name}
                       getOptionSelected={(option) => option.id == values.skin_irregular_sub}
                       onChange={(event: any, newValue: any) => {

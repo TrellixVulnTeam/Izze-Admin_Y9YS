@@ -6,7 +6,7 @@ import FormatItalicIcon from '@material-ui/icons/FormatItalic';
 import StrikethroughSIcon from '@material-ui/icons/StrikethroughS';
 import CodeIcon from '@material-ui/icons/Code';//code
 import BorderColorIcon from '@material-ui/icons/BorderColor';//highlite
-
+import LinkIcon from '@material-ui/icons/Link';//link
 import FormatTextdirectionLToRIcon from '@material-ui/icons/FormatTextdirectionLToR';//pragraph
 import FormatListBulletedIcon from '@material-ui/icons/FormatListBulleted';//bullet list
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';// ordered list
