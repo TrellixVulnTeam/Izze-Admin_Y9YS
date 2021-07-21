@@ -844,10 +844,10 @@ const MealTab = ({ meals, recipeList, index }: any) => {
     setTabValue(newValue);
   };
 
-  const addNewTab = (values: any, setFieldValue: any) => {
-    const { meals } = getIn(values, FieldName)
-    meals.push(MealTime)
-    setFieldValue(`${FieldName}.meals`, meals)
+  const addNewTab = (values: any, setFieldValue: any, push: any) => {
+    // const { meals } = getIn(values, FieldName)
+    push(MealTime)
+    // setFieldValue(`${FieldName}.meals`, meals)
   }
 
   const submitMealTime = (i: number, values: any, setFieldValue: any) => {
@@ -876,8 +876,8 @@ const MealTab = ({ meals, recipeList, index }: any) => {
 
   return (
     <TabContext value={tabValue || ''}>
-      <FieldArray name='meal_days' validateOnChange>
-        {({push,remove}) => (
+      <FieldArray name={`${FieldName}.meals`} validateOnChange>
+        {({push, remove})=>(
           <Grid item container xs={12} spacing={2}>
             <Grid item xs={4}>
               <TabList
@@ -978,12 +978,15 @@ const MealTab = ({ meals, recipeList, index }: any) => {
                               }}
                               variant='contained'
                               color='secondary'
-                              onClick={() => deleteMealTime(i, values, setFieldValue)}
+                              onClick={() => remove(i)}
                             >
                               <DeleteIcon />
                             </Button>
                           </Grid>
                         }
+                        <FormHelperText>
+                          <Typography variant='caption' color='error'>{getIn(touched, `${FieldName}.meals[${i}].recipe`) && getArrayError(getIn(errors, `${FieldName}.meals[${i}].recipe`))}</Typography>
+                        </FormHelperText>
                       </Grid>
                     </div>
                   )
@@ -1000,9 +1003,10 @@ const MealTab = ({ meals, recipeList, index }: any) => {
                           className={classes.themeButton}
                           variant='contained'
                           color='secondary'
-                          onClick={() => addNewTab(values, setFieldValue)}
+                          onClick={() => addNewTab(values, setFieldValue, push)}
+                          endIcon={<AddIcon />}
                         >
-                          Add Meal Time <AddIcon />
+                          Add Meal Time
                         </Button>
 
                         <FormHelperText>
@@ -1052,17 +1056,16 @@ const MealTab = ({ meals, recipeList, index }: any) => {
                           )}
                         />
                       </Grid>
-                    </Grid>
-
-                  </TabPanel>
-                )
-              }
-              )}
-            </Grid>
+                  </Grid>
+                </TabPanel>
+              )
+            }
+            )}
           </Grid>
+        </Grid>
         )}
       </FieldArray>
-
+          
     </TabContext >
   )
 }

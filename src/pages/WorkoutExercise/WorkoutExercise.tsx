@@ -957,9 +957,11 @@ const AddEditDailog = (props: any) => {
 const WorkoutTerms = (props: any) => {
   const classes = useStyles();
   const FormikContext = useFormikContext();
-  const [{ values, errors, touched, setFieldValue, handleBlur, handleChange }, setFormikContext] = useState<any>(FormikContext);
+  const { values, errors, touched, setFieldValue, handleBlur, handleChange }: any = FormikContext;
+  // const [{ values, errors, touched, setFieldValue, handleBlur, handleChange }, setFormikContext]: any = useState(FormikContext);
   const { index } = props;
-  const imgRef = useRef<any>(null)
+  const imgRef = useRef<any>(null);
+  console.log(errors)
   const FieldName = `workout_terms[${index}]`;
   const FieldValue = getIn(values, `workout_terms[${index}]`);
   const FieldError = getIn(errors, `workout_terms[${index}]`);
@@ -986,9 +988,9 @@ const WorkoutTerms = (props: any) => {
     setFieldValue('workout_terms', Terms);
   }
 
-  useEffect(() => {
-    setFormikContext(FormikContext)
-  }, [FormikContext])
+  // useEffect(() => {
+  //   setFormikContext(FormikContext)
+  // }, [props])
 
   return (
     <Grid

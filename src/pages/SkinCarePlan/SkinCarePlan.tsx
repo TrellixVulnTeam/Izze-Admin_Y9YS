@@ -419,7 +419,7 @@ const AddEditDialog = (props: any) => {
     Post('app/listAllSkinCareRecipe', {})
       .then((response: any) => {
         if (!response.error) {
-          setSkinCareRecipeList(response.data);
+          setSkinCareRecipeList(response?.data);
         } else {
           Snackbar.show(response.message, 'error');
         }
@@ -436,6 +436,7 @@ const AddEditDialog = (props: any) => {
   };
 
   const addData = (data: any, { setSubmitting, resetForm }: any) => {
+    console.log(data)
     setSubmitting(true);
     Post('app/addSkinCarePlan', data)
       .then((res: any) => {
@@ -445,9 +446,8 @@ const AddEditDialog = (props: any) => {
         onSuccess();
       })
       .catch((err: any) => {
-        const { message = "Internal Server Error" } = err.response.data
         setSubmitting(false);
-        Snackbar.show(message, 'error');
+        Snackbar.show(err.message, 'error');
       });
   };
 
@@ -461,7 +461,7 @@ const AddEditDialog = (props: any) => {
         onSuccess();
       })
       .catch((err: any) => {
-        const { message = "Internal Server Error" } = err.response.data
+        const { message = "Internal Server Error" } = err.response?.data
         setSubmitting(false);
         Snackbar.show(message, 'error');
       });

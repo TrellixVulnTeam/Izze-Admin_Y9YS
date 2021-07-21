@@ -178,7 +178,8 @@ const useStyle = makeStyles((theme: any) => ({
   replyButtons: {
     padding: 0,
     fontSize: "0.7rem",
-    borderRadius: 'unset'
+    borderRadius: 'unset',
+    color: '#41a58d'
   },
 }));
 

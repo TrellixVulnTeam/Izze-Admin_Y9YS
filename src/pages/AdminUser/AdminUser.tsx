@@ -309,6 +309,7 @@ const AdminUser = () => {
                   <TableCell align='center'>Name</TableCell>
                   <TableCell align='center'>Email</TableCell>
                   <TableCell align='center'>User Type</TableCell>
+                  <TableCell align='center'>Status</TableCell>
                   <TableCell align='center'>Action</TableCell>
                 </TableRow>
               </TableHead>
@@ -329,6 +330,7 @@ const AdminUser = () => {
                       <TableCell align='center'>{data?.name}</TableCell>
                       <TableCell align='center'>{data?.email}</TableCell>
                       <TableCell align='center'>{data?.user_type}</TableCell>
+                      <TableCell align='center'>{data.is_disabled ? <Typography color = 'error'>Disabled</Typography> : <Typography style={{color: '#41a58d'}}>Active</Typography>}</TableCell>
                       <TableCell align='center'>
                         <div className={classes.sEvenly}>
                           <Tooltip title='View' arrow>

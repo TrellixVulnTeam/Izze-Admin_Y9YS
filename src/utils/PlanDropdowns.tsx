@@ -92,6 +92,12 @@ export const SkinTextureDrop = [
   { id: 'NONE', name: 'None' },
 ];
 
+export const CcpaStatus = [
+  { id: '0', name: 'Pending', },
+  { id: '1', name: 'Success' },
+  { id: '2', name: 'Closed' },
+];
+
 export const NoOption = { id: '', name: '' }
 
 export const getSubSkinIrregular = (SkinIrregularValue: any) => {

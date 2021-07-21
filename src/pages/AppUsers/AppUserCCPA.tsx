@@ -1,16 +1,26 @@
 import {
-  Card, Table, TableBody, TableCell,
-  TableHead,
-  TableRow,
-  Typography
+  Card, Table, TableBody, TableCell, TextField,
+  TableHead, TableRow, Typography, Button,
+  Dialog, DialogActions, DialogContent, Grid
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
+import DialogTitle from '../../components/DialogTitlle/DialogTitle';
 import React, { useEffect, useState } from 'react';
+import { CcpaStatus } from '../../utils/PlanDropdowns';
+import { Autocomplete } from '@material-ui/lab';
 
 const useStyles = makeStyles((theme: any) => ({
   marginTop10: {
     marginTop: 10
-  }
+  },
+  themeButton: {
+    color: theme.palette.white,
+
+    backgroundColor: theme.palette.green.main,
+    '&:hover': {
+      backgroundColor: theme.palette.green.dark,
+    },
+  },
 }));
 
 const AppUserCCPA = (props: any) => {
@@ -21,6 +31,8 @@ const AppUserCCPA = (props: any) => {
   useEffect(() => {
     setFormData(data)
   }, [props]);
+
+  console.log(formData)
 
   return (
     <div>
@@ -53,14 +65,22 @@ const AppUserCCPA = (props: any) => {
                 <TableRow >
                   <TableCell>Name</TableCell>
                   <TableCell>{formData?.ccpa_access_data?.firstName + ' ' + formData?.ccpa_access_data?.lastName}</TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
                 <TableRow >
                   <TableCell>Email</TableCell>
                   <TableCell>{formData?.ccpa_access_data?.email}</TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
                 <TableRow >
                   <TableCell>State</TableCell>
                   <TableCell>{formData?.ccpa_access_data?.state}</TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+                <TableRow >
+                  <TableCell>Status</TableCell>
+                  <TableCell>Pending</TableCell>
+                  <TableCell><Button className={classes.themeButton}>Change Status</Button> </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -77,10 +97,17 @@ const AppUserCCPA = (props: any) => {
                 <TableRow >
                   <TableCell>Email</TableCell>
                   <TableCell>{formData?.ccpa_share_data?.email}</TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
                 <TableRow >
                   <TableCell>State</TableCell>
                   <TableCell>{formData?.ccpa_share_data?.state}</TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+                <TableRow >
+                  <TableCell>Status</TableCell>
+                  <TableCell>Pending</TableCell>
+                  <TableCell><Button className={classes.themeButton}>Change Status</Button> </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -97,14 +124,22 @@ const AppUserCCPA = (props: any) => {
                 <TableRow >
                   <TableCell>Name</TableCell>
                   <TableCell>{formData?.ccpa_delete_data?.firstName + ' ' + formData?.ccpa_delete_data?.lastName}</TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
                 <TableRow >
                   <TableCell>Email</TableCell>
                   <TableCell>{formData?.ccpa_delete_data?.email}</TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
                 <TableRow >
                   <TableCell>State</TableCell>
                   <TableCell>{formData?.ccpa_delete_data?.state}</TableCell>
+                  <TableCell></TableCell>
+                </TableRow>
+                <TableRow >
+                  <TableCell>Status</TableCell>
+                  <TableCell>Pending</TableCell>
+                  <TableCell><ChangeStatusModel /></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -115,5 +150,64 @@ const AppUserCCPA = (props: any) => {
   );
 };
 
+
+export const ChangeStatusModel = () =>{
+  const classes = useStyles();
+  const [modelOpen, setModelOpen] = React.useState(false);
+
+  const handlestatusModel = () =>{
+    setModelOpen(!modelOpen);
+  }
+  return (
+    <>
+      <Button onClick={handlestatusModel} className={classes.themeButton}>Change Status</Button> 
+      <Dialog
+         disableBackdropClick
+         disableEscapeKeyDown
+         fullWidth
+         maxWidth='sm'
+         aria-labelledby='dialog-title'
+         open={modelOpen}
+      >
+          <DialogTitle id='dialog-title' onClose={handlestatusModel}>
+            {'Change Status'}
+          </DialogTitle>
+
+          <DialogContent>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Autocomplete
+                  options={CcpaStatus}
+                  getOptionLabel={(option: any) => option.name}
+                  // onChange={(event: any, newValue: any) => {
+                  //   setFieldValue('fitnessGoal', newValue?.id || '');
+                  // }}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      label='Change Status'
+                      variant='outlined'
+                      inputProps={{
+                        ...params.inputProps,
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+            </Grid>
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={handlestatusModel} variant='outlined' color='secondary'>
+              Cancel
+            </Button>
+
+            <Button className={classes.themeButton} variant='outlined'>Change</Button>
+          </DialogActions>
+
+      </Dialog>
+    </>
+  )
+}
 
 export default AppUserCCPA;

@@ -379,6 +379,7 @@ const NutritionPlan = () => {
   };
 
   const onPageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    console.log()
     setStateData((prevState: any) => ({ ...prevState, page_no: value }));
   };
 
@@ -401,7 +402,7 @@ const NutritionPlan = () => {
 
   React.useEffect(() => {
     listNutritionPlan();
-  }, []);
+  }, [stateData]);
 
   return (
     <div className={classes.root}>
@@ -821,7 +822,6 @@ export const AddEditModel = (props: any) => {
                                         onBlur={handleBlur}
                                       />
                                       }
-                                      {console.log(FieldTouched?.meals, FieldTouched?.meal_time)}
                                       {!nutData.isEdit &&
                                         <>
                                           <Button

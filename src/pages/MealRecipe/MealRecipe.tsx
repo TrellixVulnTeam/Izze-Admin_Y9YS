@@ -979,8 +979,8 @@ export const AddEditModel = (props: any) => {
 }
 
 const TermsComponent = (props: any) => {
-  const FormikContext = useFormikContext()
-  const [{ values, errors, touched, setFieldValue, handleBlur, handleChange }, setFormikContext] = useState(FormikContext)
+  const FormikContext = useFormikContext();
+  const { values, errors, touched, setFieldValue, handleBlur, handleChange }: any = FormikContext;
   const { index } = props;
   const classes = useStyles()
   const imgRef = useRef<any>(null)
@@ -1003,16 +1003,6 @@ const TermsComponent = (props: any) => {
       setFieldValue(`${FieldName}.image`, { file: null, prevImage: '', isNew: null });
     }
   }
-
-  // const removeTerm = () => {
-  //   const OldTerms = getIn(values, 'terms');
-  //   const Terms = OldTerms.filter((d: any, i: number) => i != index);
-  //   setFieldValue('terms', Terms);
-  // }
-
-  useEffect(() => {
-    setFormikContext(FormikContext)
-  }, [FormikContext])
 
   return (
     <Grid
