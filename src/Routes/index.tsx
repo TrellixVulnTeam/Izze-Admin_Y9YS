@@ -208,15 +208,6 @@ const AppRoutes = () => {
     },
   }
 
-  const AdminProfileMenu = {
-    route: [{ path: RouteMap.HomeLayout.AdminProfileViewPage, element: <AdminProfile /> }],
-    menu: {
-      title: 'Admin Users',
-      href: AdminUserRoute,
-      icon: PeopleIcon,
-    },
-  }
-
   const DashboardMenu = {
     title: 'Dashboard',
     href: DashboardRoute,

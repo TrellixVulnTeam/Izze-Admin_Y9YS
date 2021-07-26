@@ -598,7 +598,7 @@ const ViewDailog = (props: any) => {
         console.log('getAppUserById', res);
         setLoading(false);
         if (!res.error) {
-          setFormData((prevState:any) => ({ ...prevState, ...res.data }));
+          setFormData(res.data);
         } else {
           Snackbar.show(res.message, 'error');
         }
@@ -617,7 +617,7 @@ const ViewDailog = (props: any) => {
   const tabs = [
     { value: 'details', label: 'Details', component: <AppUserDetails data={formData} /> },
     { value: 'feedback', label: 'Feedback', component: <AppUserFeedback data={formData} /> },
-    { value: 'ccpa', label: 'CCPA & GDPR', component: <AppUserCCPA data={formData} /> },
+    { value: 'ccpa', label: 'CCPA & GDPR', component: <AppUserCCPA data={formData} onRefresh={() => getAppUserById()}/> },
     { value: 'nutrition', label: 'Nutrition', component: <AppNutrition data={formData} onRefresh={() => getAppUserById()} /> },
     { value: 'skincare', label: 'Skincare', component: <AppSkinCare data={formData} onRefresh={() => getAppUserById()} /> },
     { value: 'workout', label: 'Workout', component: <AppWorkout data={formData} onRefresh={() => getAppUserById()} /> },

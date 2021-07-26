@@ -43,7 +43,7 @@ import useSnackbar from '../../hook/useSnackbar';
 import useService from '../../hook/useService';
 import useConfModel from '../../hook/useConfModel';
 import { SkinCareRecipeViewContent } from '../SkinCareRecipe/SkinCareRecipe';
-import getDropValues, { SkinTypeDrop, CurrentClimateDrop, SkinIrregularDrop,SkinTextureDrop, getSubSkinIrregular, NoOption } from '../../utils/PlanDropdowns';
+import getDropValues, { SkinTypeDrop, CurrentClimateDrop, SkinIrregularDrop, SkinTextureDrop, getSubSkinIrregular, NoOption } from '../../utils/PlanDropdowns';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -461,9 +461,8 @@ const AddEditDialog = (props: any) => {
         onSuccess();
       })
       .catch((err: any) => {
-        const { message = "Internal Server Error" } = err.response?.data
         setSubmitting(false);
-        Snackbar.show(message, 'error');
+        Snackbar.show(err.message, 'error');
       });
   };
 

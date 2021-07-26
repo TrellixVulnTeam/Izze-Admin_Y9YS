@@ -180,13 +180,14 @@ export const EditProfile = (props: any) => {
         });
       };
       reader.readAsDataURL(file);
-    } else {
-      formikRef.current.setFieldValue('image', {
-        file: null,
-        prevImage: '',
-        isNew: null
-      });
-    }
+    } 
+    // else {
+    //   formikRef.current.setFieldValue('image', {
+    //     file: null,
+    //     prevImage: '',
+    //     isNew: null
+    //   });
+    // }
   };
 
   const onSubmit = async (value: any, helper: any) => {

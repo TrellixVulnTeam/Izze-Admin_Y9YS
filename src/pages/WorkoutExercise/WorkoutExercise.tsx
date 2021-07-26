@@ -506,13 +506,14 @@ const AddEditDailog = (props: any) => {
         });
       };
       reader.readAsDataURL(file);
-    } else {
-      formikRef.current.setFieldValue('workout_image', {
-        file: null,
-        prevImage: '',
-        isNew: null,
-      });
-    }
+    } 
+    // else {
+    //   formikRef.current.setFieldValue('workout_image', {
+    //     file: null,
+    //     prevImage: '',
+    //     isNew: null,
+    //   });
+    // }
   };
 
   const onThumbnailImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -529,13 +530,14 @@ const AddEditDailog = (props: any) => {
         });
       };
       reader.readAsDataURL(file);
-    } else {
-      formikRef.current.setFieldValue('workout_thumbnail', {
-        file: null,
-        prevImage: '',
-        isNew: null,
-      });
-    }
+    } 
+    // else {
+    //   formikRef.current.setFieldValue('workout_thumbnail', {
+    //     file: null,
+    //     prevImage: '',
+    //     isNew: null,
+    //   });
+    // }
   };
 
   const onSubmit = (value: any, helper: any) => {
@@ -843,7 +845,7 @@ const AddEditDailog = (props: any) => {
                   </FormControl>
                 </Grid>
 
-                <Grid item md={6} xs={6}>
+                <Grid item md={12} xs={12}>
                   <input
                     name='recipe_image'
                     ref={imageRef}
@@ -876,7 +878,7 @@ const AddEditDailog = (props: any) => {
                   </FormControl>
                 </Grid>
 
-                <Grid item md={6} xs={6}>
+                {/* <Grid item md={6} xs={6}>
                   <input
                     name='recipe_image'
                     ref={thumbnailImageRef}
@@ -907,9 +909,9 @@ const AddEditDailog = (props: any) => {
                         errors?.workout_thumbnail?.file}
                     </FormHelperText>
                   </FormControl>
-                </Grid>
+                </Grid> */}
 
-                <Grid item md={6} xs={6}>
+                <Grid item md={12} xs={12}>
                   {values.workout_image?.prevImage && (
                     <img
                       className={classes.imageView}
@@ -918,14 +920,14 @@ const AddEditDailog = (props: any) => {
                   )}
                 </Grid>
 
-                <Grid item md={6} xs={6}>
+                {/* <Grid item md={6} xs={6}>
                   {values.workout_thumbnail?.prevImage && (
                     <img
                       className={classes.imageView}
                       src={values.workout_thumbnail?.prevImage}
                     />
                   )}
-                </Grid>
+                </Grid> */}
               </Grid>
             </DialogContent>
 
@@ -961,7 +963,6 @@ const WorkoutTerms = (props: any) => {
   // const [{ values, errors, touched, setFieldValue, handleBlur, handleChange }, setFormikContext]: any = useState(FormikContext);
   const { index } = props;
   const imgRef = useRef<any>(null);
-  console.log(errors)
   const FieldName = `workout_terms[${index}]`;
   const FieldValue = getIn(values, `workout_terms[${index}]`);
   const FieldError = getIn(errors, `workout_terms[${index}]`);

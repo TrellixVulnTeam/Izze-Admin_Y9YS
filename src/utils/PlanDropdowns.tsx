@@ -94,7 +94,7 @@ export const SkinTextureDrop = [
 
 export const CcpaStatus = [
   { id: '0', name: 'Pending', },
-  { id: '1', name: 'Success' },
+  { id: '1', name: 'Processing' },
   { id: '2', name: 'Closed' },
 ];
 

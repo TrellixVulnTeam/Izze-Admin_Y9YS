@@ -340,8 +340,8 @@ const AddEditDailog = (props: any) => {
 
   const onImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.persist();
-    const files = e.target.files;
-    if (files && files.length != 0) {
+    const files: any = e.target.files;
+    if (files && files.length !== 0) {
       const reader = new FileReader();
       const file = files[0];
       reader.onloadend = () => {
@@ -352,13 +352,14 @@ const AddEditDailog = (props: any) => {
         });
       };
       reader.readAsDataURL(file);
-    } else {
-      formikRef.current.setFieldValue('image', {
-        file: null,
-        prevImage: '',
-        isNew: null,
-      });
-    }
+    } 
+    // else {
+    //   formikRef.current.setFieldValue('image', {
+    //     file: null,
+    //     prevImage: '',
+    //     isNew: null,
+    //   });
+    // }
   };
 
   const onSubmit = (value: any, helper: any) => {

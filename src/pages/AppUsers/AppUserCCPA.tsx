@@ -1,38 +1,45 @@
 import {
   Card, Table, TableBody, TableCell, TextField,
   TableHead, TableRow, Typography, Button,
-  Dialog, DialogActions, DialogContent, Grid
+  Dialog, DialogActions, DialogContent, Grid, CircularProgress
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import DialogTitle from '../../components/DialogTitlle/DialogTitle';
 import React, { useEffect, useState } from 'react';
-import { CcpaStatus } from '../../utils/PlanDropdowns';
+import getDropValues, { CcpaStatus, NoOption } from '../../utils/PlanDropdowns';
 import { Autocomplete } from '@material-ui/lab';
+import clsx from 'clsx';
+import useService from '../../hook/useService';
+import useSnackbar from '../../hook/useSnackbar';
+import { cloneDeep } from 'lodash';
 
 const useStyles = makeStyles((theme: any) => ({
   marginTop10: {
     marginTop: 10
   },
+  lColor: {
+    color: 'white',
+  },
   themeButton: {
     color: theme.palette.white,
-
     backgroundColor: theme.palette.green.main,
     '&:hover': {
       backgroundColor: theme.palette.green.dark,
     },
   },
+  noTextTransform: {
+    textTransform: 'none'
+  }
 }));
 
 const AppUserCCPA = (props: any) => {
   const classes = useStyles();
 
-  const { data } = props;
+  const { data, onRefresh } = props;
   const [formData, setFormData] = useState<any>({});
   useEffect(() => {
     setFormData(data)
   }, [props]);
-
-  console.log(formData)
 
   return (
     <div>
@@ -79,8 +86,8 @@ const AppUserCCPA = (props: any) => {
                 </TableRow>
                 <TableRow >
                   <TableCell>Status</TableCell>
-                  <TableCell>Pending</TableCell>
-                  <TableCell><Button className={classes.themeButton}>Change Status</Button> </TableCell>
+                  <TableCell>{getDropValues(CcpaStatus, formData?.ccpa_access_data?.status)}</TableCell>
+                  <TableCell><ChangeStatusModel data={formData?.ccpa_access_data} apiUrl={'app/ccpaUpdateAccessData'} onSuccess={onRefresh} /></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -106,8 +113,8 @@ const AppUserCCPA = (props: any) => {
                 </TableRow>
                 <TableRow >
                   <TableCell>Status</TableCell>
-                  <TableCell>Pending</TableCell>
-                  <TableCell><Button className={classes.themeButton}>Change Status</Button> </TableCell>
+                  <TableCell>{getDropValues(CcpaStatus, formData?.ccpa_share_data?.status)}</TableCell>
+                  <TableCell><ChangeStatusModel data={formData?.ccpa_share_data} apiUrl={'app/ccpaUpdateShareData'} onSuccess={onRefresh} /></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -138,8 +145,8 @@ const AppUserCCPA = (props: any) => {
                 </TableRow>
                 <TableRow >
                   <TableCell>Status</TableCell>
-                  <TableCell>Pending</TableCell>
-                  <TableCell><ChangeStatusModel /></TableCell>
+                  <TableCell>{getDropValues(CcpaStatus, formData?.ccpa_delete_data?.status)}</TableCell>
+                  <TableCell><ChangeStatusModel data={formData?.ccpa_delete_data} apiUrl={'app/ccpaUpdateDeleteData'} onSuccess={onRefresh} /></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -151,37 +158,74 @@ const AppUserCCPA = (props: any) => {
 };
 
 
-export const ChangeStatusModel = () =>{
+export const ChangeStatusModel = (props: any) => {
   const classes = useStyles();
-  const [modelOpen, setModelOpen] = React.useState(false);
+  const { onSuccess } = props;
+  const { Post } = useService();
+  const Snackbar = useSnackbar();
+  const [isOpen, setIsOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handlestatusModel = () =>{
-    setModelOpen(!modelOpen);
+  const [formData, setFormData] = useState(props?.data);
+  const [apiUrl, setApiUrl] = useState(props.apiUrl);
+  const [status, setStatus] = useState(props?.data?.status);
+
+  const handleModel = () => {
+    setIsOpen(!isOpen);
+    setSubmitting(false);
   }
+
+  const onSubmit = () => {
+    if (status == '') {
+      Snackbar.show('Status required', 'error');
+      return
+    }
+    setSubmitting(true);
+    Post(apiUrl, { id: formData._id, status })
+      .then((res: any) => {
+        Snackbar.show(res.message, 'success');
+        setSubmitting(false);
+        handleModel();
+        onSuccess()
+      })
+      .catch((err: any) => {
+        setSubmitting(false);
+        Snackbar.show(err.message, 'error');
+      });
+  }
+
+  useEffect(() => {
+    const { data, apiUrl } = cloneDeep(props)
+    const { status } = cloneDeep(data)
+    setFormData(data)
+    setStatus(status)
+    setApiUrl(apiUrl)
+  }, [props, isOpen])
+
   return (
     <>
-      <Button onClick={handlestatusModel} className={classes.themeButton}>Change Status</Button> 
-      <Dialog
-         disableBackdropClick
-         disableEscapeKeyDown
-         fullWidth
-         maxWidth='sm'
-         aria-labelledby='dialog-title'
-         open={modelOpen}
-      >
-          <DialogTitle id='dialog-title' onClose={handlestatusModel}>
-            {'Change Status'}
-          </DialogTitle>
-
+      <Button onClick={handleModel} className={clsx(classes.themeButton, classes.noTextTransform)}>Change Status</Button>
+      {isOpen &&
+        <Dialog
+          disableBackdropClick
+          disableEscapeKeyDown
+          fullWidth
+          maxWidth='sm'
+          aria-labelledby='dialog-title'
+          open={isOpen}
+        >
+          <DialogTitle id='dialog-title' onClose={handleModel}>Change Status</DialogTitle>
           <DialogContent>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Autocomplete
                   options={CcpaStatus}
+                  value={CcpaStatus.find((data: any) => data.id == status) || NoOption}
                   getOptionLabel={(option: any) => option.name}
-                  // onChange={(event: any, newValue: any) => {
-                  //   setFieldValue('fitnessGoal', newValue?.id || '');
-                  // }}
+                  getOptionSelected={(option) => option.id == status}
+                  onChange={(event: any, newValue: any) => {
+                    setStatus(newValue?.id || '');
+                  }}
                   renderInput={(params: any) => (
                     <TextField
                       {...params}
@@ -198,14 +242,14 @@ export const ChangeStatusModel = () =>{
           </DialogContent>
 
           <DialogActions>
-            <Button onClick={handlestatusModel} variant='outlined' color='secondary'>
-              Cancel
+            <Button onClick={handleModel} variant='outlined' color='secondary'>Cancel</Button>
+            <Button className={classes.themeButton} onClick={() => onSubmit()} variant='outlined'>
+              {submitting ? <CircularProgress size={24} className={classes.lColor} /> : 'Change'}
             </Button>
-
-            <Button className={classes.themeButton} variant='outlined'>Change</Button>
           </DialogActions>
 
-      </Dialog>
+        </Dialog>
+      }
     </>
   )
 }

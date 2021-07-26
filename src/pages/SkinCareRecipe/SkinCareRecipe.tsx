@@ -48,6 +48,8 @@ import { imageUpload } from '../../utils/FirebaseUtils';
 import TimerIcon from '@material-ui/icons/Timer';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { uploadNewImage } from '../../utils/CloudinaryUtils';
+import UnitSelect from '../../components/UnitSelect/UnitSelect';
+import UnitDropdown from '../../utils/MetricUnits';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -134,6 +136,9 @@ const useStyles = makeStyles((theme: any) => ({
     marginBottom: theme.spacing(3),
     display: 'flex',
     justifyContent: 'center',
+  },
+  textareaAdornedEnd: {
+    paddingRight: 0
   },
   htmlContent: {
     '& ul': {
@@ -396,6 +401,7 @@ const SkinCareRecipe = () => {
 interface Ingredient {
   id: string;
   quantity: string;
+  // quantity_unit : string;
 }
 
 interface Recpie {
@@ -427,6 +433,7 @@ const AddEditDailog = (props: any) => {
   const ingredient: Ingredient = {
     id: '',
     quantity: '',
+    // quantity_unit : ''
   };
 
   const initialFormValue: Recpie = {
@@ -474,13 +481,14 @@ const AddEditDailog = (props: any) => {
         });
       };
       reader.readAsDataURL(file);
-    } else {
-      formikRef.current.setFieldValue('recipe_image', {
-        file: null,
-        prevImage: '',
-        isNew: null,
-      });
-    }
+    } 
+    // else {
+    //   formikRef.current.setFieldValue('recipe_image', {
+    //     file: null,
+    //     prevImage: '',
+    //     isNew: null,
+    //   });
+    // }
   };
 
   const onSubmit = (value: any, helper: any) => {
@@ -599,7 +607,8 @@ const AddEditDailog = (props: any) => {
           ingredients: Yup.array().of(
             Yup.object().shape({
               id: Yup.string().trim().required('Incredients is Required'),
-              quantity: Yup.string().trim().required('Quantity is Required'),
+              quantity: Yup.number().typeError('Quantity must be in number').required('Quality is required'),
+              // quantity_unit: Yup.string().trim().required('Quantity unit is required'),
             })
           ),
           recipe_image: Yup.object({
@@ -727,6 +736,7 @@ const AddEditDailog = (props: any) => {
                                   inputProps={{
                                     ...params.inputProps,
                                   }}
+                                  
                                 />
                               )}
                             />
@@ -739,20 +749,22 @@ const AddEditDailog = (props: any) => {
                               name={`ingredients[${i}].quantity`}
                               variant='outlined'
                               error={Boolean(
-                                touched?.ingredients &&
-                                touched?.ingredients[i]?.quantity &&
-                                errors?.ingredients &&
-                                (errors?.ingredients[i] as Ingredient)?.quantity
+                                touched?.ingredients && touched?.ingredients[i]?.quantity && errors?.ingredients && (errors?.ingredients[i] as Ingredient)?.quantity 
+                                // touched?.ingredients && touched?.ingredients[i]?.quantity_unit && errors?.ingredients && (errors?.ingredients[i] as Ingredient)?.quantity_unit
                               )}
                               helperText={
-                                touched?.ingredients &&
-                                touched?.ingredients[i]?.quantity &&
-                                errors?.ingredients &&
-                                (errors?.ingredients[i] as Ingredient)?.quantity
+                                touched?.ingredients && touched?.ingredients[i]?.quantity && errors?.ingredients && (errors?.ingredients[i] as Ingredient)?.quantity  
+                                // touched?.ingredients && touched?.ingredients[i]?.quantity_unit && errors?.ingredients && (errors?.ingredients[i] as Ingredient)?.quantity_unit
                               }
                               value={incValue.quantity}
                               onChange={handleChange}
                               onBlur={handleBlur}
+                              // InputProps={{
+                              //   classes: {
+                              //     adornedEnd: classes.textareaAdornedEnd
+                              //   },
+                              //   endAdornment: <UnitSelect id='quantity_unit' option={UnitDropdown} name={`ingredients[${i}].quantity_unit`} value={incValue.quantity_unit} onChange={handleChange} onBlur={handleBlur} />
+                              // }}
                             />
                           </Grid>
                           {values?.ingredients?.length > 1 && (

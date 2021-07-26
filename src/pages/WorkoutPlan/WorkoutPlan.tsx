@@ -444,9 +444,8 @@ const AddEditDialog = (props: any) => {
         onSuccess();
       })
       .catch((err: any) => {
-        const { message = "Internal Server Error" } = err.response.data
         setSubmitting(false);
-        Snackbar.show(message, 'error');
+        Snackbar.show(err.message, 'error');
       });
   };
 

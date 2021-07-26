@@ -543,13 +543,14 @@ export const AddEditModel = MobxObserver((props: any) => {
         });
       };
       reader.readAsDataURL(file);
-    } else {
-      formikRef.current.setFieldValue(FieldName, {
-        file: null,
-        prevImage: '',
-        isNew: null,
-      });
-    }
+    } 
+    // else {
+    //   formikRef.current.setFieldValue(FieldName, {
+    //     file: null,
+    //     prevImage: '',
+    //     isNew: null,
+    //   });
+    // }
   }
 
   useEffect(() => {
@@ -653,7 +654,7 @@ export const AddEditModel = MobxObserver((props: any) => {
                   </FormControl>
                 </Grid>
 
-                <Grid item md={6} xs={12}>
+                <Grid item md={12} xs={12}>
                   <input
                     name='image'
                     ref={imageRef}
@@ -685,7 +686,7 @@ export const AddEditModel = MobxObserver((props: any) => {
                   </FormControl>
                 </Grid>
 
-                <Grid item md={6} xs={12}>
+                {/* <Grid item md={6} xs={12}>
                   <input
                     name='image_thumbnail'
                     ref={imageThumbnailRef}
@@ -712,9 +713,9 @@ export const AddEditModel = MobxObserver((props: any) => {
                       {touched?.image_thumbnail?.file && errors?.image_thumbnail?.file}
                     </FormHelperText>
                   </FormControl>
-                </Grid>
+                </Grid> */}
 
-                <Grid item md={6} xs={12}>
+                <Grid item md={12} xs={12}>
                   {values.image?.prevImage && (
                     <img
                       className={classes.imageView}
@@ -723,14 +724,14 @@ export const AddEditModel = MobxObserver((props: any) => {
                   )}
                 </Grid>
 
-                <Grid item md={6} xs={12}>
+                {/* <Grid item md={6} xs={12}>
                   {values.image_thumbnail?.prevImage && (
                     <img
                       className={classes.imageView}
                       src={values.image_thumbnail?.prevImage}
                     />
                   )}
-                </Grid>
+                </Grid> */}
               </Grid>
             </DialogContent>
             <DialogActions>

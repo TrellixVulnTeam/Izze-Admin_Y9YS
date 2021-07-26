@@ -425,13 +425,14 @@ const AddandEditDialogue = (props: any) => {
         });
       };
       reader.readAsDataURL(file);
-    } else {
-      formikRef.current.setFieldValue('image', {
-        file: null,
-        prevImage: '',
-        isNew: null,
-      });
-    }
+    } 
+    // else {
+    //   formikRef.current.setFieldValue('image', {
+    //     file: null,
+    //     prevImage: '',
+    //     isNew: null,
+    //   });
+    // }
   };
 
   useEffect(() => {

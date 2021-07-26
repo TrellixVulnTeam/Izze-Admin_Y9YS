@@ -446,13 +446,14 @@ export const AddEditModel = (props: any) => {
         });
       };
       reader.readAsDataURL(file);
-    } else {
-      formikRef.current.setFieldValue('image', {
-        workoutTermsName: '',
-        image: { file: null, prevImage: '', isNew: null },
-        description: '',
-      });
-    }
+    } 
+    // else {
+    //   formikRef.current.setFieldValue('image', {
+    //     workoutTermsName: '',
+    //     image: { file: null, prevImage: '', isNew: null },
+    //     description: '',
+    //   });
+    // }
   }
 
   const onSubmit = (value: any, helper: any) => {
@@ -614,7 +615,7 @@ export const AddEditModel = (props: any) => {
           validationSchema={Yup.object().shape({
             name: Yup.string().trim().required('Name is required'),
             nutrition: Yup.string().trim().required('Nutrition is required'),
-            description: Yup.string().trim().max(250, 'Must be 250 characters or less').required('Description is required'),
+            // description: Yup.string().trim().max(250, 'Must be 250 characters or less').required('Description is required'),
             protein: Yup.number().typeError('Protein must be in number').required('Protein is required'),
             fat: Yup.number().typeError('Fat must be in number').required('Fat is required'),
             carbs: Yup.number().typeError('Carbs must be in number').required('Carbs is required'),
@@ -647,10 +648,9 @@ export const AddEditModel = (props: any) => {
         >
           {({ values, errors, touched, handleBlur, handleChange, setFieldValue, submitForm, setFieldTouched, isSubmitting, }) => (
             <>
-            {console.log(values)}
               <DialogContent dividers>
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
+                  <Grid item xs={12} md={12}>
                     <TextField
                       fullWidth
                       label='Name'
@@ -667,7 +667,7 @@ export const AddEditModel = (props: any) => {
                       }
                     />
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  {/* <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
                       multiline
@@ -684,7 +684,7 @@ export const AddEditModel = (props: any) => {
                         touched.description && errors.description
                       }
                     />
-                  </Grid>
+                  </Grid> */}
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
