@@ -409,7 +409,7 @@ const AddEditDialog = (props: any) => {
     skin_irregular: '',
     skin_irregular_sub: '',
     skin_texture: '',
-    recipes: Array(7).fill(null).map((d, i) => ({ day: i + 1, id: '' })),
+    recipes: Array(14).fill(null).map((d, i) => ({ day: i + 1, id: '' })),
   };
   const [initialValue, setInitialValue] = React.useState({
     ...initialFormValues,

@@ -100,7 +100,12 @@ const EditCard = (props: any) => {
       })
       .catch((err: any) => {
         setSubmitting(false);
-        Snackbar.show(err.message, 'error');
+        if(err.message === 'Request failed with status code 500'){
+          Snackbar.show('No combination found', 'error');
+        }
+        else {
+          Snackbar.show(err.message, 'error');
+        }
       });
   };
 

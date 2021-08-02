@@ -422,11 +422,7 @@ interface Exercise {
   workout_name: string;
   workout_image: { file: null | any; prevImage: string; isNew: null | Boolean };
   workout_description: string;
-  workout_thumbnail: {
-    file: null | any;
-    prevImage: string;
-    isNew: null | Boolean;
-  };
+  // workout_thumbnail: { file: null | any; prevImage: string; isNew: null | Boolean};
   workout_type: string;
   workout_terms: Workoutterms[];
   required_equipments: Equipments[];
@@ -465,7 +461,7 @@ const AddEditDailog = (props: any) => {
     workout_name: '',
     workout_image: { file: null, prevImage: '', isNew: null },
     workout_description: '',
-    workout_thumbnail: { file: null, prevImage: '', isNew: null },
+    // workout_thumbnail: { file: null, prevImage: '', isNew: null },
     workout_type: '',
     workout_terms: [workoutTerms],
     required_equipments: [equipments],
@@ -545,15 +541,15 @@ const AddEditDailog = (props: any) => {
       helper.setSubmitting(true);
 
       const render = async () => {
-        const { workout_image, workout_thumbnail, workout_terms, ...rest } = value;
+        const { workout_image, workout_terms, ...rest } = value;
 
         const postData = rest;
         const TermPromiseArray = Promise.all(workout_terms.map(({ image, ...rest }: any) => uploadNewImage(image).then((ImgRes: any) => ({ image: ImgRes, ...rest }))))
 
-        const [ImgRes, ImgTumpRes, TermRes] = await Promise.all([uploadNewImage(workout_image), uploadNewImage(workout_thumbnail), TermPromiseArray])
+        const [ImgRes, TermRes] = await Promise.all([uploadNewImage(workout_image), TermPromiseArray])
 
         postData.workout_image = ImgRes
-        postData.workout_thumbnail = ImgTumpRes
+        // postData.workout_thumbnail = ImgTumpRes
         postData.workout_terms = TermRes
 
         !isEdit && addData(postData, helper);
@@ -613,7 +609,7 @@ const AddEditDailog = (props: any) => {
 
   useEffect(() => {
     if (isEdit) {
-      const { required_equipments, workout_terms, _id, workout_thumbnail, workout_image, ...rest } = data;
+      const { required_equipments, workout_terms, _id, workout_image, ...rest } = data;
       const editData = { ...rest, id: _id };
       editData.required_equipments = required_equipments.map((data: any) => {
         // data.id = data._id;
@@ -631,11 +627,11 @@ const AddEditDailog = (props: any) => {
           description: item.description,
         };
       });
-      editData.workout_thumbnail = {
-        file: workout_thumbnail,
-        prevImage: workout_thumbnail?.url,
-        isNew: false,
-      };
+      // editData.workout_thumbnail = {
+      //   file: workout_thumbnail,
+      //   prevImage: workout_thumbnail?.url,
+      //   isNew: false,
+      // };
       editData.workout_image = {
         file: workout_image,
         prevImage: workout_image?.url,
@@ -680,9 +676,9 @@ const AddEditDailog = (props: any) => {
             .trim()
             .max(250, 'Must be 250 characters or less')
             .required('Workout description is required'),
-          workout_thumbnail: Yup.object({
-            file: Yup.mixed().required('A file is required'),
-          }),
+          // workout_thumbnail: Yup.object({
+          //   file: Yup.mixed().required('A file is required'),
+          // }),
           workout_type: Yup.string()
             .trim()
             .required('Workout type is required'),

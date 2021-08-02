@@ -29,6 +29,12 @@ const useStyles = makeStyles((theme: any) => ({
   },
   noTextTransform: {
     textTransform: 'none'
+  },
+  content : {
+    height : '50vh',
+    display:'flex',
+    justifyContent : 'center',
+    alignItems : 'center'
   }
 }));
 
@@ -37,122 +43,182 @@ const AppUserCCPA = (props: any) => {
 
   const { data, onRefresh } = props;
   const [formData, setFormData] = useState<any>({});
+
+  const getRequestFor = (data: any) => {
+    switch (data?.gdpr_type_value) {
+      case true:
+        return 'Enable';
+        break;
+      case false:
+        return 'Disable';
+        break;
+      default:
+        return 'No Request';
+    }
+  }
+  const getRequestStatus = (data: any) => {
+    const { status } = data
+    switch (status) {
+      case true:
+        return 'Enable';
+        break;
+      case false:
+        return 'Disable';
+        break;
+      default:
+        return { status, is_display: false };
+    }
+  }
   useEffect(() => {
     setFormData(data)
   }, [props]);
 
+  console.log("formData",formData)
+
   return (
     <div>
-      <Typography variant="body1">GDPR</Typography>
-      <Card>
-        <Table>
-          <TableBody>
-            <TableRow >
-              <TableCell>Share your personal data</TableCell>
-              <TableCell>{formData?.isSharePersonalData == '0' ? 'No' : 'Yes'}</TableCell>
-            </TableRow>
-            <TableRow >
-              <TableCell>Protect your data</TableCell>
-              <TableCell>{formData?.isProtectYourData == '0' ? 'No' : 'Yes'}</TableCell>
-            </TableRow>
-            <TableRow >
-              <TableCell>Personal Information</TableCell>
-              <TableCell>{formData?.isPersonalInformation == '0' ? 'No' : 'Yes'}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </Card>
-
-      {formData?.ccpa_access_data &&
-        <div className={classes.marginTop10}>
-          <Typography variant="body1">CCPA Access your data</Typography>
+      {formData?.country === 'Europe' && (
+        <>
+          <Typography variant="body1">GDPR</Typography>
           <Card>
             <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell ></TableCell>
+                  <TableCell >Current Status</TableCell>
+                  <TableCell >Request for</TableCell>
+                  <TableCell >Request Status</TableCell>
+                  <TableCell ></TableCell>
+                </TableRow>
+              </TableHead>
               <TableBody>
                 <TableRow >
-                  <TableCell>Name</TableCell>
-                  <TableCell>{formData?.ccpa_access_data?.firstName + ' ' + formData?.ccpa_access_data?.lastName}</TableCell>
-                  <TableCell></TableCell>
+                  <TableCell>Share your personal data</TableCell>
+                  <TableCell>{formData?.isSharePersonalData ? 'Enabled' : 'Disabled'}</TableCell>
+                  <TableCell>{getRequestFor(formData?.gdpr_share_data)}</TableCell>
+                  <TableCell>{getDropValues(CcpaStatus, formData?.gdpr_share_data?.status)}</TableCell>
+                  <TableCell>{formData?.gdpr_share_data && <ChangeStatusModel data={formData?.gdpr_share_data} apiUrl={'app/gdprUpdateData'} onSuccess={onRefresh} />}</TableCell>
                 </TableRow>
                 <TableRow >
-                  <TableCell>Email</TableCell>
-                  <TableCell>{formData?.ccpa_access_data?.email}</TableCell>
-                  <TableCell></TableCell>
+                  <TableCell>Protect your data</TableCell>
+                  <TableCell>{formData?.isProtectYourData ? 'Enabled' : 'Disabled'}</TableCell>
+                  <TableCell>{getRequestFor(formData?.gdpr_protect_data)}</TableCell>
+                  <TableCell>{getDropValues(CcpaStatus, formData?.gdpr_protect_data?.status)}</TableCell>
+                  <TableCell>{formData?.gdpr_protect_data && <ChangeStatusModel data={formData?.gdpr_protect_data} apiUrl={'app/gdprUpdateData'} onSuccess={onRefresh} />}</TableCell>
                 </TableRow>
                 <TableRow >
-                  <TableCell>State</TableCell>
-                  <TableCell>{formData?.ccpa_access_data?.state}</TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-                <TableRow >
-                  <TableCell>Status</TableCell>
-                  <TableCell>{getDropValues(CcpaStatus, formData?.ccpa_access_data?.status)}</TableCell>
-                  <TableCell><ChangeStatusModel data={formData?.ccpa_access_data} apiUrl={'app/ccpaUpdateAccessData'} onSuccess={onRefresh} /></TableCell>
+                  <TableCell>Personal Information</TableCell>
+                  <TableCell>{formData?.isPersonalInformation ? 'Enabled' : 'Disabled'}</TableCell>
+                  <TableCell>{getRequestFor(formData?.gdpr_personal_data)}</TableCell>
+                  <TableCell>{getDropValues(CcpaStatus, formData?.gdpr_personal_data?.status)}</TableCell>
+                  <TableCell>{formData?.gdpr_personal_data && <ChangeStatusModel data={formData?.gdpr_personal_data} apiUrl={'app/gdprUpdateData'} onSuccess={onRefresh} />}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </Card>
-        </div>
-      }
+        </>
+      )}
 
-      {formData?.ccpa_share_data &&
-        <div className={classes.marginTop10}>
-          <Typography variant="body1">CCPA Share your data</Typography>
-          <Card>
-            <Table>
-              <TableBody>
-                <TableRow >
-                  <TableCell>Email</TableCell>
-                  <TableCell>{formData?.ccpa_share_data?.email}</TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-                <TableRow >
-                  <TableCell>State</TableCell>
-                  <TableCell>{formData?.ccpa_share_data?.state}</TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-                <TableRow >
-                  <TableCell>Status</TableCell>
-                  <TableCell>{getDropValues(CcpaStatus, formData?.ccpa_share_data?.status)}</TableCell>
-                  <TableCell><ChangeStatusModel data={formData?.ccpa_share_data} apiUrl={'app/ccpaUpdateShareData'} onSuccess={onRefresh} /></TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </Card>
-        </div>
-      }
+      {formData?.country === 'California' && (
+        <>
+          {formData?.ccpa_access_data &&
+            <div className={classes.marginTop10}>
+              <Typography variant="body1">CCPA Access your data</Typography>
+              <Card>
+                <Table>
+                  <TableBody>
+                    <TableRow >
+                      <TableCell>Name</TableCell>
+                      <TableCell>{formData?.ccpa_access_data?.firstName + ' ' + formData?.ccpa_access_data?.lastName}</TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                    <TableRow >
+                      <TableCell>Email</TableCell>
+                      <TableCell>{formData?.ccpa_access_data?.email}</TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                    <TableRow >
+                      <TableCell>State</TableCell>
+                      <TableCell>{formData?.ccpa_access_data?.state}</TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                    <TableRow >
+                      <TableCell>Status</TableCell>
+                      <TableCell>{getDropValues(CcpaStatus, formData?.ccpa_access_data?.status)}</TableCell>
+                      <TableCell><ChangeStatusModel data={formData?.ccpa_access_data} apiUrl={'app/ccpaUpdateAccessData'} onSuccess={onRefresh} /></TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </Card>
+            </div>
+          }
 
-      {formData?.ccpa_delete_data &&
-        <div className={classes.marginTop10}>
-          <Typography variant="body1">CCPA Delete your data</Typography>
-          <Card>
-            <Table>
-              <TableBody>
-                <TableRow >
-                  <TableCell>Name</TableCell>
-                  <TableCell>{formData?.ccpa_delete_data?.firstName + ' ' + formData?.ccpa_delete_data?.lastName}</TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-                <TableRow >
-                  <TableCell>Email</TableCell>
-                  <TableCell>{formData?.ccpa_delete_data?.email}</TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-                <TableRow >
-                  <TableCell>State</TableCell>
-                  <TableCell>{formData?.ccpa_delete_data?.state}</TableCell>
-                  <TableCell></TableCell>
-                </TableRow>
-                <TableRow >
-                  <TableCell>Status</TableCell>
-                  <TableCell>{getDropValues(CcpaStatus, formData?.ccpa_delete_data?.status)}</TableCell>
-                  <TableCell><ChangeStatusModel data={formData?.ccpa_delete_data} apiUrl={'app/ccpaUpdateDeleteData'} onSuccess={onRefresh} /></TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </Card>
+          {formData?.ccpa_share_data &&
+            <div className={classes.marginTop10}>
+              <Typography variant="body1">CCPA Share your data</Typography>
+              <Card>
+                <Table>
+                  <TableBody>
+                    <TableRow >
+                      <TableCell>Email</TableCell>
+                      <TableCell>{formData?.ccpa_share_data?.email}</TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                    <TableRow >
+                      <TableCell>State</TableCell>
+                      <TableCell>{formData?.ccpa_share_data?.state}</TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                    <TableRow >
+                      <TableCell>Status</TableCell>
+                      <TableCell>{getDropValues(CcpaStatus, formData?.ccpa_share_data?.status)}</TableCell>
+                      <TableCell><ChangeStatusModel data={formData?.ccpa_share_data} apiUrl={'app/ccpaUpdateShareData'} onSuccess={onRefresh} /></TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </Card>
+            </div>
+          }
+
+          {formData?.ccpa_delete_data &&
+            <div className={classes.marginTop10}>
+              <Typography variant="body1">CCPA Delete your data</Typography>
+              <Card>
+                <Table>
+                  <TableBody>
+                    <TableRow >
+                      <TableCell>Name</TableCell>
+                      <TableCell>{formData?.ccpa_delete_data?.firstName + ' ' + formData?.ccpa_delete_data?.lastName}</TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                    <TableRow >
+                      <TableCell>Email</TableCell>
+                      <TableCell>{formData?.ccpa_delete_data?.email}</TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                    <TableRow >
+                      <TableCell>State</TableCell>
+                      <TableCell>{formData?.ccpa_delete_data?.state}</TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                    <TableRow >
+                      <TableCell>Status</TableCell>
+                      <TableCell>{getDropValues(CcpaStatus, formData?.ccpa_delete_data?.status)}</TableCell>
+                      <TableCell><ChangeStatusModel data={formData?.ccpa_delete_data} apiUrl={'app/ccpaUpdateDeleteData'} onSuccess={onRefresh} /></TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </Card>
+            </div>
+          }
+        </>
+      )}
+
+      {formData?.country !== 'Europe' && formData?.country !== 'Europe' && (
+        <div className={classes.content}>
+          <Typography variant='h4' align='center'><strong>This is not available for user's Country</strong></Typography>
         </div>
-      }
+      )}
     </div>
   );
 };

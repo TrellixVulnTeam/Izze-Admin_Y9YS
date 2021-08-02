@@ -7,10 +7,10 @@ import AuthLayout from '../pages/Layouts/AuthLayout';
 import HomeLayout from '../pages/Layouts/HomeLayout';
 import RouteMap, { DashboardRoute, EquipmentsRoute, SkinCareIngredientsRoute, NutritionRoute, MealRoute, BlogsRoute, SkinCareRoute, SkinCareRecipeRoute, SkinCarePlanRoute, WorkoutRoute, ExerciseRoute, WorkoutPlanRoute, NutritionIngredientsRoute, AdminUserRoute, AppUsersRoute, MealPlanRoute, MealRecipesRoute, NutritionPlanRoute, AdminViewProfileRoute } from './RoutesConstants';
 
-import BarChartIcon from '@material-ui/icons/BarChart';
-import CalendarTodayIcon from '@material-ui/icons/CalendarToday';
-import ChatIcon from '@material-ui/icons/ChatOutlined';
-import CodeIcon from '@material-ui/icons/Code';
+import BubbleChartIcon from '@material-ui/icons/BubbleChart';
+import EcoIcon from '@material-ui/icons/Eco';
+import FitnessCenterIcon from '@material-ui/icons/FitnessCenter';
+import FastfoodIcon from '@material-ui/icons/Fastfood';
 import DashboardIcon from '@material-ui/icons/DashboardOutlined';
 import ErrorIcon from '@material-ui/icons/ErrorOutline';
 import FolderIcon from '@material-ui/icons/FolderOutlined';
@@ -114,7 +114,7 @@ const AppRoutes = () => {
     menu: {
       title: 'Workout',
       href: WorkoutRoute,
-      icon: BarChartIcon,
+      icon: FitnessCenterIcon,
       children: [
         {
           title: 'Equipments',
@@ -144,7 +144,7 @@ const AppRoutes = () => {
     menu: {
       title: 'Nutrition',
       href: NutritionRoute,
-      icon: BarChartIcon,
+      icon: EcoIcon,
       children: [
         {
           title: 'Ingredients',
@@ -170,7 +170,7 @@ const AppRoutes = () => {
     menu: {
       title: 'Meal Plan',
       href: MealRoute,
-      icon: BarChartIcon,
+      icon: FastfoodIcon,
       children: [
         {
           title: 'Recipe',
@@ -188,7 +188,7 @@ const AppRoutes = () => {
     menu: {
       title: 'Blogs',
       href: BlogsRoute,
-      icon: HomeIcon,
+      icon: BubbleChartIcon,
     },
   }
   const AppUserMenu = {

@@ -19,8 +19,8 @@ const App = () => {
   return (
     <MobxProvider stores={Stores}>
       <ErrorBoundary>
-        <ServiceProvider>
-          <SnackbarProvider>
+        <SnackbarProvider>
+          <ServiceProvider>
             <ThemeProvider theme={theme}>
               <HashRouter>
                 <Suspense fallback={<Loader />}>
@@ -28,8 +28,8 @@ const App = () => {
                 </Suspense>
               </HashRouter>
             </ThemeProvider>
-          </SnackbarProvider>
-        </ServiceProvider>
+          </ServiceProvider>
+        </SnackbarProvider>
       </ErrorBoundary>
     </MobxProvider>
   );

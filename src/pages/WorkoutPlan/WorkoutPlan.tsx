@@ -391,7 +391,7 @@ const AddEditDialog = (props: any) => {
     experience_level: '',
     preferred_workout: '',
     interests: '',
-    workouts: Array(7).fill(null).map((d, i) => ({ day: i + 1, ...workoutInitalValue })),
+    workouts: Array(14).fill(null).map((d, i) => ({ day: i + 1, ...workoutInitalValue })),
   };
 
 

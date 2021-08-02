@@ -34,7 +34,7 @@ import ControlPointIcon from '@material-ui/icons/ControlPoint';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import { Autocomplete, Pagination } from '@material-ui/lab';
-import { FieldArray, Formik } from 'formik';
+import { FieldArray, Formik, getIn } from 'formik';
 import React, { useEffect, useRef, useState } from 'react';
 import * as Yup from 'yup';
 import DialogTitle from '../../components/DialogTitlle/DialogTitle';
@@ -401,7 +401,7 @@ const SkinCareRecipe = () => {
 interface Ingredient {
   id: string;
   quantity: string;
-  // quantity_unit : string;
+  quantity_unit: string;
 }
 
 interface Recpie {
@@ -433,7 +433,7 @@ const AddEditDailog = (props: any) => {
   const ingredient: Ingredient = {
     id: '',
     quantity: '',
-    // quantity_unit : ''
+    quantity_unit: ''
   };
 
   const initialFormValue: Recpie = {
@@ -481,7 +481,7 @@ const AddEditDailog = (props: any) => {
         });
       };
       reader.readAsDataURL(file);
-    } 
+    }
     // else {
     //   formikRef.current.setFieldValue('recipe_image', {
     //     file: null,
@@ -573,9 +573,9 @@ const AddEditDailog = (props: any) => {
     listIngredients();
   }, []);
 
-  const handleOnchangeTextEditor = (getData: any, setFieldValue: any) =>{
+  const handleOnchangeTextEditor = (getData: any, setFieldValue: any) => {
     console.log(getData);
-    setFieldValue('preparation_description',getData)
+    setFieldValue('preparation_description', getData)
   }
 
   return (
@@ -607,8 +607,12 @@ const AddEditDailog = (props: any) => {
           ingredients: Yup.array().of(
             Yup.object().shape({
               id: Yup.string().trim().required('Incredients is Required'),
-              quantity: Yup.number().typeError('Quantity must be in number').required('Quality is required'),
-              // quantity_unit: Yup.string().trim().required('Quantity unit is required'),
+              quantity: Yup.mixed().required('Quality is required').when('quantity_unit', {
+                is: 'None',
+                then: Yup.string(),
+                otherwise: Yup.number().typeError('Quantity must be in number')
+              }),
+              quantity_unit: Yup.string().trim().required('Quantity unit is required'),
             })
           ),
           recipe_image: Yup.object({
@@ -689,16 +693,8 @@ const AddEditDailog = (props: any) => {
                   </FormControl> */}
                       </Grid>
                       {values?.ingredients?.map((incValue: any, i: number) => (
-                        <Grid
-                          key={i}
-                          item
-                          container
-                          md={12}
-                          xs={12}
-                          direction='row'
-                          spacing={2}
-                        >
-                          <Grid key={i} item md={5} xs={5}>
+                        <Grid key={i} item container md={12} xs={12} direction='row' spacing={2}>
+                          <Grid item md={5} xs={5}>
                             <Autocomplete
                               fullWidth
                               options={ingredientList}
@@ -736,39 +732,39 @@ const AddEditDailog = (props: any) => {
                                   inputProps={{
                                     ...params.inputProps,
                                   }}
-                                  
+
                                 />
                               )}
                             />
                           </Grid>
 
-                          <Grid key={i} item md={6} xs={6}>
+                          <Grid item md={6} xs={6}>
                             <TextField
                               fullWidth
                               label='Quantity'
                               name={`ingredients[${i}].quantity`}
                               variant='outlined'
                               error={Boolean(
-                                touched?.ingredients && touched?.ingredients[i]?.quantity && errors?.ingredients && (errors?.ingredients[i] as Ingredient)?.quantity 
-                                // touched?.ingredients && touched?.ingredients[i]?.quantity_unit && errors?.ingredients && (errors?.ingredients[i] as Ingredient)?.quantity_unit
+                                touched?.ingredients && touched?.ingredients[i]?.quantity && errors?.ingredients && (errors?.ingredients[i] as Ingredient)?.quantity ||
+                                touched?.ingredients && touched?.ingredients[i]?.quantity_unit && errors?.ingredients && (errors?.ingredients[i] as Ingredient)?.quantity_unit
                               )}
                               helperText={
-                                touched?.ingredients && touched?.ingredients[i]?.quantity && errors?.ingredients && (errors?.ingredients[i] as Ingredient)?.quantity  
-                                // touched?.ingredients && touched?.ingredients[i]?.quantity_unit && errors?.ingredients && (errors?.ingredients[i] as Ingredient)?.quantity_unit
+                                touched?.ingredients && touched?.ingredients[i]?.quantity && errors?.ingredients && (errors?.ingredients[i] as Ingredient)?.quantity ||
+                                touched?.ingredients && touched?.ingredients[i]?.quantity_unit && errors?.ingredients && (errors?.ingredients[i] as Ingredient)?.quantity_unit
                               }
                               value={incValue.quantity}
                               onChange={handleChange}
                               onBlur={handleBlur}
-                              // InputProps={{
-                              //   classes: {
-                              //     adornedEnd: classes.textareaAdornedEnd
-                              //   },
-                              //   endAdornment: <UnitSelect id='quantity_unit' option={UnitDropdown} name={`ingredients[${i}].quantity_unit`} value={incValue.quantity_unit} onChange={handleChange} onBlur={handleBlur} />
-                              // }}
+                              InputProps={{
+                                classes: {
+                                  adornedEnd: classes.textareaAdornedEnd
+                                },
+                                endAdornment: <UnitSelect id='quantity_unit' option={UnitDropdown} name={`ingredients[${i}].quantity_unit`} value={incValue.quantity_unit} onChange={handleChange} onBlur={handleBlur} />
+                              }}
                             />
                           </Grid>
                           {values?.ingredients?.length > 1 && (
-                            <Grid key={i} item md={1} xs={1}>
+                            <Grid item md={1} xs={1}>
                               <Button
                                 fullWidth
                                 className={classes.deleteButton}
@@ -814,7 +810,7 @@ const AddEditDailog = (props: any) => {
                     )}
                   >
                     <TipTapEditor
-                      name = 'preparation_description'
+                      name='preparation_description'
                       value={values.preparation_description}
                       onChange={(value: any) =>
                         setFieldValue('preparation_description', value)
@@ -967,7 +963,7 @@ export const SkinCareRecipeViewContent = (props: any) => {
           <Grid key={index} item xs={4} md={3}>
             <Avatar className={classes.ingredientsAvatarRoot} src={value?.image?.url} />
             <Typography variant='h6' align='center'>{value?.name}</Typography>
-            <Typography variant='subtitle2' align='center'>{value?.quantity}</Typography>
+            <Typography variant='subtitle2' align='center'>{value?.quantity} {value?.quantity_unit !== 'None' && value?.quantity_unit}</Typography>
           </Grid>
         )}
         {formValue?.ingredients?.length == 0 &&

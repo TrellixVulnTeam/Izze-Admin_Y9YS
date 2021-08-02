@@ -21,7 +21,7 @@ const HomeLayout = (props: any) => {
     if (user) {
       UserStore.setIdToken(user.uid);
       Post('app/login').then((res: any) => {
-        console.log('login Res', res)
+        // console.log('login Res', res)
         UserStore.setUserDetails(res.data);
         // props.onRefresh()
         setLoading(false)
