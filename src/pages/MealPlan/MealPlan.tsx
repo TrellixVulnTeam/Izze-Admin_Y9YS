@@ -21,6 +21,7 @@ import useCalories from '../../hook/useCalories';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import getDropValues, { DietTypeDrop } from '../../utils/PlanDropdowns';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -191,6 +192,7 @@ const MealPlan = () => {
   const [mealPlanList, setMealPlanList] = useState([]);
   const [addEditDialog, setAddEditDialog] = useState({
     isOpen: false,
+    isDuplicate : false,
     title: '',
     okBtnText: '',
     isEdit: false,
@@ -221,6 +223,18 @@ const MealPlan = () => {
       data,
       title: 'Edit Meal Plan',
       okBtnText: 'Edit',
+    }));
+  };
+
+  const openDuplicateDialog = (data: any) => {
+    setAddEditDialog((prevState: any) => ({
+      ...prevState,
+      isDuplicate : true,
+      isOpen: true,
+      isEdit: false,
+      data,
+      title: 'Duplicate Nutrition Plan',
+      okBtnText: 'Duplicate',
     }));
   };
 
@@ -276,7 +290,7 @@ const MealPlan = () => {
   };
 
   const closeAddEditDialog = () => {
-    setAddEditDialog((prevState: any) => ({ ...prevState, isOpen: false }));
+    setAddEditDialog((prevState: any) => ({ ...prevState, isOpen: false, isDuplicate: false }));
   };
 
   const closeViewDialog = () => {
@@ -290,7 +304,7 @@ const MealPlan = () => {
 
   useEffect(() => {
     listMealPlan();
-  }, []);
+  }, [stateData]);
 
   return (
     <div className={classes.root}>
@@ -370,6 +384,14 @@ const MealPlan = () => {
                               <EditIcon color='action' />
                             </IconButton>
                           </Tooltip>
+                          <Tooltip title='Duplicate' arrow>
+                            <IconButton
+                              className={classes.iconPadd}
+                              onClick={() => openDuplicateDialog(data)}
+                            >
+                              <FileCopyIcon color='action' />
+                            </IconButton>
+                          </Tooltip>
                           <Tooltip title='Delete' arrow>
                             <IconButton
                               className={classes.iconPadd}
@@ -410,6 +432,7 @@ export const AddEditModel = (props: any) => {
   const {
     isEdit,
     isOpen,
+    isDuplicate,
     okBtnText = 'OK',
     onClose,
     data,
@@ -432,7 +455,7 @@ export const AddEditModel = (props: any) => {
   const onSubmit = (value: any, helper: any) => {
     helper.setSubmitting(true);
     const postData = { ...value };
-    !isEdit && addData(postData, helper);
+    !isEdit || isDuplicate ? addData(postData, helper) : '';
     isEdit && editData(postData, helper);
   };
 
@@ -487,7 +510,7 @@ export const AddEditModel = (props: any) => {
 
 
   useEffect(() => {
-    if (isEdit) {
+    if (isEdit || isDuplicate) {
       const { _id, ...rest } = data;
       const editData = { ...rest, id: _id };
 

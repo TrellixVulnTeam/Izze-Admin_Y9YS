@@ -112,7 +112,7 @@ const AppRoutes = () => {
       },
     ],
     menu: {
-      title: 'Workout',
+      title: 'Movement',
       href: WorkoutRoute,
       icon: FitnessCenterIcon,
       children: [

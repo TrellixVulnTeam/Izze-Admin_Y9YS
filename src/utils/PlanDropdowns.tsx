@@ -3,6 +3,7 @@ export const DietTypeDrop = [
   { id: 'VEG', name: 'Vegetarian' },
   { id: 'NONVEG', name: 'Non-Vegetarian' },
   { id: 'EGG', name: 'Eggetarian' },
+  { id: 'VEGAN', name: 'Vegan' },
 ];
 
 export const FitnessGoalDrop = [

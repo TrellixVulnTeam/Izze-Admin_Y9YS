@@ -468,7 +468,11 @@ const AddandEditDialogue = (props: any) => {
           onSubmit={onSubmit}
           validationSchema={Yup.object().shape({
             nutrientName: Yup.string().trim().required('Name is required'),
-            quantity: Yup.number().typeError('Quantity must be in number').required('Quality is required'),
+            quantity: Yup.mixed().required('Quality is required').when('quantity_unit', {
+              is: 'None',
+              then: Yup.string(),
+              otherwise: Yup.number().typeError('Quantity must be in number')
+            }),
             protein:Yup.number().typeError('Protein must be in number').required('Protein is required'),
             quantity_unit: Yup.string().trim().required('Quantity unit is required'),
             fat: Yup.number().typeError('Fat must be in number').required('Fat is required'),

@@ -636,7 +636,11 @@ export const AddEditModel = (props: any) => {
             ingredients: Yup.array().of(
               Yup.object().shape({
                 id: Yup.string().trim().required('Ingredients is Required'),
-                quantity: Yup.number().typeError('Quantity must be in number').required('Quantity is Required'),
+                quantity: Yup.mixed().required('Quality is required').when('quantity_unit', {
+                  is: 'None',
+                  then: Yup.string(),
+                  otherwise: Yup.number().typeError('Quantity must be in number')
+                }),
                 quantity_unit: Yup.string().trim().required('Quantity unit is required'),
               })),
             preparation_time: Yup.string().trim().required('Preparation time is required'),

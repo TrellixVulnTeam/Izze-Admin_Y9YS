@@ -10,15 +10,11 @@ interface IntMealTime {
   isEdit: Boolean,
   meal_time: string,
   order: number,
-  meals: IntMeal[],
-}
-
-interface IntIngredients {
-  id: string
+  meals: IntMeal[][],
 }
 
 interface IntMeal {
-  ingredients: IntIngredients[],
+  id: string,
   quantity: string,
   quantity_unit: string,
   protein: string,
@@ -50,7 +46,7 @@ export const NutMealTime: IntMealTime = {
 }
 
 export const NutMeal: IntMeal = {
-  ingredients: [],
+  id: '',
   quantity: '',
   quantity_unit: '',
   protein: '',
@@ -85,18 +81,21 @@ export const validation = Yup.object().shape({
     Yup.object().shape({
       meal_time: Yup.string().trim().required('Name is required'),
       meals: Yup.array().of(
-        Yup.object().shape({
-          ingredients: Yup.array().of(
-            Yup.object().shape({
-              id: Yup.string().trim().required('Before Workout is Required'),
-            })).min(1, 'Ingredients is Required'),
-          quantity: Yup.number().typeError('Quantity must be in number').required('Quantity is required'),
-          quantity_unit: Yup.string().trim().required('Quantity unit is required'),
-          protein: Yup.number().typeError('Protein must be in number').required('Protein is required'),
-          fat: Yup.number().typeError('Fat must be in number').required('Fat is required'),
-          carbs: Yup.number().typeError('Carbs must be in number').required('Carbs is required'),
-          calories: Yup.number().typeError('Calories must be in number').required('Calories is required'),
-        })
+        Yup.array().of(
+          Yup.object().shape({
+            id: Yup.string().trim().required('Ingredients is Required'),
+            quantity: Yup.mixed().required('Quality is required').when('quantity_unit', {
+              is: 'None',
+              then: Yup.string(),
+              otherwise: Yup.number().typeError('Quantity must be in number')
+            }),
+            quantity_unit: Yup.string().trim().required('Quantity unit is required'),
+            protein: Yup.number().typeError('Protein must be in number').required('Protein is required'),
+            fat: Yup.number().typeError('Fat must be in number').required('Fat is required'),
+            carbs: Yup.number().typeError('Carbs must be in number').required('Carbs is required'),
+            calories: Yup.number().typeError('Calories must be in number').required('Calories is required'),
+          })
+        )
       ).min(1, 'Meal is Required')
     })).min(1, 'Field is Required')
 })

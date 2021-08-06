@@ -43,7 +43,9 @@ import useSnackbar from '../../hook/useSnackbar';
 import useService from '../../hook/useService';
 import useConfModel from '../../hook/useConfModel';
 import { SkinCareRecipeViewContent } from '../SkinCareRecipe/SkinCareRecipe';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 import getDropValues, { SkinTypeDrop, CurrentClimateDrop, SkinIrregularDrop, SkinTextureDrop, getSubSkinIrregular, NoOption } from '../../utils/PlanDropdowns';
+import { cloneDeep } from 'lodash';
 
 const useStyles = makeStyles((theme: any) => ({
   root: {
@@ -146,13 +148,16 @@ const SkinCarePlan = () => {
   });
   const [pageCount, setPageCount] = React.useState(0);
   const [tableData, setTableData] = React.useState([]);
+
   const [addEditDialog, setAddEditDialog] = React.useState({
     isOpen: false,
+    isDuplicate : false,
     title: '',
     okBtnText: '',
     isEdit: false,
     data: {},
   });
+
   const [viewDialog, setViewDialog] = useState({
     isOpen: false,
     title: '',
@@ -207,6 +212,18 @@ const SkinCarePlan = () => {
     }));
   };
 
+  const openDuplicateDialog = (data: any) => {
+    setAddEditDialog((prevState: any) => ({
+      ...prevState,
+      isDuplicate : true,
+      isOpen: true,
+      isEdit: false,
+      data,
+      title: 'Duplicate Skincare Plan',
+      okBtnText: 'Duplicate',
+    }));
+  };
+
   const onDelete = (data: any) => {
     const { openModel, setLoading, closeModel } = ConfModel;
     const submitFunction = () => {
@@ -232,12 +249,16 @@ const SkinCarePlan = () => {
   };
 
   const closeAddEditDialog = () => {
-    setAddEditDialog((prevState: any) => ({ ...prevState, isOpen: false }));
+    setAddEditDialog((prevState: any) => ({ ...prevState, isOpen: false, isDuplicate: false }));
   };
 
   const closeViewDialog = () => {
     setViewDialog((prevState: any) => ({ ...prevState, isOpen: false }));
   };
+
+  // const closeDuplicateDialog = () => {
+  //   setViewDialog((prevState: any) => ({ ...prevState, isOpen: false, isDuplicate : false }));
+  // };
 
   const onPageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setStateData((prevState: any) => ({ ...prevState, page_no: value }));
@@ -305,7 +326,7 @@ const SkinCarePlan = () => {
                 {!isLoading &&
                   tableData.map((data: any, index: any) => {
                     return (
-                      <TableRow hover>
+                      <TableRow key={index} hover>
                         <TableCell align='center'>{stateData.page_limit * (stateData.page_no - 1) + index + 1}</TableCell>
                         <TableCell align='center'>{getDropValues(SkinTypeDrop, data?.skin_type)}</TableCell>
                         <TableCell align='center'>{getDropValues(CurrentClimateDrop, data?.current_climate)}</TableCell>
@@ -329,6 +350,14 @@ const SkinCarePlan = () => {
                                 onClick={() => openEditDialog(data)}
                               >
                                 <EditIcon color='action' />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title='Duplicate' arrow>
+                              <IconButton
+                                className={classes.iconPadd}
+                                onClick={() => openDuplicateDialog(data)}
+                              >
+                                <FileCopyIcon color='action' />
                               </IconButton>
                             </Tooltip>
                             <Tooltip title='Delete' arrow>
@@ -391,6 +420,7 @@ interface RecipePlan {
 const AddEditDialog = (props: any) => {
   const {
     isEdit,
+    isDuplicate,
     isOpen,
     okBtnText = 'OK',
     onClose,
@@ -398,6 +428,7 @@ const AddEditDialog = (props: any) => {
     title,
     onSuccess,
   } = props;
+  console.log(isDuplicate)
   const classes = useStyles();
   const { Post } = useService();
   const Snackbar = useSnackbar();
@@ -431,8 +462,9 @@ const AddEditDialog = (props: any) => {
 
   const onSubmit = (value: any, helper: any) => {
     helper.setSubmitting(false);
-    !isEdit && addData(value, helper);
+    !isEdit || isDuplicate ? addData(value, helper) : ''
     isEdit && editData(value, helper);
+
   };
 
   const addData = (data: any, { setSubmitting, resetForm }: any) => {
@@ -468,8 +500,8 @@ const AddEditDialog = (props: any) => {
 
 
   useEffect(() => {
-    if (isEdit) {
-      const { recipes, _id, ...rest } = data;
+    if (isEdit || isDuplicate) {
+      const { recipes, _id, ...rest } = cloneDeep(data);
       const editData = { ...rest, id: _id };
       editData.recipes = recipes.map((data: any) => {
         data.id = data.recipe._id;
@@ -659,7 +691,7 @@ const AddEditDialog = (props: any) => {
                   {values.recipes.map((recData: any, i: any) => {
                     return (
                       <>
-                        <Grid md={1} item xs={2}>
+                        <Grid key={i} md={1} item xs={2}>
                           <Paper
                             elevation={0}
                             component='div'
@@ -809,8 +841,9 @@ const ViewSkincarePlan = (props: any) => {
               orientation="vertical"
               variant="standard"
             >
-              {formValue?.recipes?.map((item: any) =>
+              {formValue?.recipes?.map((item: any, index: number) =>
                 <Tab
+                  key={index}
                   classes={{ root: classes.tabRoot, textColorInherit: classes.tabTextColorInherit }}
                   label={`Day - ${item.day}`}
                   value={item.day.toString()} />

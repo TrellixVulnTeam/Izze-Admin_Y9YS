@@ -12,6 +12,7 @@ import clsx from 'clsx';
 import useService from '../../hook/useService';
 import useSnackbar from '../../hook/useSnackbar';
 import { cloneDeep } from 'lodash';
+import useEuropienCountriesList from '../../hook/useEuropienCountriesList';
 
 const useStyles = makeStyles((theme: any) => ({
   marginTop10: {
@@ -40,7 +41,8 @@ const useStyles = makeStyles((theme: any) => ({
 
 const AppUserCCPA = (props: any) => {
   const classes = useStyles();
-
+  const getCountryList = useEuropienCountriesList();
+  const [isEuropienCountry, setIsEuropienCountry] = useState<any>(0)
   const { data, onRefresh } = props;
   const [formData, setFormData] = useState<any>({});
 
@@ -48,14 +50,21 @@ const AppUserCCPA = (props: any) => {
     switch (data?.gdpr_type_value) {
       case true:
         return 'Enable';
-        break;
       case false:
         return 'Disable';
-        break;
       default:
         return 'No Request';
     }
   }
+
+  const checkEuropiesCountry = () =>{
+    getCountryList.map((items,index)=>{
+      if(items.name === formData?.country){
+        setIsEuropienCountry(1);
+      }
+    })
+  } 
+
   const getRequestStatus = (data: any) => {
     const { status } = data
     switch (status) {
@@ -71,13 +80,12 @@ const AppUserCCPA = (props: any) => {
   }
   useEffect(() => {
     setFormData(data)
-  }, [props]);
-
-  console.log("formData",formData)
+    checkEuropiesCountry()
+  }, [props, formData, isEuropienCountry]);
 
   return (
     <div>
-      {formData?.country === 'Europe' && (
+      {isEuropienCountry === 1 && (
         <>
           <Typography variant="body1">GDPR</Typography>
           <Card>
@@ -119,7 +127,7 @@ const AppUserCCPA = (props: any) => {
         </>
       )}
 
-      {formData?.country === 'California' && (
+      {formData?.state === 'California' && (
         <>
           {formData?.ccpa_access_data &&
             <div className={classes.marginTop10}>
@@ -214,7 +222,7 @@ const AppUserCCPA = (props: any) => {
         </>
       )}
 
-      {formData?.country !== 'Europe' && formData?.country !== 'Europe' && (
+      {isEuropienCountry !== 1 && formData?.state !== 'California' && (
         <div className={classes.content}>
           <Typography variant='h4' align='center'><strong>This is not available for user's Country</strong></Typography>
         </div>

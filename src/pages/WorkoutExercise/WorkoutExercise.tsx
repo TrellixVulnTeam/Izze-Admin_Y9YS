@@ -235,7 +235,7 @@ const WorkoutExercise = () => {
       ...prevState,
       isOpen: true,
       data,
-      title: 'View Workout Exerice',
+      title: 'View Exerice',
     }));
   };
 
@@ -283,7 +283,7 @@ const WorkoutExercise = () => {
       <Grid alignItems='flex-end' container justify='space-between' spacing={3}>
         <Grid item>
           <Typography component='h1' variant='h3'>
-            Workout Exercise
+            Movement Exercise
           </Typography>
         </Grid>
         <Grid item>
@@ -321,9 +321,9 @@ const WorkoutExercise = () => {
               <TableHead>
                 <TableRow>
                   <TableCell align='center'>#</TableCell>
-                  <TableCell align='center'>Workout Image</TableCell>
-                  <TableCell align='center'>Workout Name</TableCell>
-                  <TableCell align='center'>Workout Description</TableCell>
+                  <TableCell align='center'>Exercise Image</TableCell>
+                  <TableCell align='center'>Exercise Name</TableCell>
+                  <TableCell align='center'>Exercise Description</TableCell>
                   <TableCell align='center'>Actions</TableCell>
                 </TableRow>
               </TableHead>

@@ -424,7 +424,7 @@ const initialFormValue = {
   blog_type: '',
   title: '',
   image: { file: null, prevImage: '', isNew: null },
-  // image_thumbnail: { file: null, prevImage: '', isNew: null },
+  image_thumbnail: { file: null, prevImage: '', isNew: null },
 }
 const BlogTypes = [
   { id: 'NUTRITION', name: 'Nutririon' },
@@ -483,12 +483,12 @@ export const AddEditModel = MobxObserver((props: any) => {
     try {
       helper.setSubmitting(true);
       const render = async () => {
-        const { image , ...rest } = value;
+        const { image , image_thumbnail,  ...rest } = value;
         const PostData = rest;
-        const [ImgRes, ImgTumpRes] = await Promise.all([uploadNewImage(image)])
+        const [ImgRes, ImgTumpRes] = await Promise.all([uploadNewImage(image), uploadNewImage(image_thumbnail)])
 
         PostData.image = ImgRes
-        // PostData.image_thumbnail = ImgTumpRes;
+        PostData.image_thumbnail = ImgTumpRes;
 
         !isEdit && addData(PostData, helper);
         isEdit && editData(PostData, helper);
@@ -555,10 +555,10 @@ export const AddEditModel = MobxObserver((props: any) => {
 
   useEffect(() => {
     if (isEdit) {
-      const { image, _id, ...rest } = data;
+      const { image, image_thumbnail, _id, ...rest } = data;
       const EditData = { ...rest, id: _id };
       EditData.image = { file: image, prevImage: image.url, isNew: false };
-      // EditData.image_thumbnail = { file: image_thumbnail, prevImage: image_thumbnail.url, isNew: false };
+      EditData.image_thumbnail = { file: image_thumbnail, prevImage: image_thumbnail.url, isNew: false };
       setInitialValue(EditData);
     } else {
       initialFormValue.blog_type = DisableUserType ? user_type : ''
@@ -588,7 +588,7 @@ export const AddEditModel = MobxObserver((props: any) => {
           blog_type: Yup.string().trim().required('Blog Type is required'),
           title: Yup.string().trim().required('Blog Title is required'),
           image: Yup.object({ file: Yup.mixed().required('A file is required') }),
-          // image_thumbnail: Yup.object({ file: Yup.mixed().required('A file is required') }),
+          image_thumbnail: Yup.object({ file: Yup.mixed().required('A file is required') }),
         })}
       >
         {({ values, errors, touched, handleBlur, handleChange, setFieldValue, submitForm, setFieldTouched, isSubmitting, }) => (
@@ -654,7 +654,7 @@ export const AddEditModel = MobxObserver((props: any) => {
                   </FormControl>
                 </Grid>
 
-                <Grid item md={12} xs={12}>
+                <Grid item md={6} xs={12}>
                   <input
                     name='image'
                     ref={imageRef}
@@ -686,7 +686,7 @@ export const AddEditModel = MobxObserver((props: any) => {
                   </FormControl>
                 </Grid>
 
-                {/* <Grid item md={6} xs={12}>
+                <Grid item md={6} xs={12}>
                   <input
                     name='image_thumbnail'
                     ref={imageThumbnailRef}
@@ -713,9 +713,9 @@ export const AddEditModel = MobxObserver((props: any) => {
                       {touched?.image_thumbnail?.file && errors?.image_thumbnail?.file}
                     </FormHelperText>
                   </FormControl>
-                </Grid> */}
+                </Grid>
 
-                <Grid item md={12} xs={12}>
+                <Grid item md={6} xs={12}>
                   {values.image?.prevImage && (
                     <img
                       className={classes.imageView}
@@ -724,14 +724,14 @@ export const AddEditModel = MobxObserver((props: any) => {
                   )}
                 </Grid>
 
-                {/* <Grid item md={6} xs={12}>
+                <Grid item md={6} xs={12}>
                   {values.image_thumbnail?.prevImage && (
                     <img
                       className={classes.imageView}
                       src={values.image_thumbnail?.prevImage}
                     />
                   )}
-                </Grid> */}
+                </Grid>
               </Grid>
             </DialogContent>
             <DialogActions>

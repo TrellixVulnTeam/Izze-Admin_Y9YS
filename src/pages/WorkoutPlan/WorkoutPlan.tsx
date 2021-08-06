@@ -20,6 +20,7 @@ import useService from '../../hook/useService';
 import useSnackbar from '../../hook/useSnackbar';
 import { cloneDeep } from 'lodash';
 import getDropValues, { ExperienceDrop, InterestsDrop, PreferredDrop } from '../../utils/PlanDropdowns';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 
 
 const useStyles = makeStyles((theme: any) => ({
@@ -125,6 +126,7 @@ const WorkoutPlan = () => {
   const [tableData, setTableData] = React.useState([]);
   const [addEditDialog, setAddEditDialog] = React.useState({
     isOpen: false,
+    isDuplicate : false,
     title: '',
     okBtnText: '',
     isEdit: false,
@@ -158,7 +160,7 @@ const WorkoutPlan = () => {
     setAddEditDialog((prevState: any) => ({
       ...prevState,
       isOpen: true,
-      title: 'Add Workout Plan',
+      title: 'Add Movement Plan',
       isEdit: false,
       okBtnText: 'Save',
     }));
@@ -170,8 +172,20 @@ const WorkoutPlan = () => {
       isOpen: true,
       isEdit: true,
       data,
-      title: 'Edit Workout Plan',
+      title: 'Edit Movement Plan',
       okBtnText: 'Edit',
+    }));
+  };
+
+  const openDuplicateDialog = (data: any) => {
+    setAddEditDialog((prevState: any) => ({
+      ...prevState,
+      isDuplicate : true,
+      isOpen: true,
+      isEdit: false,
+      data,
+      title: 'Duplicate Movement Plan',
+      okBtnText: 'Duplicate',
     }));
   };
 
@@ -180,7 +194,7 @@ const WorkoutPlan = () => {
       ...prevState,
       isOpen: true,
       data,
-      title: 'View Workout Plan',
+      title: 'View Movement Plan',
     }));
   };
 
@@ -209,7 +223,7 @@ const WorkoutPlan = () => {
   };
 
   const closeAddEditDialog = () => {
-    setAddEditDialog((prevState: any) => ({ ...prevState, isOpen: false }));
+    setAddEditDialog((prevState: any) => ({ ...prevState, isOpen: false, isDuplicate : false, }));
   };
 
   const closeViewDialog = () => {
@@ -232,7 +246,7 @@ const WorkoutPlan = () => {
       <Grid alignItems='flex-end' container justify='space-between' spacing={3}>
         <Grid item>
           <Typography component='h1' variant='h3'>
-            Workout Plan
+            Movement Plan
           </Typography>
         </Grid>
         <Grid item>
@@ -271,7 +285,7 @@ const WorkoutPlan = () => {
                 <TableRow>
                   <TableCell align='center'>#</TableCell>
                   <TableCell align='center'>Experience Level</TableCell>
-                  <TableCell align='center'>Preferred Workout</TableCell>
+                  <TableCell align='center'>Preferred Exercise</TableCell>
                   <TableCell align='center'>Interests</TableCell>
                   <TableCell align='center'>Actions</TableCell>
                 </TableRow>
@@ -301,6 +315,14 @@ const WorkoutPlan = () => {
                                 onClick={() => openEditDialog(data)}
                               >
                                 <EditIcon color='action' />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title='Duplicate' arrow>
+                              <IconButton
+                                className={classes.iconPadd}
+                                onClick={() => openDuplicateDialog(data)}
+                              >
+                                <FileCopyIcon color='action' />
                               </IconButton>
                             </Tooltip>
                             <Tooltip title='Delete' arrow>
@@ -369,6 +391,7 @@ const AddEditDialog = (props: any) => {
   const {
     isEdit,
     isOpen,
+    isDuplicate,
     okBtnText = 'OK',
     onClose,
     data,
@@ -415,7 +438,7 @@ const AddEditDialog = (props: any) => {
 
   const onSubmit = (value: any, helper: any) => {
     helper.setSubmitting(true);
-    !isEdit && addData(value, helper);
+    !isEdit || isDuplicate ? addData(value, helper) : ''
     isEdit && editData(value, helper);
   };
 
@@ -450,7 +473,7 @@ const AddEditDialog = (props: any) => {
   };
 
   useEffect(() => {
-    if (isEdit) {
+    if (isEdit || isDuplicate) {
       const { workouts, _id, ...rest } = cloneDeep(data);
       const editData = { ...rest, id: _id };
       const CurrentWorkoutIds = workoutList.map(({ _id }: any) => _id)
