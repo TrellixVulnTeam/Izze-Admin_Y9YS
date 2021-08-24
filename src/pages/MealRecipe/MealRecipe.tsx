@@ -31,6 +31,7 @@ import { useEffect } from 'react';
 import UnitSelect from '../../components/UnitSelect/UnitSelect';
 import UnitDropdown from '../../utils/MetricUnits';
 import { uploadNewImage } from '../../utils/CloudinaryUtils';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 
 
 
@@ -143,6 +144,7 @@ function MealRecipe() {
   const Snackbar = useSnackbar();
   const [addEditDialog, setAddEditDialog] = React.useState({
     isOpen: false,
+    isDuplicate : false,
     title: '',
     okBtnText: '',
     isEdit: false,
@@ -161,6 +163,18 @@ function MealRecipe() {
       title: 'Add Meal Recipe',
       isEdit: false,
       okBtnText: 'Save',
+    }));
+  };
+
+  const openDuplicateDialog = (data: any) => {
+    setAddEditDialog((prevState: any) => ({
+      ...prevState,
+      isDuplicate : true,
+      isOpen: true,
+      isEdit: false,
+      data,
+      title: 'Duplicate Meal Recipe',
+      okBtnText: 'Duplicate',
     }));
   };
 
@@ -226,7 +240,7 @@ function MealRecipe() {
   };
 
   const closeAddEditDialog = () => {
-    setAddEditDialog((prevState: any) => ({ ...prevState, isOpen: false }));
+    setAddEditDialog((prevState: any) => ({ ...prevState, isOpen: false, isDuplicate: false }));
   };
 
   const closeViewDialog = () => {
@@ -327,6 +341,14 @@ function MealRecipe() {
                               <EditIcon color='action' />
                             </IconButton>
                           </Tooltip>
+                          <Tooltip title='Duplicate' arrow>
+                            <IconButton
+                              className={classes.iconPadd}
+                              onClick={() => openDuplicateDialog(data)}
+                            >
+                              <FileCopyIcon color='action' />
+                            </IconButton>
+                          </Tooltip>
                           <Tooltip title='Delete' arrow>
                             <IconButton
                               className={classes.iconPadd}
@@ -423,7 +445,7 @@ const initialFormValues: MealPlan = {
 }
 
 export const AddEditModel = (props: any) => {
-  const { isEdit, isOpen, okBtnText = 'OK', onClose, data, title, onSuccess } = props;
+  const { isEdit, isOpen, okBtnText = 'OK', onClose, data, title, onSuccess, isDuplicate } = props;
   const classes = useStyles()
   const [initialValues, setInitialValues] = React.useState({ ...initialFormValues });
   const formikRef = React.useRef<any>(null);
@@ -470,8 +492,10 @@ export const AddEditModel = (props: any) => {
         postData.terms = TermImageResponse;
         postData.image = imageResponse
 
-          !isEdit && addData(postData, helper);
-          isEdit && editData(postData, helper);
+        !isEdit || isDuplicate ? addData(postData, helper) : '';
+        isEdit && editData(postData, helper);
+
+        console.log(isDuplicate)
 
         // const TermPromiseArray = terms.map(async (termData: any) => {
         //   let { image, ...rest } = termData
@@ -572,8 +596,7 @@ export const AddEditModel = (props: any) => {
   }, [])
 
   React.useEffect(() => {
-    if (isEdit) {
-      console.log(data)
+    if (isEdit || isDuplicate) {
       const { terms, image, _id, ingredients, ...rest } = data;
       const editData = { ...rest, id: _id };
       const RecipeIds = ingredientsList.map(({ _id }: any) => _id)
@@ -592,7 +615,7 @@ export const AddEditModel = (props: any) => {
     else {
       setInitialValues(initialFormValues)
     }
-  }, [props])
+  }, [props]);
 
   return (
     <>
